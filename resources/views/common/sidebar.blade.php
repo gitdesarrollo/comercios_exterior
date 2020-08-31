@@ -1,6 +1,8 @@
 <nav class="sidebar-nav">
-    <ul class="nav">
-        {{-- <li class="nav-title"></li> --}}
+    <ul class="nav sidebar-mineco sidebar sidebar-dark navbar-nav accordion"> 
+    <hr class="sidebar-divider">
+        <div class="sidebar-heading">MÓDULOS </div>
+        
         <!-- <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#">
                 <i class="nav-icon fas fa-book-open"></i> Catálogo</a>

@@ -47,11 +47,12 @@ class LoginController extends Controller
     }
 
     protected function login(Request $request){
-
+        
+        
         $this->validateLogin($request);
+        // dd($request);
         // $user = User::where('email',$request->email)->first();
         $user = User::where('username',$request->email)->orWhere('email',$request->email)->first();
-//         dd($user);
         if($user){
             $PassIn = $request->password;
             $hashedPassIn = hash('sha256', $PassIn, false);
@@ -74,8 +75,7 @@ class LoginController extends Controller
     {
         $request->validate([
             $this->username() => 'required|string',
-            'password' => 'required|string',
-            recaptchaFieldName() => recaptchaRuleName()
+            'password' => 'required|string'
         ]);
     }
 

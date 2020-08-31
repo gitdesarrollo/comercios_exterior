@@ -21,6 +21,7 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('css/all.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:700,900|Open+Sans|Open+Sans+Condensed:700" rel="stylesheet" crossorigin="anonymous">
 </head>
@@ -32,7 +33,7 @@
             @include('common.sidebar')
             <button class="sidebar-minimizer brand-minimizer" type="button"></button>
         </div>
-        <main class="py-4 main" id="app">
+        <main class=" pl-4 main" id="app">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">@yield('breadcrumb')</li>
             </ol>

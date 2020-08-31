@@ -15,7 +15,7 @@ class AddUserAdminUnidad extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('admin')->after('password');
-            $table->string('id_unidad')->after('admin');
+            
         });
     }
 
