@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         //     documento_respaldos::class,
         //     secuencia_fac::class
         // );
+        $this->call(dependencia::class);
         $this->call(UserSeeder::class);
         // $this->call(EntidadSeeder::class);
         // $this->call(UnidadSeeder::class);
@@ -35,7 +36,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(documento_respaldos::class);
         // $this->call(secuencia_fac::class);
         // $this->call(cuentas::class);
-        // $this->call(dependencia::class);
         // $this->call(PersonDataSeeder::class);
 
         // $this->call(bienes::class);

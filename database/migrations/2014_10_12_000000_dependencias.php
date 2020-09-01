@@ -14,7 +14,7 @@ class Dependencias extends Migration
     public function up()
     {
         Schema::create('dependencias', function (Blueprint $table) {
-            $table->integer('id_dependencia')->primary()->unsigned();
+            $table->bigIncrements('id_dependencia');
             $table->string('descripcion');
             $table->timestamps();       
         });

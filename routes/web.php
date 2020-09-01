@@ -100,3 +100,19 @@ Route::get('roles','catalogo@showroles');
 Route::post('setRoles','catalogo@setRoles');
 
   /************** */
+
+
+
+  /********** COMERCIO EXTERIOR **************** */
+
+  //Administrador
+  //Crear
+  Route::get('DocumentCreate','documentos@showCreate')->name('showCreate');
+  Route::post('setDocumentos', 'documentos@createDocumento')->name('setDocumentos');
+  Route::get('showReceptores','documentos@showReceptores')->name('showReceptores');
+  Route::get('getReceptores','documentos@getReceptores')->name('getReceptores');
+  Route::post('setReceptores','documentos@setReceptores')->name('setReceptores');
+  Route::put('updateReceptor','documentos@updateReceptor')->name('updateReceptor');
+
+
+  /********************************************* */

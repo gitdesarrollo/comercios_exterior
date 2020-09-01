@@ -25,24 +25,24 @@
     <link rel="stylesheet" href="{{ asset('css/all.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:700,900|Open+Sans|Open+Sans+Condensed:700" rel="stylesheet" crossorigin="anonymous">
 </head>
-<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
-    @include('common.header')
-    <div class="app-body"  >
-        
-        <div class="sidebar">
-            @include('common.sidebar')
-            <button class="sidebar-minimizer brand-minimizer" type="button"></button>
-        </div>
-        <main class=" pl-4 main" id="app">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">@yield('breadcrumb')</li>
-            </ol>
-            <div class="container-fluid">
-                <div id="ui-view"></div>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show" >
+    <main id="app">
+        @include('common.header')
+            <div class="app-body"  >
+                <div class="sidebar">
+                    @include('common.sidebar')
+                    <button class="sidebar-minimizer brand-minimizer" type="button"></button>
+                </div>
+                <div class=" pl-4 main" >
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">@yield('breadcrumb')</li>
+                    </ol>
+                    <div class="container-fluid">
+                        <div id="ui-view"></div>
+                    </div>
+                    @yield('content')
+                </div>
             </div>
-            @yield('content')
-        </main>
-    </div>
-    {{--  <script src="{{ asset('js/app.js')}}"></script>  --}}
+    </main>
 </body>
 </html>

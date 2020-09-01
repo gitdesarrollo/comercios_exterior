@@ -48,6 +48,14 @@ Vue.component('usuario-component', require('./components/admin/usuarios.vue').de
 Vue.component('visualizar-component', require('./components/admin/visualizar.vue').default);
 Vue.component('roles-component', require('./components/admin/roles.vue').default);
 
+
+
+/* comercio exterior */
+Vue.component('cabecera-component', require('./components/cabecera/cabecera_header.vue').default);
+Vue.component('documento-component', require('./components/administrativo/createDocument.vue').default);
+Vue.component('receptor-component', require('./components/administrativo/createReceptores.vue').default);
+/* ******************** */
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

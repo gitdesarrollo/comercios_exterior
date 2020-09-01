@@ -62,3 +62,8 @@
 .sidebar-mineco {
     background-color: #002A49;
   }
+
+.header-top{
+    margin-top:-12px;
+    width: 100%;
+}

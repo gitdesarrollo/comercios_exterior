@@ -18,7 +18,8 @@ class UserSeeder extends Seeder
             'username' => 'admin',
             'email' => 'admin@correo.com',
             'password' => $hashedPassIn,
-            'admin' => 1
+            'admin' => 1,
+            'id_unidad' => '1'
         ]); 
     }
 
