@@ -1,4 +1,7 @@
 <header class="app-header navbar">
+    <button class="navbar-toggler sidebar-toggler d-lg-none mr-auto" type="button" data-toggle="sidebar-show">
+        <span class="navbar-toggler-icon"></span>
+    </button>
     <a class="navbar-brand" href="./">
         <img
           class="navbar-brand-full"
@@ -19,51 +22,9 @@
         <span class=" navbar-toggler-icon"></span>
       </button>
           <ul class="nav navbar-nav ml-auto mr-3">
-        <li class="nav-item dropdown no-arrow mx-1">
-            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
-                <span class="badge badge-danger badge-counter">0</span>
-            </a>
-            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">ALERTAS</h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                    <div class="mr-3">
-                        <div class="icon-circle bg-warning">
-                            <i class="fas fa-exclamation-triangle text-white"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="small text-gray-500"><span>now()</span></div>
-                        Sin alertas
-                    </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Mostrar todas las alertas</a>
-            </div>
-        </li>
-        <li class="nav-item dropdown no-arrow mx-1">
-            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-envelope fa-fw"></i>
-                <span class="badge badge-danger badge-counter">0</span>
-            </a>
-            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="messagesDropdown">
-                <h6 class="dropdown-header">Mensajes</h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                    <div class="dropdown-list-image mr-3">
-                        <img class="rounded-circle" src="img/undraw_posting_photo.svg" alt="">
-                        <div class="status-indicator bg-success"></div>
-                    </div>
-                    <div class="font-weight-bold">
-                        <div class="text-truncate">Sistema</div>
-                        <div class="small text-gray-500">No tienes ningún mensaje</div>
-                    </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Leer todos los mensajes</a>
-            </div>
-        </li>
+              <mensaje-component ></mensaje-component> 
+
+
         <div class="topbar-divider d-none d-sm-block"></div>
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"

@@ -67,3 +67,13 @@
     margin-top:-12px;
     width: 100%;
 }
+
+.sidebar .nav-dropdown.open{
+    background: none !important;
+}
+
+@media (min-width: 768px){
+    .sidebar .nav-item .nav-link{
+        width: 13rem !important;
+    }
+}

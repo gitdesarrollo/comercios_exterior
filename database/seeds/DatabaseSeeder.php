@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         //     secuencia_fac::class
         // );
         $this->call(dependencia::class);
+        $this->call(roles::class);
         $this->call(UserSeeder::class);
         // $this->call(EntidadSeeder::class);
         // $this->call(UnidadSeeder::class);

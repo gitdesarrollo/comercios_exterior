@@ -16,7 +16,10 @@ class CreateReceptorsTable extends Migration
         Schema::create('receptors', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('descripcion');
+            $table->bigInteger('idDepartamento')->unsigned();
             $table->timestamps();
+
+            $table->foreign('idDepartamento')->references('id_dependencia')->on('dependencias');
         });
     }
 

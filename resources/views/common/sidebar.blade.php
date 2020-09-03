@@ -16,23 +16,27 @@
         
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#">
-                <i class="nav-icon fas fa-address-book"></i> Administrativo </a>
+                 Administrativo </a>
             <ul class="nav-dropdown-items">
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./DocumentCreate">
-                        <i class="nav-icon fas fa-edit"></i> Crear</a>
+                        <i class="nav-icon fas fa-plus"></i> Crear</a>
                 </li>
                 <li class="nav-item ml-3">
-                   <a class="nav-link" href="./inventarioFisico">
-                       <i class="nav-icon fas fa-dolly-flatbed"></i> Recibir</a>
-               </li>                
+                    <a class="nav-link" href="./showDocument">
+                        <i class="nav-icon fas fa-folder-open"></i> Documentos</a>
+                </li>
                 <li class="nav-item ml-3">
+                   <a class="nav-link" href="./recibido">
+                       <i class="nav-icon fas fa-arrow-down"></i> Recibir</a>
+               </li>                
+                <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./List">
                         <i class="nav-icon fas fa-file-invoice"></i> Trasladar</a>
-                </li>
+                </li> -->
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./search">
-                        <i class="nav-icon fas fa-ticket-alt"></i> Buzon</a>
+                        <i class="nav-icon fas fa-envelope"></i> Buzon</a>
                 </li>                
                 <!--<li class="nav-item ml-3">
                     <a class="nav-link" href="./Reporteinventario">
@@ -70,7 +74,7 @@
         @if (Auth()->user()->admin == 1)
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#">
-                <i class="nav-icon fas fa-cogs"></i> Herramientas</a>
+                 Herramientas</a>
             <ul class="nav-dropdown-items">
                 <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./showEntidad">
@@ -78,19 +82,19 @@
                 </li> -->
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./showunidades">
-                        <i class="nav-icon fas fa-file-invoice"></i> Direcciones</a>
+                        <i class="nav-icon fas fa-address-book"></i> Direcciones</a>
                 </li>
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./roles">
-                        <i class="nav-icon fas fa-file-invoice"></i> Roles</a>
+                        <i class="nav-icon fas fa-universal-access"></i> Roles</a>
                 </li>
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./showUsuarios">
-                        <i class="nav-icon fas fa-ticket-alt"></i> Usuarios</a>
+                        <i class="nav-icon fas fa-users"></i> Usuarios</a>
                 </li>                
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./showReceptores">
-                        <i class="nav-icon fas fa-ticket-alt"></i> Receptores</a>
+                        <i class="nav-icon fas fa-user-plus"></i> Receptores</a>
                 </li>                
                 <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./visualizar">

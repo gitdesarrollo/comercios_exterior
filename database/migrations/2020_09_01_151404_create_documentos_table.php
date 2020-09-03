@@ -18,6 +18,7 @@ class CreateDocumentosTable extends Migration
             $table->string('dirigido');
             $table->bigInteger('id_dependencia')->unsigned();
             $table->string('descripcion',2000);
+            $table->string('direccion',1000);
             $table->string('correlativo_documento');
             $table->timestamps();
             

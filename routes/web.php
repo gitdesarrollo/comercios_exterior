@@ -113,6 +113,15 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getReceptores','documentos@getReceptores')->name('getReceptores');
   Route::post('setReceptores','documentos@setReceptores')->name('setReceptores');
   Route::put('updateReceptor','documentos@updateReceptor')->name('updateReceptor');
+  Route::get('showDocument','documentos@showDocument')->name('showDocument');
+  Route::get('lista','documentos@listDocument')->name('lista');
+  Route::get('showTraslados','documentos@showTraslados')->name('showTraslados'); 
+  Route::put('Trasladar','documentos@documentTransfer')->name('Trasladar');
+  Route::get('getMessage','documentos@getRecepcion')->name('getMessage');
+  Route::get('getRecepcionMessage','documentos@getRecepcionMessage')->name('getRecepcionMessage');
+  Route::get('recibido','documentos@showRecibido')->name('recibido');
+  Route::put('Aceptar','documentos@toAccept')->name('Aceptar');  
+  Route::post('filterReceptores','documentos@getReceptoresbyId')->name('filterDocumentos');
 
 
   /********************************************* */

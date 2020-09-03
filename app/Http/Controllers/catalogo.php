@@ -64,7 +64,7 @@ class catalogo extends Controller
         return response()->json($date,200);
     }
 
-    public function getRoles(){
+    public function getRoles(){ 
         $rol = roles_user::all();
         return response()->json($rol,200);
     }

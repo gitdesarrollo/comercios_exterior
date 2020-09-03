@@ -54,6 +54,9 @@ Vue.component('roles-component', require('./components/admin/roles.vue').default
 Vue.component('cabecera-component', require('./components/cabecera/cabecera_header.vue').default);
 Vue.component('documento-component', require('./components/administrativo/createDocument.vue').default);
 Vue.component('receptor-component', require('./components/administrativo/createReceptores.vue').default);
+Vue.component('listado-component', require('./components/administrativo/listadoDocument.vue').default);
+Vue.component('mensaje-component', require('./components/cabecera/alertas.vue').default);
+Vue.component('recibos-component', require('./components/administrativo/listadoRecibido.vue').default);
 /* ******************** */
 
 /**

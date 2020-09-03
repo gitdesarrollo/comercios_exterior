@@ -27,7 +27,7 @@
               <el-row :gutter="10" class="mt-2">
                 <el-col :xs="25" :sm="7" :md="8" :lg="20" :xl="9">
                     <el-form-item prop="copia_unidad">
-                        <el-select v-model="form.copia_unidad" multiple  class="select_width" clearable filterable placeholder="Seleccione Copias">
+                        <el-select v-model="form.copia_unidad" multiple  class="select_width" clearable filterable placeholder="Seleccione Copias" @change="receptores" @remove-tag="removeReceptor" @clear="removeReceptor">
                             <el-option
                                 v-for="item in list_response.list_dependencia"
                                 :key="item.id_dependencia"
@@ -43,9 +43,9 @@
                         <el-select v-model="form.receptor_copia" multiple class="select_width" clearable filterable placeholder="Seleccione Receptor">
                             <el-option
                                 v-for="item in list_response.list_receptor"
-                                :key="item.id"
+                                :key="item.code"
                                 :label="item.descripcion"
-                                :value="item.id"
+                                :value="item.code"
                                 >
                             </el-option>
                         </el-select>
@@ -64,7 +64,7 @@
               <el-row :gutter="20" class="mt-2">
                 <el-col :xs="25" :sm="24" :md="24" :lg="20" :xl="24">
                     <el-form-item prop="cuerpo">
-                        <el-input type="textarea" v-model="form.cuerpo" :rows="15" placeholder="Cuerpo del documento">
+                        <el-input type="textarea" maxlength="2000" show-word-limit v-model="form.cuerpo" :rows="15" placeholder="Cuerpo del documento">
                         </el-input>
                     </el-form-item>
                 </el-col>
@@ -99,6 +99,7 @@ export default {
                 dependencias: "dependencias",
                 setDocumentos: "setDocumentos",
                 getReceptor: 'getReceptores',
+                filter: 'filterReceptores',
             },
             list_response: {
                 list_dependencia:[],
@@ -132,21 +133,33 @@ export default {
     },
     mounted() {
         this.getDependencia();
-        this.getReceptor();
+        // this.getReceptor();
     },
     methods: {
+        receptores(dato){
+            axios.post(this.url_data.filter,{
+                direcciones: dato
+            }).then(response => {
+                // console.log(response.data);
+                this.list_response.list_receptor = response.data;
+            })
+        },
+        removeReceptor(dato){
+            console.log(dato);
+            this.form.receptor_copia = "";
+        },
         getDependencia() {
             axios.get(this.url_data.dependencias)
             .then(response => {
                 this.list_response.list_dependencia = response.data;
             })
         },
-        getReceptor() {
-            axios.get(this.url_data.getReceptor)
-            .then(response => {
-                this.list_response.list_receptor = response.data;
-            })
-        },
+        // getReceptor() {
+        //     axios.get(this.url_data.getReceptor)
+        //     .then(response => {
+        //         this.list_response.list_receptor = response.data;
+        //     })
+        // },
         onSubmit(form){
             const h = this.$createElement;
             this.$refs[form].validate(valid => {
@@ -154,7 +167,7 @@ export default {
                     this.fullscreenLoading = true;
                     axios.post(this.url_data.setDocumentos,{
                         dirigido: this.form.dirigido,
-                        destinatario: this.form.destinatario,
+                        destinatario: this.form.direccion,
                         copia: this.form.copia_unidad,
                         receptor: this.form.receptor_copia,
                         correlativo: this.form.correlativo,
@@ -163,7 +176,7 @@ export default {
                     }).then(response => {
                         const status = JSON.parse(response.status);
                         if(status == "200"){
-                        console.log(status);
+                        // console.log(status);
                             if(response.data){
                                 this.$message({
                                     message: h("p", null, [
