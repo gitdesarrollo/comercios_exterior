@@ -10,11 +10,12 @@
         <el-table-column label="Dirigido" prop="dirigido"></el-table-column>
         <el-table-column label="Correlativo" prop="correlativo_documento"></el-table-column>
         <el-table-column label="Direccón" width="500" prop="direccion"></el-table-column>
-        <el-table-column label="Operaciones" width="150">
+        <el-table-column label="Operaciones" width="200">
           <template slot-scope="scope" class="pl-3">
             <el-button
-              v-if="Accept == 0"
+              v-if="Accept == scope.row.estado"
               type="danger"
+              size="mini"
               icon="el-icon-check"
               plain
               @click="toAccepts(scope.row.code)"
@@ -22,13 +23,22 @@
             <el-button
               v-else
               type="danger"
+              size="mini"
               icon="el-icon-download"
               plain
-              @click="handleEdit(scope.row.id,scope.row.username)"
+              @click="downloadD(scope.row.id,scope.row.username)"
             ></el-button>
             <el-button
               type="primary"
-              icon="el-icon-right"
+              size="mini"
+              icon="el-icon-refresh-left"
+              plain
+              @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
+            ></el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              icon="el-icon-s-check"
               plain
               @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
             ></el-button>
@@ -119,7 +129,7 @@ export default {
           },
         ],
       },
-      Accept:1
+      Accept:'I'
     };
   },
   mounted() {
@@ -178,14 +188,15 @@ export default {
         console.log(response.data)
         const status =JSON.parse(response.status);
         if(status == "200"){ 
-          this,$message({
+          this.$message({
             message: h("p",null, [
               h("i", { style: "color: teal"}, "Operación exitosa")
             ]),
             type: "success"
           });
+          this.Accept = 1
         }
-        console.log(response.data); 
+        console.log(response.data);
       })
     }
   },

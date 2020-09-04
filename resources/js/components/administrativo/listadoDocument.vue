@@ -7,20 +7,32 @@
         style="width:100%"
       >
         <el-table-column label="No." type="index"></el-table-column>
-        <el-table-column label="Dirigido" prop="dirigido"></el-table-column>
-        <el-table-column label="Correlativo" prop="correlativo"></el-table-column>
-        <el-table-column label="Direccón" width="500" prop="descripcion"></el-table-column>
-        <el-table-column label="Operaciones" width="150">
+        <el-table-column label="Dirigido" width="300" prop="dirigido"></el-table-column>
+        <el-table-column label="Correlativo" width="150" prop="correlativo"></el-table-column>
+        <el-table-column label="Direccón"  prop="descripcion"></el-table-column>
+        <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
+        <el-table-column label="Operaciones" width="180">
           <template slot-scope="scope" class="pl-3">
             <el-button
               type="danger"
+              size="mini"
               icon="el-icon-download"
               plain
-              @click="handleEdit(scope.row.id,scope.row.username)"
+              @click="handleEdit(scope.row.id,scope.row.username)" 
             ></el-button>
+             <!-- v-if="trasladarBtn === scope.row.estado" -->
             <el-button
+              size="mini"
+             
               type="primary"
               icon="el-icon-right"
+              plain
+              @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
+            ></el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              icon="el-icon-s-check"
               plain
               @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
             ></el-button>
@@ -97,6 +109,7 @@ export default {
       dialogo: false,
       idDocumento:0,
       depActual:0,
+      trasladarBtn: "Sin Enviar",
       form: {
         departamentoId: "",
       },

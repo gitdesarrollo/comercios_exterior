@@ -122,6 +122,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('recibido','documentos@showRecibido')->name('recibido');
   Route::put('Aceptar','documentos@toAccept')->name('Aceptar');  
   Route::post('filterReceptores','documentos@getReceptoresbyId')->name('filterDocumentos');
+  Route::post('retornar','documentos@retornar')->name('retornar');
+  Route::get('traslados','documentos@listDocumentTransfert')->name('traslados');
 
 
   /********************************************* */

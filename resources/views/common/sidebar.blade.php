@@ -22,18 +22,22 @@
                     <a class="nav-link" href="./DocumentCreate">
                         <i class="nav-icon fas fa-plus"></i> Crear</a>
                 </li>
+                <!-- <li class="nav-item ml-3">
+                    <a class="nav-link" href="./">
+                        <i class="nav-icon fas fa-folder-open"></i> Documentos</a>
+                </li> -->
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./showDocument">
                         <i class="nav-icon fas fa-folder-open"></i> Documentos</a>
                 </li>
                 <li class="nav-item ml-3">
+                    <a class="nav-link" href="./showTraslados">
+                        <i class="nav-icon fas fa-file-invoice"></i> Traslados</a>
+                </li>
+                <li class="nav-item ml-3">
                    <a class="nav-link" href="./recibido">
                        <i class="nav-icon fas fa-arrow-down"></i> Recibir</a>
                </li>                
-                <!-- <li class="nav-item ml-3">
-                    <a class="nav-link" href="./List">
-                        <i class="nav-icon fas fa-file-invoice"></i> Trasladar</a>
-                </li> -->
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./search">
                         <i class="nav-icon fas fa-envelope"></i> Buzon</a>

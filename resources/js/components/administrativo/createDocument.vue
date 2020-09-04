@@ -40,7 +40,7 @@
                 </el-col>
                 <el-col :xs="25" :sm="7" :md="8" :lg="20" :xl="9">
                     <el-form-item prop="receptor_copia">
-                        <el-select v-model="form.receptor_copia" multiple class="select_width" clearable filterable placeholder="Seleccione Receptor">
+                        <el-select v-model="form.receptor_copia" multiple class="select_width" clearable filterable placeholder="Seleccione Receptor" >
                             <el-option
                                 v-for="item in list_response.list_receptor"
                                 :key="item.code"
@@ -144,6 +144,10 @@ export default {
                 this.list_response.list_receptor = response.data;
             })
         },
+        jsonReceptor(data) {
+            // console.log(this.list_response.list_receptor);
+            console.log(data);
+        },
         removeReceptor(dato){
             console.log(dato);
             this.form.receptor_copia = "";
@@ -168,7 +172,7 @@ export default {
                     axios.post(this.url_data.setDocumentos,{
                         dirigido: this.form.dirigido,
                         destinatario: this.form.direccion,
-                        copia: this.form.copia_unidad,
+                        // copia: this.form.copia_unidad,
                         receptor: this.form.receptor_copia,
                         correlativo: this.form.correlativo,
                         cuerpo: this.form.cuerpo,
