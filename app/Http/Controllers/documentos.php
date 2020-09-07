@@ -257,10 +257,10 @@ class documentos extends Controller
             $documento = documento::where('documentos.id_dependencia', $id->original)
             ->select('documentos.id as code','documentos.dirigido','documentos.id_dependencia','documentos.direccion as descripcion','documentos.correlativo_documento as correlativo',
                         'documentos.created_at as fecha',
-                        DB::raw('(CASE WHEN (traslados.estado = "A") THEN concat("Trasladado a ", dependencias.descripcion)  ELSE "Sin Enviar" END) AS estado'))
+                        DB::raw('(CASE WHEN (traslados.estado in(2,6)) THEN concat("Trasladado a ", dependencias.descripcion)  ELSE "Sin Enviar" END) AS estado'))
             ->leftjoin('traslados','traslados.idDocumento','=','documentos.id')
             ->leftjoin('dependencias','traslados.idDepartamentoActual','=','dependencias.id_dependencia')
-            ->where('traslados.estado' , '=',2)
+            // ->where('traslados.estado' , '=',2)
             ->get();
 
             return response()->json($documento,200);    
@@ -548,5 +548,20 @@ class documentos extends Controller
     public function getUsersTransfer(){
         $user = User::all();
         return response()->json($user,200);
+    }
+
+
+    public function showBitacora(){
+        return view('administrativo.bitacora');
+    }
+
+    public function bitacoraDocument(Request $request){
+        $documento = traslados::select('traslados.id','estado_documentos.descripcion as estado','dependencias.descripcion as dependencia')
+            ->join('documentos','documentos.id','=','traslados.idDocumento')
+            ->join('estado_documentos','traslados.estado','=','estado_documentos.id')
+            ->join('dependencias','traslados.idDepartamentoActual','=','dependencias.id_dependencia')
+            ->where('documentos.correlativo_documento','=',$request->id)
+            ->get();
+        return response()->json($documento,200);
     }
 }

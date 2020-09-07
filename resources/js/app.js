@@ -58,6 +58,7 @@ Vue.component('listado-component', require('./components/administrativo/listadoD
 Vue.component('mensaje-component', require('./components/cabecera/alertas.vue').default);
 Vue.component('recibos-component', require('./components/administrativo/listadoRecibido.vue').default);
 Vue.component('traslados-component', require('./components/administrativo/listadoTraslados.vue').default);
+Vue.component('bitacora-component', require('./components/administrativo/bitacora.vue').default);
 /* ******************** */
 
 /**

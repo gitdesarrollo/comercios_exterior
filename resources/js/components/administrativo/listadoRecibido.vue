@@ -237,7 +237,7 @@ export default {
       });
     },
     transferUser(form) {
-      this.$refs[form].validate((valid) => {
+      this.$refs[form].validate((valid) => { 
         if (valid) {
           this.trasladoUsuario = true;
           axios

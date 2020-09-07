@@ -39,8 +39,8 @@
                        <i class="nav-icon fas fa-arrow-down"></i> Recibir</a>
                </li>                
                 <li class="nav-item ml-3">
-                    <a class="nav-link" href="./search">
-                        <i class="nav-icon fas fa-envelope"></i> Buzon</a>
+                    <a class="nav-link" href="./bitacora">
+                        <i class="nav-icon fas fa-envelope"></i> Bitácora</a>
                 </li>                
                 <!--<li class="nav-item ml-3">
                     <a class="nav-link" href="./Reporteinventario">

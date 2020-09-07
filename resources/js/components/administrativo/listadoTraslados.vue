@@ -10,9 +10,9 @@
         <el-table-column label="Dirigido" width="300" prop="dirigido"></el-table-column>
         <el-table-column label="Correlativo" width="150" prop="correlativo"></el-table-column>
         <el-table-column label="Direccón"  prop="descripcion"></el-table-column>
-        <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
+        <el-table-column label="Estado"  prop="estado"></el-table-column>
         <el-table-column label="Operaciones" width="180">
-          <template slot-scope="scope" class="pl-3">
+          <template slot-scope="scope" class="pl-3"> 
             <el-button
               type="danger"
               size="mini"

@@ -101,9 +101,9 @@ Route::post('setRoles','catalogo@setRoles');
 
   /************** */
 
+ 
 
-
-  /********** COMERCIO EXTERIOR **************** */
+  /********** COMERCIO EXTERIOR **************** */ 
 
   //Administrador
   //Crear
@@ -126,6 +126,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('traslados','documentos@listDocumentTransfert')->name('traslados');
   Route::get('usuarios','documentos@getUsersTransfer')->name('usuarios');
   Route::put('TrasladoInterno','documentos@setTransferInt')->name('TrasladoInterno');
+  Route::get('bitacora','documentos@showBitacora')->name('bitacora');
+  Route::post('bitacoraDocumento','documentos@bitacoraDocument')->name('bitacoraDocumento');
 
 
   /********************************************* */
