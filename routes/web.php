@@ -94,7 +94,7 @@ Route::get('showUsuarios','catalogo@showUsuarios');
 Route::get('getUser','catalogo@getUser');
 Route::post('registerUser','catalogo@createUser');
 Route::get('visualizar', 'catalogo@visualizar');
-Route::post('setDataExcel','Inventario\ControllerInitial@setDataExcel');
+Route::post('setDataExcel','Inventario\ControllerInitial@setDataExcel'); 
 Route::get('getRoles','catalogo@getRoles');
 Route::get('roles','catalogo@showroles');
 Route::post('setRoles','catalogo@setRoles');
@@ -122,8 +122,10 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('recibido','documentos@showRecibido')->name('recibido');
   Route::put('Aceptar','documentos@toAccept')->name('Aceptar');  
   Route::post('filterReceptores','documentos@getReceptoresbyId')->name('filterDocumentos');
-  Route::post('retornar','documentos@retornar')->name('retornar');
+  Route::put('retornar','documentos@retornar')->name('retornar');
   Route::get('traslados','documentos@listDocumentTransfert')->name('traslados');
+  Route::get('usuarios','documentos@getUsersTransfer')->name('usuarios');
+  Route::put('TrasladoInterno','documentos@setTransferInt')->name('TrasladoInterno');
 
 
   /********************************************* */

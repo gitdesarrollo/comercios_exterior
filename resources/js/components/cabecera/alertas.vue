@@ -55,6 +55,7 @@ export default {
       axios.get(this.url_list.message).then((response) => {
         this.countMessage = response.data.length;
         this.list_response.listMessage = response.data;
+        console.log(response.data);
       });
     },
   },

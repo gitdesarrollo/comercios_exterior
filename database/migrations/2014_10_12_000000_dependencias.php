@@ -16,7 +16,11 @@ class Dependencias extends Migration
         Schema::create('dependencias', function (Blueprint $table) {
             $table->bigIncrements('id_dependencia');
             $table->string('descripcion');
+            $table->bigInteger('idEstado')->unsigned();
             $table->timestamps();       
+
+
+            $table->foreign('idEstado')->references('id')->on('estado_documentos');
         });
     }
 

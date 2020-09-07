@@ -19,7 +19,8 @@ class CreateTraslados extends Migration
             $table->bigInteger('idDepartamentoActual')->unsigned();
             $table->bigInteger('idDepartamentoTraslado')->unsigned();
             $table->bigInteger('idUsuarioTramito')->unsigned();
-            $table->String('estado');
+            $table->bigInteger('estado')->unsigned();
+            $table->bigInteger('idUsuarioInterno')->unsigned()->nullable();
             $table->timestamps();
 
 
@@ -27,6 +28,8 @@ class CreateTraslados extends Migration
             $table->foreign('idDepartamentoActual')->references('id_dependencia')->on('dependencias');
             $table->foreign('idDepartamentoTraslado')->references('id_dependencia')->on('dependencias');
             $table->foreign('idUsuarioTramito')->references('id')->on('users');
+            $table->foreign('estado')->references('id')->on('estado_documentos');
+            $table->foreign('idUsuarioInterno')->references('id')->on('users');
         });
     }
 

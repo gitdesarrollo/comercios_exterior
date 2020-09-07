@@ -162,6 +162,7 @@ export default {
           .then(response => {
             this.EditscreenLoading = false;
             this.dialogo = false;
+            this.getLista();
             // console.log(response.data);
           })
         }

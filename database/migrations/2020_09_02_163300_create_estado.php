@@ -17,11 +17,12 @@ class CreateEstado extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('idTraslado')->unsigned();
             $table->bigInteger('idDepartamento')->unsigned();
-            $table->string('estado');
+            $table->bigInteger('estado')->unsigned();
             $table->timestamps();
 
             $table->foreign('idTraslado')->references('id')->on('traslados');
             $table->foreign('idDepartamento')->references('id_dependencia')->on('dependencias');
+            $table->foreign('estado')->references('id')->on('estado_documentos');
         });
     }
 

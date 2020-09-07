@@ -130,6 +130,7 @@ class catalogo extends Controller
             $user->password = $hashedPassIn;
             $user->admin = $request->admin;
             $user->id_unidad = $request->id_unidad;
+            $user->idEstado = 4;
             $user->save();
             
             DB::commit();
@@ -170,6 +171,7 @@ class catalogo extends Controller
         
             $data = new dependencias;
             $data->descripcion = $request->name;
+            $data->idEstado = 4;
             $data->save();
 
             DB::commit();
@@ -188,6 +190,7 @@ class catalogo extends Controller
             
             $data = new roles_user;
             $data->description = $request->name;
+            $data->idEstado = 4;
             $data->save();
 
             DB::commit();

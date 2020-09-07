@@ -19,7 +19,8 @@ class UserSeeder extends Seeder
             'email' => 'admin@correo.com',
             'password' => $hashedPassIn,
             'admin' => 1,
-            'id_unidad' => '1'
+            'id_unidad' => '1',
+            'idEstado'  => 4
         ]); 
     }
 

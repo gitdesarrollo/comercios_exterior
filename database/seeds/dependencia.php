@@ -14,8 +14,8 @@ class dependencia extends Seeder
     public function run()
     {
         $unidad = new dependencias;
-        $unidad->id_dependencia = 1;
         $unidad->descripcion = "Comercio Exterior";
+        $unidad->idEstado = 4;
         $unidad->save();
     }
 }

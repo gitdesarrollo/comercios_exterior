@@ -17,9 +17,11 @@ class CreateReceptorsTable extends Migration
             $table->bigIncrements('id');
             $table->string('descripcion');
             $table->bigInteger('idDepartamento')->unsigned();
+            $table->bigInteger('idEstado')->unsigned();
             $table->timestamps();
 
             $table->foreign('idDepartamento')->references('id_dependencia')->on('dependencias');
+            $table->foreign('idEstado')->references('id')->on('estado_documentos');
         });
     }
 

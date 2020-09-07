@@ -16,7 +16,10 @@ class CreateRolesUsersTable extends Migration
         Schema::create('roles_users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('description');
+            $table->bigInteger('idEstado')->unsigned();
             $table->timestamps();
+
+            $table->foreign('idEstado')->references('id')->on('estado_documentos');
         });
     }
 
