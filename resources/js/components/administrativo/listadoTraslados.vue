@@ -160,7 +160,7 @@ export default {
             idDireccionTraslado: this.form.departamentoId
           })
           .then(response => {
-            this.EditscreenLoading = false;
+            this.EditscreenLoading = false; 
             this.dialogo = false;
             // console.log(response.data);
           })

@@ -16,9 +16,11 @@ window.Vue = require('vue');
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import locale from 'element-ui/lib/locale/lang/es';
-import VueBarcodeScanner from 'vue-barcode-scanner'
+import VueBarcodeScanner from 'vue-barcode-scanner';
+
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
+
 
 /**
  * The following block of code may be used to automatically register your
@@ -59,6 +61,7 @@ Vue.component('mensaje-component', require('./components/cabecera/alertas.vue').
 Vue.component('recibos-component', require('./components/administrativo/listadoRecibido.vue').default);
 Vue.component('traslados-component', require('./components/administrativo/listadoTraslados.vue').default);
 Vue.component('bitacora-component', require('./components/administrativo/bitacora.vue').default);
+Vue.component('download-component', require('./components/administrativo/download.vue').default);
 /* ******************** */
 
 /**

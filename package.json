@@ -27,6 +27,7 @@
         "perfect-scrollbar": "^1.5.0",
         "simple-line-icons": "2.4.1",
         "vue-barcode-scanner": "^0.8.1",
+        "vue-pdf": "^4.1.0",
         "xlsx": "^0.15.6"
     },
     "devDependencies": {

@@ -16,9 +16,9 @@
             <el-button
               type="danger"
               size="mini"
-              icon="el-icon-download"
+              icon="el-icon-search"
               plain
-              @click="handleEdit(scope.row.id,scope.row.username)" 
+              @click="preview(scope.row.code,scope.row.id_dependencia)" 
             ></el-button>
              <!-- v-if="trasladarBtn === scope.row.estado" -->
             <el-button
@@ -85,17 +85,41 @@
           </el-form-item>
         </el-form>
       </el-dialog>
+            <el-dialog
+        :title="handlerDialog.preview.title"
+        :visible.sync="handlerDialog.preview.visible"
+        :width="handlerDialog.preview.width"
+        :top="handlerDialog.preview.top"
+        center 
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        destroy-on-close
+        
+      >
+        <el-row :gutter="10"> 
+          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="15">
+            <embed src="/pdf/1.pdf#zoom200,250,100" type="application/pdf" width="90%" height="600px" />
+          </el-col>
+          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
+            col 2
+          </el-col>
+        </el-row>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
+
+
 export default {
+name: 'Container',
   data() {
     return {
       url_list: {
-        lista: "lista",
-        dependencias: "dependencias",
+        lista: "lista", 
+        dependencias: "dependencias", 
         trasladar: "Trasladar",
       },
       list_response: {
@@ -109,7 +133,7 @@ export default {
       dialogo: false,
       idDocumento:0,
       depActual:0,
-      trasladarBtn: "Sin Enviar",
+      trasladarBtn: "Sin Enviar", 
       form: {
         departamentoId: "",
       },
@@ -121,19 +145,36 @@ export default {
             trigger: "blur"
           }
         ]
-      }
+      },
+      handlerDialog: {
+        preview: {
+          title: "Visualizar Documento",
+          visible: false,
+          width: "70%",
+          top:"3vh",
+          ver:false,
+        }
+      },
+      currentPagePDF: 0,
+      numPages: undefined,
+      pageCount: 0,
+      src: '/pdf/1.pdf',
+      show : true
+      
+      
     };
   },
   mounted() {
     this.getLista();
     this.selectDireccion();
+
   },
   methods: {
     getLista() {
       axios.get(this.url_list.lista).then((response) => { 
         this.list_response.documentos = response.data;
         this.total = response.data.length;
-        console.log(response.data);
+        // console.log(response.data);
       });
     },
     getTraslado(id,dependencia) {
@@ -160,14 +201,20 @@ export default {
             idDireccionTraslado: this.form.departamentoId
           })
           .then(response => {
-            this.EditscreenLoading = false;
+            this.EditscreenLoading = false; 
             this.dialogo = false;
             this.getLista();
             // console.log(response.data);
           })
         }
       })
+    },
+    preview(code,dependencia){
+      this.handlerDialog.preview.visible = true;
+      
+      console.log(code,dependencia)
     }
+    
   },
 };
 </script>

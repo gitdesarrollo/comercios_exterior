@@ -498,7 +498,7 @@ class documentos extends Controller
         // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
     }
 
-    public function getRecepcionMessage(){
+    public function getRecepcionMessage(){ 
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
 
@@ -563,5 +563,9 @@ class documentos extends Controller
             ->where('documentos.correlativo_documento','=',$request->id)
             ->get();
         return response()->json($documento,200);
+    }
+
+    public function previewPDF(){
+        return view('administrativo.previewPDF');
     }
 }
