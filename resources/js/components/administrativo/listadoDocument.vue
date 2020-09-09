@@ -34,7 +34,7 @@
               type="primary"
               icon="el-icon-s-check"
               plain
-              @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
+              @click="getTraslado(scope.row.code,scope.row.id_dependencia)" 
             ></el-button>
           </template>
         </el-table-column>
@@ -68,7 +68,7 @@
               placeholder="Seleccione Dirección"
             >
               <el-option
-                v-for="item in list_response.list_dependencia"
+                v-for="item in list_response.list_dependencia"  
                 :key="item.id_dependencia"
                 :label="item.descripcion"
                 :value="item.id_dependencia"
@@ -91,9 +91,7 @@
         :width="handlerDialog.preview.width"
         :top="handlerDialog.preview.top"
         center 
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        :show-close="false"
+        
         destroy-on-close
         
       >
@@ -114,17 +112,19 @@
 
 
 export default {
-name: 'Container',
+
   data() {
     return {
       url_list: {
         lista: "lista", 
         dependencias: "dependencias", 
         trasladar: "Trasladar",
+        info: "infoPDF",
       },
       list_response: {
         documentos: [],
         list_dependencia: [],
+        listInfo: [],
       },
       total: 0,
       currentPage: 1,
@@ -211,8 +211,14 @@ name: 'Container',
     },
     preview(code,dependencia){
       this.handlerDialog.preview.visible = true;
+
+      axios.post(this.url_list.info,{
+        code: code
+      }).then(response => {
+        this.list_response.listInfo = response.data;
+        console.log(this.list_response.listInfo);
+      })
       
-      console.log(code,dependencia)
     }
     
   },

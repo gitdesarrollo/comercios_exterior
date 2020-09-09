@@ -15,7 +15,9 @@ class AddstatusDocument extends Migration
     {
         Schema::table('documentos', function (Blueprint $table) {
             $table->bigInteger('id_status')->after('correlativo_documento')->unsigned();
+            $table->bigInteger('idProfesion')->after('correlativo_documento')->unsigned();
             $table->foreign('id_status')->references('id')->on('estado_documentos');
+            $table->foreign('idProfesion')->references('id')->on('profesiones');
         });
     }
 

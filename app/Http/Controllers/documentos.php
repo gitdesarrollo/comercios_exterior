@@ -10,6 +10,7 @@ use App\Model\copiaDestinatarios;
 use App\Model\dependencias;
 use App\Model\traslados;
 use App\Model\estado;
+use App\Model\profesiones;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +95,7 @@ class documentos extends Controller
                 $documento->descripcion = $request->cuerpo;
                 $documento->direccion = $request->destinatario;
                 $documento->correlativo_documento = $request->correlativo;
+                $documento->idProfesion = $request->profesion;
                 $documento->id_status = 1;
                 $documento->save();
                 $id_documento = $documento->id;
@@ -121,6 +123,7 @@ class documentos extends Controller
                     $documento->descripcion = $request->cuerpo;
                     $documento->direccion = $request->destinatario;
                     $documento->correlativo_documento = $request->correlativo;
+                    $documento->idProfesion = $request->profesion;
                     $documento->id_status = 1;
                     $documento->save();
                     $id_documento = $documento->id;
@@ -566,6 +569,127 @@ class documentos extends Controller
     }
 
     public function previewPDF(){
+        
         return view('administrativo.previewPDF');
+    }
+
+    public function getProfesiones(){
+        try {
+            DB::beginTransaction();
+            $data = profesiones::all();
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function getDataPDF(Request $request){
+        try {
+            DB::beginTransaction();
+            $data = documento::select('documentos.correlativo_documento as correlativo',
+            'profesiones.descripcion as profesion','documentos.direccion as direccion','documentos.descripcion as texto')
+            ->join('profesiones','documentos.idProfesion','=','profesiones.id')
+            ->where('documentos.id',$request->code)->get();
+            DB::commit();
+
+            $hoy = getdate();
+
+            switch ($hoy['mon']) {
+                case 1:
+                    $mes = 'Enero';
+                    break;
+                case 2:
+                    $mes = 'Febrero';
+                    break;
+                case 3:
+                    $mes = 'Marzo';
+                    break;
+                case 4:
+                    $mes = 'Abril';
+                    break;
+                case 5:
+                    $mes = 'Mayo';
+                    break;
+                case 6:
+                    $mes = 'Junio';
+                    break;
+                case 7:
+                    $mes = 'Julio';
+                    break;
+                case 8:
+                    $mes = 'Agosto';
+                    break;
+                case 9:
+                    $mes = 'Septiembre';
+                    break;
+                case 10:
+                    $mes = 'Octubre';
+                    break;
+                case 11:
+                    $mes = 'Noviembre';
+                    break;
+                case 12:
+                    $mes = 'Diciembre';
+                    break;
+            }
+
+            $html = '
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Documento</title>
+                    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+                <style>
+                    .fecha{
+                        text-align: right;
+                        padding-right: 30% !important;
+                    }
+                </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <table class="table" >
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <img src="{{ asset("pdf/img/mineco.png") }}" >
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fecha">DTI-OF-68-2019  </td>
+                                </tr>
+                                <tr>
+                                    <td class="fecha">$fecha> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p>Sra.</p>
+                        <p>$data</p>
+                        <p>Sub-Secretaria general</p>
+                        <p>Ministerio de Economia</p>
+
+                    </div>
+                    
+                </body>
+                </html>
+            
+            
+            ';
+
+
+
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+
     }
 }

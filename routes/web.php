@@ -130,6 +130,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('bitacoraDocumento','documentos@bitacoraDocument')->name('bitacoraDocumento');
   Route::get('download','documentos@downloadPDF')->name('downloadPDF');
   Route::get('previewPDF','documentos@previewPDF')->name('previewPDF');
+  Route::get('getProfesiones','documentos@getProfesiones')->name('getProfesiones');
+  Route::post('infoPDF','documentos@getDataPDF')->name('infoPDF');
 
 
   /********************************************* */

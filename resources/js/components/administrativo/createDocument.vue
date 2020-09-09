@@ -8,13 +8,26 @@
                 <el-col :xs="25" :sm="12" :md="12" :lg="20" :xl="12">
                     <el-form-item prop="dirigido">
                         <el-input v-model="form.dirigido">
-                            <template slot="prepend">
+                            <template slot="prepend"> 
                                 Dirigido: 
                             </template>
                         </el-input>
                     </el-form-item>
                 </el-col>
-                <el-col :xs="25" :sm="12" :md="12" :lg="20" :xl="12">
+                <el-col :xs="25" :sm="12" :md="12" :lg="20" :xl="6">
+                    <el-form-item prop="direccion">
+                        <el-select v-model="form.profesion"   class="select_width" clearable filterable placeholder="Seleccione Profesion">
+                            <el-option
+                                v-for="item in list_response.listProfesiones"
+                                :key="item.id"
+                                :label="item.descripcion"
+                                :value="item.id"
+                                >
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="25" :sm="12" :md="12" :lg="20" :xl="6">
                     <el-form-item prop="direccion">
                         <el-input v-model="form.direccion">
                             <template slot="prepend">
@@ -64,8 +77,9 @@
               <el-row :gutter="20" class="mt-2">
                 <el-col :xs="25" :sm="24" :md="24" :lg="20" :xl="24">
                     <el-form-item prop="cuerpo">
-                        <el-input type="textarea" maxlength="2000" show-word-limit v-model="form.cuerpo" :rows="15" placeholder="Cuerpo del documento">
-                        </el-input>
+                        <ckeditor :editor="editor" v-model="form.cuerpo" :config="editorConfig"></ckeditor>
+                        <!-- <el-input type="textarea" maxlength="2000" show-word-limit v-model="form.cuerpo" :rows="15" placeholder="Cuerpo del documento"> -->
+                        <!-- </el-input> -->
                     </el-form-item>
                 </el-col>
               </el-row>
@@ -83,27 +97,43 @@
 </template>
 
 <script>
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+    // import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials';
+    // import BoldPlugin from '@ckeditor/ckeditor5-basic-styles/src/bold';
+    // import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic';
+    // import LinkPlugin from '@ckeditor/ckeditor5-link/src/link';
+    // import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
+
 export default {
     props: ['id_departamento'],
     data() {
         return {
+                editor: ClassicEditor,
+                editorData: '',
+                editorConfig: {
+                    // toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote',  ]
+                },
+            text:"hola",
             form: {
-                dirigido: "",
+                dirigido: "", 
                 direccion:"",
                 copia_unidad:[],
                 receptor_copia:[],
                 cuerpo:"",
                 correlativo: "",
+                profesion: "",
             },
             url_data: {
                 dependencias: "dependencias",
                 setDocumentos: "setDocumentos",
                 getReceptor: 'getReceptores',
                 filter: 'filterReceptores',
+                profesiones: 'getProfesiones',
             },
             list_response: {
                 list_dependencia:[],
                 list_receptor: [],
+                listProfesiones: [],
             },
             rules: {
                 dirigido: [
@@ -126,6 +156,13 @@ export default {
                         message: "Ingrese el cuerpo del mensaje",
                         trigger: "blur"
                     }
+                ],
+                profesion: [
+                    {
+                        required: true,
+                        message: "Ingrese la profesion",
+                        trigger: "blur"
+                    }
                 ]
             },
             fullscreenLoading: false,
@@ -133,9 +170,15 @@ export default {
     },
     mounted() {
         this.getDependencia();
+        this.Profesiones();
         // this.getReceptor();
     },
     methods: {
+        Profesiones(){
+            axios.get(this.url_data.profesiones).then(response => {
+                this.list_response.listProfesiones = response.data;
+            })
+        },
         receptores(dato){
             axios.post(this.url_data.filter,{
                 direcciones: dato
@@ -176,7 +219,8 @@ export default {
                         receptor: this.form.receptor_copia,
                         correlativo: this.form.correlativo,
                         cuerpo: this.form.cuerpo,
-                        departamento: this.id_departamento
+                        departamento: this.id_departamento,
+                        profesion: this.form.profesion,
                     }).then(response => {
                         const status = JSON.parse(response.status);
                         if(status == "200"){
