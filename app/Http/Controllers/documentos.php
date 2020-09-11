@@ -11,6 +11,7 @@ use App\Model\dependencias;
 use App\Model\traslados;
 use App\Model\estado;
 use App\Model\profesiones;
+use App\Model\comentarios;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -589,52 +590,34 @@ class documentos extends Controller
     public function getDataPDF(Request $request){
         try {
             DB::beginTransaction();
-            $data = documento::select('documentos.correlativo_documento as correlativo',
+            date_default_timezone_set('America/Guatemala');
+            $data = documento::select('documentos.correlativo_documento as correlativo','documentos.dirigido',
+            DB::raw('CONCAT("Guatemala ",DATE_FORMAT(documentos.created_at,"%d"), " de ", 
+                        CASE DATE_FORMAT(documentos.created_at,"%m")
+                            WHEN 1 THEN "Enero"
+                            WHEN 2 THEN "Febrero"
+                            WHEN 3 THEN "Marzo"
+                            WHEN 4 THEN "Abril"
+                            WHEN 5 THEN "Mayo"
+                            WHEN 6 THEN "Junio"
+                            WHEN 7 THEN "Julio"
+                            WHEN 8 THEN "Agosto"
+                            WHEN 9 THEN "Septiembre"
+                            WHEN 10 THEN "Octubre"
+                            WHEN 11 THEN "Noviembre"
+                            WHEN 12 THEN "Diciembre"
+                        END
+                        ,
+                        " del ", DATE_FORMAT(documentos.created_at,"%Y")) as fecha'),
             'profesiones.descripcion as profesion','documentos.direccion as direccion','documentos.descripcion as texto')
             ->join('profesiones','documentos.idProfesion','=','profesiones.id')
             ->where('documentos.id',$request->code)->get();
             DB::commit();
 
+            $nameDocument = 'pdf/'. $data[0]->correlativo.'.pdf';
+            $fecha = $data[0]->fecha;
             $hoy = getdate();
-
-            switch ($hoy['mon']) {
-                case 1:
-                    $mes = 'Enero';
-                    break;
-                case 2:
-                    $mes = 'Febrero';
-                    break;
-                case 3:
-                    $mes = 'Marzo';
-                    break;
-                case 4:
-                    $mes = 'Abril';
-                    break;
-                case 5:
-                    $mes = 'Mayo';
-                    break;
-                case 6:
-                    $mes = 'Junio';
-                    break;
-                case 7:
-                    $mes = 'Julio';
-                    break;
-                case 8:
-                    $mes = 'Agosto';
-                    break;
-                case 9:
-                    $mes = 'Septiembre';
-                    break;
-                case 10:
-                    $mes = 'Octubre';
-                    break;
-                case 11:
-                    $mes = 'Noviembre';
-                    break;
-                case 12:
-                    $mes = 'Diciembre';
-                    break;
-            }
+            // $fecha = "Guatemala, $hoy[mday] de $mes de $hoy[year] ";
 
             $html = '
                 <!DOCTYPE html>
@@ -643,38 +626,104 @@ class documentos extends Controller
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Documento</title>
-                    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+                   
                 <style>
-                    .fecha{
+
+                    @page {
+                        margin: 0cm 0cm;
+                    }
+                    body {
+                        margin-top: 3cm;
+                        margin-left: 2cm;
+                        margin-right: 2cm;
+                        margin-bottom: 2cm;
+                    }
+
+                    header {
+                        position: fixed;
+                        top: 0cm;
+                        left: 2cm;
+                        right: 0cm;
+                        height: 2cm;
+        
+                        /** Extra personal styles **/
+                        
+                        color: white;
+                        text-align: justify;
+                        line-height: 1.5cm;
+                        
+                    }
+
+                    footer {
+                        position: fixed; 
+                        bottom: 0cm; 
+                        left: 0cm; 
+                        right: 0cm;
+                        height: 2.2cm;
+        
+                        /** Extra personal styles **/
+                        color: white;
+                        text-align: center;
+                        line-height: 1.5cm;
+                        
+                    }
+                    footer img, header img {
+                        opacity: 0.5;
+                    }
+                    .fecha , .Correlativo{
                         text-align: right;
-                        padding-right: 30% !important;
+                        padding-right: 20% !important;
+                        font-weight: bold;
+                    }
+
+
+                    .page-break {
+                        page-break-after: always;
+                        
+                    }
+  
+                    .table{
+                        width:100%;
+                        
+                    }
+
+                    .justificado{
+                        text-align: justify;
                     }
                 </style>
                 </head>
                 <body>
-                    <div class="container">
-                        <table class="table" >
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <img src="{{ asset("pdf/img/mineco.png") }}" >
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="fecha">DTI-OF-68-2019  </td>
-                                </tr>
-                                <tr>
-                                    <td class="fecha">$fecha> </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <header>
+                    <img src="'.public_path('pdf/img/mineco.png').'" />
+                </header>
+                <footer>
+                <img src="'.public_path('pdf/img/footer.jpg').'" width="100%"  height="100%"/>
+                </footer>
+                <main>
+                    <br>
+                    
+               
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td class="fecha">'.$data[0]->correlativo.'</td>
+                            </tr>
+                            <tr>
+                                <td class="fecha">'.$fecha.'</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>'
+                    .$data[0]->profesion.'<br>'
+                    .$data[0]->dirigido.'<br>'
+                    .$data[0]->direccion.'<br>
+                    Ministerio de Economia
+                    </p>
 
-                        <p>Sra.</p>
-                        <p>$data</p>
-                        <p>Sub-Secretaria general</p>
-                        <p>Ministerio de Economia</p>
-
-                    </div>
+                    <span class="justificado">
+                        '.$data[0]->texto.'
+                    </span>
+                </main>
                     
                 </body>
                 </html>
@@ -682,14 +731,49 @@ class documentos extends Controller
             
             ';
 
+            $pdf = \PDF::loadHTML($html);
+            $pdf->setPaper('letter','portrait');
+            $pdf->save($nameDocument);
 
+            return response()->json($nameDocument,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
 
+    }
+
+    public function getComentario(Request $request){
+        try {
+            DB::beginTransaction();
+            $data = comentarios::select('comentarios.id as code','users.name as usuario','comentarios.comentario as comentario','comentarios.created_at as fecha')
+            ->join('user','comentarios.idUsuario','=','user.id')
+            ->where('comentarios.idTraslado',$request->code)
+            ->get();
+
+            DB::commit();
 
             return response()->json($data,200);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(false,200);
         }
+    }
 
+    public function setComentario(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $data = new comentarios;
+//aqui me quede
+            $data
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+
+        }
     }
 }

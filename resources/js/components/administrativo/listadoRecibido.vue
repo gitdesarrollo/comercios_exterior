@@ -25,9 +25,9 @@
               <el-button
                 type="danger"
                 size="mini"
-                icon="el-icon-download"
+                icon="el-icon-search"
                 plain
-                @click="downloadD(scope.row.code)"
+                @click="preview(scope.row.code,scope.row.id_dependencia)"
               ></el-button>
               <el-button
                 
@@ -120,6 +120,28 @@
         </el-form-item>
       </el-form>
       </el-dialog>
+            <el-dialog
+        :title="handlerDialog.preview.title"
+        :visible.sync="handlerDialog.preview.visible"
+        :width="handlerDialog.preview.width"
+        :top="handlerDialog.preview.top"
+        center
+        destroy-on-close
+      >
+        <el-row :gutter="10">
+          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="15">
+            <embed
+              :src="src"
+              type="application/pdf"
+              width="90%"
+              height="600px"
+            />
+          </el-col>
+          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
+
+          </el-col>
+        </el-row>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -136,6 +158,7 @@ export default {
         toAccept: "Aceptar",
         getUser: "usuarios",
         TrasladoInterno: "TrasladoInterno",
+         info: "infoPDF",
       },
       list_response: {
         documentos: [],
@@ -174,7 +197,16 @@ export default {
           },
         ],
       },
-
+      handlerDialog: {
+        preview: {
+          title: "Visualizar Documento",
+          visible: false,
+          width: "70%",
+          top: "3vh",
+          ver: false,
+        },
+      },
+      src: "",
       Accept:5
     };
   },
@@ -278,7 +310,23 @@ export default {
       axios.get(this.url_list.getUser).then(response => {
         this.list_response.list_user = response.data;
       })
-    }
-  },
+    },
+    preview(code, dependencia) {
+        this.handlerDialog.preview.visible = true;
+
+        axios
+          .post(this.url_list.info, {
+            code: code,
+          })
+          .then((response) => {
+            this.list_response.listInfo = response.data;
+            const status = JSON.parse(response.status);
+            console.log(response.data);
+            if(status == "200"){
+              this.src = response.data;
+            }
+          });
+      },
+    },
 };
 </script>
