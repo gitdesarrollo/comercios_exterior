@@ -133,6 +133,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getProfesiones','documentos@getProfesiones')->name('getProfesiones');
   Route::post('infoPDF','documentos@getDataPDF')->name('infoPDF');
   Route::post('getComentario','documentos@getComentario')->name('getComentario');
+  Route::post('setComentario','documentos@setComentario')->name('setComentario');
 
 
   /********************************************* */

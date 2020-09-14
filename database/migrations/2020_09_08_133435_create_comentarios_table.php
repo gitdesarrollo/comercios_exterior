@@ -18,7 +18,7 @@ class CreateComentariosTable extends Migration
             $table->bigInteger('idUsuario')->unsigned();;
             $table->bigInteger('iddocumento')->unsigned();;
             $table->bigInteger('idTraslado')->unsigned();;
-            $table->string('comentario');
+            $table->string('comentario',1000);
             $table->timestamps();
 
             $table->foreign('idTraslado')->references('id')->on('traslados');

@@ -18,7 +18,7 @@
               size="mini"
               icon="el-icon-search"
               plain
-              @click="preview(scope.row.code,scope.row.id_dependencia)"
+              @click="preview(scope.row.code,scope.row.id_dependencia, scope.row.idTraslado)"
             ></el-button>
             <!-- v-if="trasladarBtn === scope.row.estado" -->
             <el-button
@@ -96,27 +96,31 @@
           <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="13">
             <embed :src="src" type="application/pdf" width="90%" height="600px" />
           </el-col>
-          <el-col :xs="25" :sm="6" :md="8" :lg="15" :xl="7"></el-col>
-            <el-table :data="list_response.listComentarios" style="width:45%" :row-class-name="tableRowClassName">
-              <el-table-column label="No." type="index"></el-table-column>
-              <el-table-column label="Usuario" prop="usuario"></el-table-column>
-              <el-table-column label="Comentario" prop="comentario"></el-table-column>
-            </el-table>
+          <!-- <el-col :xs="25" :sm="6" :md="8" :lg="15" :xl="7"></el-col> -->
+          <el-table
+            :data="list_response.listComentarios"
+            style="width:45%"
+            :row-class-name="tableRowClassName"
+            height="550"
+          >
+            <el-table-column label="No." type="index"></el-table-column>
+            <el-table-column label="Usuario" prop="usuario" width="180"></el-table-column>
+            <el-table-column label="Comentario" prop="comentario"></el-table-column>
+          </el-table>
         </el-row>
         <el-row :gutter="10">
-            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="formComentario">
-              <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
-                <el-form-item label="Comentario:" prop="comentario">
-                    <el-input  type="textarea" v-model="ruleForm.comentario">
-                    </el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="8">
-                <el-form-item >
-                    <el-button type="primary" @click="submitComent('ruleForm')" >Guardar</el-button>
-                </el-form-item>
-              </el-col>
-            </el-form>
+          <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="formComentario">
+            <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
+              <el-form-item label="Comentario:" prop="comentario">
+                <el-input type="textarea" v-model="ruleForm.comentario" maxlength="1000" show-word-limit></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="8">
+              <el-form-item>
+                <el-button type="primary" @click="submitComent('ruleForm')">Guardar</el-button>
+              </el-form-item>
+            </el-col>
+          </el-form>
         </el-row>
       </el-dialog>
     </div>
@@ -124,32 +128,39 @@
 </template>
 
 <style>
-  .el-table .warning-row {
-    background: oldlace;
-  }
+.el-table .warning-row {
+  background: oldlace;
+}
 
-  .el-table .success-row {
-    background: #f0f9eb;
-  }
+.el-table .success-row {
+  background: #f0f9eb;
+}
 
-  .formComentario{
-    width:100%;
-  }
+.formComentario {
+  width: 100%;
+}
 </style>
 
 <script>
 export default {
   data() {
     return {
-      ruleForm:{
-        comentario: ""
+      total: 0,
+      currentPage: 1,
+      pagesize: 10,
+      datacoment: {
+        idDocumento: "",
+        idTraslado: "",
+      },
+      ruleForm: {
+        comentario: "",
       },
       handlerDialog: {
         preview: {
           title: "Visualizar Documento",
           visible: false,
-          width: "60%",
-          top: "3vh",
+          width: "80%",
+          top: "1vh",
           ver: false,
         },
       },
@@ -160,6 +171,7 @@ export default {
         trasladar: "Trasladar",
         info: "infoPDF",
         comentario: "getComentario",
+        setComentario: "setComentario",
       },
       list_response: {
         documentos: [],
@@ -168,7 +180,7 @@ export default {
       },
       total: 0,
       currentPage: 1,
-      pagesize: 10,
+      pagesize: 5,
       EditscreenLoading: false,
       ComentLoading: false,
       dialogo: false,
@@ -176,7 +188,7 @@ export default {
       depActual: 0,
       trasladarBtn: "Sin Enviar",
       form: {
-        departamentoId: "", 
+        departamentoId: "",
       },
       rules: {
         comentario: [
@@ -196,54 +208,68 @@ export default {
       },
     };
   },
-  mounted() { 
+  mounted() {
     this.getLista();
     this.selectDireccion();
+    // this.getComentario();
   },
   methods: {
+    current_change: function (currentPage) {
+      this.currentPage = currentPage;
+    },
     submitComent(form) {
       const h = this.$createElement;
-      this.$refs[form].validate(valid => {
-        if(valid){
+      this.$refs[form].validate((valid) => {
+        if (valid) {
           this.ComentLoading = true;
-          axios.post(,{
-            code: 1,
-            comentario: this.ruleForm.comentario
-          }).then(response => {
-            const status = JSON.parse(response.status);
-            if(status == "200" && response.data != false){
-              this.$message({
+          axios
+            .post(this.url_list.setComentario, {
+              code: this.datacoment.idDocumento,
+              traslado: this.datacoment.idTraslado,
+              comentario: this.ruleForm.comentario,
+            })
+            .then((response) => {
+              const status = JSON.parse(response.status);
+              if (status == "200" && response.data != false) {
+                this.$message({
                   message: h("p", null, [
-                      h("i", { style: "color: teal" }, "Agregado!")
+                    h("i", { style: "color: teal" }, "Agregado!"),
                   ]),
-                  type: "success"
-              });
-              this.ComentLoading = false;
-              this.$refs[form].resetFields();
-            }
-          })
+                  type: "success",
+                });
+                this.ComentLoading = false;
+                this.$refs[form].resetFields();
+                // this.handlerDialog.preview.visible = false;
+                this.list_response.listComentarios = [];
+                this.getComentario(this.datacoment.idTraslado);
+              }
+            });
         }
       });
     },
-    getComentario(code) {
-      axios.post(this.url_list.comentario,{
-        code: 1
-      }).then(response => {
-        const status = JSON.parse(response.status);
-        const result = response.data;
-        if(status == "200" && result != false){
-          this.list_response.listComentarios = response.data;
-        }
-      })
+    getComentario(traslado) {
+      
+      axios
+        .post(this.url_list.comentario, {
+          code: traslado,
+        })
+        .then((response) => {
+          const status = JSON.parse(response.status);
+          const result = response.data;
+          if (status == "200" ) {
+            this.list_response.listComentarios = response.data;
+            this.total = response.data.length;
+          }
+        });
     },
-    tableRowClassName({row, rowIndex}) {
-        if ((rowIndex / 2) === 0) {
-          return 'warning-row';
-        } else {
-          return 'success-row';
-        }
-        return '';
-      },
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex % 2 == 0) {
+        return "warning-row";
+      } else {
+        return "success-row";
+      }
+      return "";
+    },
     getLista() {
       axios.get(this.url_list.lista).then((response) => {
         this.list_response.documentos = response.data;
@@ -283,9 +309,12 @@ export default {
         }
       });
     },
-    preview(code, dependencia) {
+    preview(code, dependencia, traslado) {
       this.handlerDialog.preview.visible = true;
 
+      this.datacoment.idDocumento = code;
+      this.datacoment.idTraslado = traslado;
+      this.getComentario(traslado);
       axios
         .post(this.url_list.info, {
           code: code,
