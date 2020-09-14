@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="card">
-      <div class="card-header text-white bg-primary">Catálogo de Roles para Usuarios</div>
+      <div class="card-header text-white bg-primary">Catálogo de Roles y Direcciones</div>
       <div class="card-body">
         <el-form ref="form" :model="form" :rules="rules" label-width="150px">
           <el-form-item label="Nombre de Rol" prop="name">
@@ -32,8 +32,8 @@
                 size="mini"
                 @click="
                                     handleEdit(
-                                        scope.row.id_unidad,
-                                        scope.row.unidad
+                                        scope.row.id,
+                                        scope.row.description
                                     )
                                 "
               >Editar</el-button>
@@ -132,7 +132,7 @@ export default {
       this.$refs[form].validate(valid => {
         if (valid) {
           this.fullscreenLoading = true;
-          let url = "addProduct";
+          
           axios
             .post(this.url_data.set_unit, {
               name: this.form.name

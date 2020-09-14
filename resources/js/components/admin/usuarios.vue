@@ -61,12 +61,12 @@
                 </el-col>
                 <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12"> 
                     <el-form-item  prop="unidad">
-                          <el-select v-model="form.unidad" class="select_width" clearable filterable placeholder="Seleccionar Unidad Ejecutora">
+                          <el-select v-model="form.unidad" class="select_width" clearable filterable placeholder="Seleccionar Dirección">
                             <el-option
                                 v-for="item in response_data.list_unit_data"
-                                :key="item.id_unidad"
-                                :label="item.unidad"
-                                :value="item.id_unidad"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id"
                                 >
                             </el-option>
                         </el-select>
@@ -176,7 +176,7 @@ export default {
             show_unit_data: 'unidades',
             show_roles: 'getRoles',
         },
-        validate_form: false,
+        validate_form: false, 
         list_icon: {
             iconos: '',
             init:'',
@@ -350,7 +350,7 @@ export default {
                     this.form.email = "";
                     this.form.password = "";
                     this.form.confirm = "";
-                    this,form.rol = "";
+                    this.form.rol = "";
                     this.form.unidad = "";
                     this.roles.is_admin = 0;
                     this.getAll();

@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="card">
-      <div class="card-header text-white bg-primary">Catálogo de Unidades Ejecutoras</div>
+      <div class="card-header text-white bg-primary">Catálogo de Direcciones</div>
       <div class="card-body">
-        <el-form ref="form" :model="form" :rules="rules" label-width="150px">
-          <el-form-item label="Nombre de Unidad" prop="name">
+        <el-form ref="form" :model="form" :rules="rules" >
+          <el-form-item label="Nombre de la Dirección:" prop="name">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
           <el-form-item>
@@ -25,16 +25,16 @@
           style="width:100%"
         >
           <el-table-column label="No." type="index"></el-table-column>
-          <el-table-column label="Entidad" prop="entidad"></el-table-column>
-          <el-table-column label="Unidad" prop="unidad"></el-table-column>
+          <el-table-column label="Dirección" prop="name"></el-table-column>
+         
           <el-table-column label="Operaciones"  width="200">
             <template slot-scope="scope">
               <el-button
                 size="mini"
                 @click="
                                     handleEdit(
-                                        scope.row.id_unidad,
-                                        scope.row.unidad
+                                        scope.row.id,
+                                        scope.row.name
                                     )
                                 "
               >Editar</el-button>
@@ -93,7 +93,7 @@ export default {
     return {
         url_data: {
             show_unit: 'unidades',
-            set_unit: 'setUnidad',
+            set_unit: 'setUnidad', 
         },
         response_data: {
             list_unit: []
@@ -133,7 +133,7 @@ export default {
       this.$refs[form].validate(valid => {
         if (valid) {
           this.fullscreenLoading = true;
-          let url = "addProduct";
+          
           axios
             .post(this.url_data.set_unit, {
               name: this.form.name
@@ -163,7 +163,7 @@ export default {
       });
     },
     getAll() {
-      let url = "allProduct";
+      
       axios.get(this.url_data.show_unit).then(response => {
         this.response_data.list_unit = response.data;
         this.total = response.data.length;

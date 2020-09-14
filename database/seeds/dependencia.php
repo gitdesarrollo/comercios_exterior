@@ -13,15 +13,9 @@ class dependencia extends Seeder
      */
     public function run()
     {
-        $data = new sequences;
-        $data->name = "dependencias";
-        $data->value = 1;
-        $data->save();
-        $id = $data->value;
-
         $unidad = new dependencias;
-        $unidad->id_dependencia = $id;
-        $unidad->descripcion = "MINISTERIO DE ECONOMIA";
+        $unidad->descripcion = "Comercio Exterior";
+        $unidad->idEstado = 4;
         $unidad->save();
     }
 }

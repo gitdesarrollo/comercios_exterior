@@ -11,14 +11,23 @@ require('pace-progress');
 require('perfect-scrollbar');
 require('@coreui/coreui');
 
+
+
 window.Vue = require('vue');
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import locale from 'element-ui/lib/locale/lang/es';
-import VueBarcodeScanner from 'vue-barcode-scanner'
+import VueBarcodeScanner from 'vue-barcode-scanner';
+import CKEditor from '@ckeditor/ckeditor5-vue';
+
+
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
+
+Vue.use( CKEditor );
+
+
 
 /**
  * The following block of code may be used to automatically register your
@@ -47,6 +56,20 @@ Vue.component('entidad-component', require('./components/admin/entidades.vue').d
 Vue.component('usuario-component', require('./components/admin/usuarios.vue').default);
 Vue.component('visualizar-component', require('./components/admin/visualizar.vue').default);
 Vue.component('roles-component', require('./components/admin/roles.vue').default);
+
+
+
+/* comercio exterior */
+Vue.component('cabecera-component', require('./components/cabecera/cabecera_header.vue').default);
+Vue.component('documento-component', require('./components/administrativo/createDocument.vue').default);
+Vue.component('receptor-component', require('./components/administrativo/createReceptores.vue').default);
+Vue.component('listado-component', require('./components/administrativo/listadoDocument.vue').default);
+Vue.component('mensaje-component', require('./components/cabecera/alertas.vue').default);
+Vue.component('recibos-component', require('./components/administrativo/listadoRecibido.vue').default);
+Vue.component('traslados-component', require('./components/administrativo/listadoTraslados.vue').default);
+Vue.component('bitacora-component', require('./components/administrativo/bitacora.vue').default);
+Vue.component('download-component', require('./components/administrativo/download.vue').default);
+/* ******************** */
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

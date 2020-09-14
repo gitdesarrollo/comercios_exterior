@@ -47,7 +47,7 @@ class catalogo extends Controller
     }
 
     public function editProduct(Request $request){
-          $data = product::where('id_producto', $request->id)->update(['descripcion' => $request->new]);
+          $data = roles_user::where('id', $request->id)->update(['description' => $request->new]);
           return response()->json($data, 200);
     }
 
@@ -64,7 +64,7 @@ class catalogo extends Controller
         return response()->json($date,200);
     }
 
-    public function getRoles(){
+    public function getRoles(){ 
         $rol = roles_user::all();
         return response()->json($rol,200);
     }
@@ -130,6 +130,7 @@ class catalogo extends Controller
             $user->password = $hashedPassIn;
             $user->admin = $request->admin;
             $user->id_unidad = $request->id_unidad;
+            $user->idEstado = 4;
             $user->save();
             
             DB::commit();
@@ -145,8 +146,8 @@ class catalogo extends Controller
 
     public function getUnidad(){
         // $entidad = unidaEjecutora::all();
-        $entidad = unidaEjecutora::select('unida_ejecutoras.id_unidad','entidads.name as entidad','unida_ejecutoras.name as unidad')
-        ->join('entidads','entidads.id_entidad','=','unida_ejecutoras.id_entidad')->get();
+        $entidad = dependencias::select('id_dependencia as id','descripcion as name')
+        ->get();
         return response()->json($entidad,200);
     }
 
@@ -167,15 +168,10 @@ class catalogo extends Controller
         try {
 
             DB::beginTransaction();
-            
-            $secuencia = $this->sequences_data("unida_ejecutoras");
-            $secuencia = json_decode(json_encode($secuencia)) ;
- 
-            $data = new unidaEjecutora;
-    
-            $data->id_unidad = $secuencia->original->value;
-            $data->id_entidad = 1;
-            $data->name = $request->name;
+        
+            $data = new dependencias;
+            $data->descripcion = $request->name;
+            $data->idEstado = 4;
             $data->save();
 
             DB::commit();
@@ -192,13 +188,9 @@ class catalogo extends Controller
 
             DB::beginTransaction();
             
-            $secuencia = $this->sequences_data("roles_users");
-            $secuencia = json_decode(json_encode($secuencia)) ;
- 
             $data = new roles_user;
-    
-            $data->id = $secuencia->original->value;
             $data->description = $request->name;
+            $data->idEstado = 4;
             $data->save();
 
             DB::commit();
