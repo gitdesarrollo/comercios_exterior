@@ -77,7 +77,8 @@
               <el-row :gutter="20" class="mt-2">
                 <el-col :xs="25" :sm="24" :md="24" :lg="20" :xl="24">
                     <el-form-item prop="cuerpo">
-                        <ckeditor :editor="editor" v-model="form.cuerpo" :config="editorConfig"></ckeditor>
+                        <ckeditor  v-model="form.cuerpo"></ckeditor>
+                        <!-- <ckeditor :editor="editor" v-model="form.cuerpo" :config="editorConfig"></ckeditor> -->
                         <!-- <el-input type="textarea" maxlength="2000" show-word-limit v-model="form.cuerpo" :rows="15" placeholder="Cuerpo del documento"> -->
                         <!-- </el-input> -->
                     </el-form-item>
@@ -97,7 +98,7 @@
 </template>
 
 <script>
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+// import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
     // import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials';
     // import BoldPlugin from '@ckeditor/ckeditor5-basic-styles/src/bold';
     // import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic';
@@ -108,11 +109,21 @@ export default {
     props: ['id_departamento'],
     data() {
         return {
-                editor: ClassicEditor,
-                editorData: '',
-                editorConfig: {
-                    // toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote',  ]
-                },
+        //         editor: ClassicEditor,
+        //         editorData: '',
+        //         editorConfig: {
+
+        // heading: {
+        //     options: [
+        //         { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+        //         { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+        //         { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' }
+        //     ]
+        // },
+
+
+
+        //         },
             text:"hola",
             form: {
                 dirigido: "", 
