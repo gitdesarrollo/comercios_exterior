@@ -588,8 +588,8 @@ class documentos extends Controller
     }
 
     public function getDataPDF(Request $request){
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
             date_default_timezone_set('America/Guatemala');
             $data = documento::select('documentos.correlativo_documento as correlativo','documentos.dirigido',
             DB::raw('CONCAT("Guatemala ",DATE_FORMAT(documentos.created_at,"%d"), " de ", 
@@ -612,7 +612,7 @@ class documentos extends Controller
             'profesiones.descripcion as profesion','documentos.direccion as direccion','documentos.descripcion as texto')
             ->join('profesiones','documentos.idProfesion','=','profesiones.id')
             ->where('documentos.id',$request->code)->get();
-            DB::commit();
+            // DB::commit();
 
             $nameDocument = 'pdf/'. $data[0]->correlativo.'.pdf';
             $fecha = $data[0]->fecha;
@@ -741,10 +741,10 @@ class documentos extends Controller
             $pdf->save($nameDocument);
 
             return response()->json($nameDocument,200);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(false,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json(false,200);
+        // }
 
     }
 
