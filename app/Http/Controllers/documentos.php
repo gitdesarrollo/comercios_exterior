@@ -723,6 +723,11 @@ class documentos extends Controller
                     <span class="justificado">
                         '.$data[0]->texto.'
                     </span>
+
+                    <br>
+                    <br>
+
+                    Atentamente.
                 </main>
                     
                 </body>

@@ -19,7 +19,8 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import locale from 'element-ui/lib/locale/lang/es';
 import VueBarcodeScanner from 'vue-barcode-scanner';
-import CKEditor from '@ckeditor/ckeditor5-vue';
+// import CKEditor from '@ckeditor/ckeditor5-vue';
+import CKEditor from 'ckeditor4-vue';
 
 
 Vue.use(ElementUI,{locale});
