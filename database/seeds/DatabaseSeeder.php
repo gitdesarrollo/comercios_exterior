@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
         //     roles::class,
         //     UserSeeder::class
         // );
-        $this->call(profesion::class);
         $this->call(estadoDocumento::class);
         $this->call(dependencia::class);
         $this->call(roles::class);
         $this->call(UserSeeder::class);
+        $this->call(usersHasRoles::class);
     }
 }

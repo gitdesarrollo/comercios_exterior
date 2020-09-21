@@ -15,14 +15,15 @@ class CreateDocumentosTable extends Migration
     {
         Schema::create('documentos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('dirigido');
-            $table->bigInteger('id_dependencia')->unsigned();
-            $table->string('descripcion',10000);
-            $table->string('direccion',1000);
+            $table->string('interesado');
             $table->string('correlativo_documento');
+            // $table->bigInteger('idPersona')->unsigned();
+            $table->string('descripcion',10000);
+            $table->bigInteger('id_status')->unsigned();
             $table->timestamps();
             
-            $table->foreign('id_dependencia')->references('id_dependencia')->on('dependencias');
+        
+            $table->foreign('id_status')->references('id')->on('estado_documentos');
         });
     }
 

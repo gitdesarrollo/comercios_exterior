@@ -137,3 +137,11 @@ Route::post('setRoles','catalogo@setRoles');
 
 
   /********************************************* */
+
+  /**Nuevo */
+
+  Route::get('getRecepcion','recepcionController@recepcion')->name('recepcion'); 
+  Route::post('storeDocumento','recepcionController@storeRecepcion')->name('Almacenar');
+
+
+  /************************************************ */

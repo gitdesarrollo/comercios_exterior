@@ -19,14 +19,18 @@
                  Administrativo </a>
             <ul class="nav-dropdown-items">
                 <li class="nav-item ml-3">
+                    <a class="nav-link" href="{{ route('recepcion') }}">
+                        <i class="nav-icon fas fa-plus"></i> Ingreso</a>
+                </li>
+                <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./DocumentCreate">
                         <i class="nav-icon fas fa-plus"></i> Crear</a>
-                </li>
+                </li> -->
                 <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./">
                         <i class="nav-icon fas fa-folder-open"></i> Documentos</a>
                 </li> -->
-                <li class="nav-item ml-3">
+                <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./showDocument">
                         <i class="nav-icon fas fa-folder-open"></i> Documentos</a>
                 </li>
@@ -41,7 +45,7 @@
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./bitacora">
                         <i class="nav-icon fas fa-envelope"></i> Bitácora</a>
-                </li>                
+                </li>                 -->
                 <!--<li class="nav-item ml-3">
                     <a class="nav-link" href="./Reporteinventario">
                         <i class="nav-icon fas fa-file-invoice"></i> Reporte</a>

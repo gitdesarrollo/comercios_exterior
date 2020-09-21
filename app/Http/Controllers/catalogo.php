@@ -21,6 +21,7 @@ use App\Model\documentos_respaldo;
 use App\Model\secuencias_factura;
 use App\Model\roles_user;
 use App\User;
+use App\Model\userHasRoles;
 use Illuminate\Support\Facades\DB;
 
 
@@ -118,6 +119,7 @@ class catalogo extends Controller
 
     public function createUser(Request $request)
     {
+      
         try {
             DB::beginTransaction();
 
@@ -132,6 +134,14 @@ class catalogo extends Controller
             $user->id_unidad = $request->id_unidad;
             $user->idEstado = 4;
             $user->save();
+            $id = $user->id;
+
+
+            $roles = new userHasRoles;
+
+            $roles->idUser = $id;
+            $roles->idRoles = $request->idRoles;
+            $roles->save();
             
             DB::commit();
 
