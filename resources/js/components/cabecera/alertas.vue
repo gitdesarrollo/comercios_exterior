@@ -48,7 +48,7 @@ export default {
     };
   },
   mounted() {
-    this.getMessage();
+    // this.getMessage();
   },
   methods: {
     getMessage() {

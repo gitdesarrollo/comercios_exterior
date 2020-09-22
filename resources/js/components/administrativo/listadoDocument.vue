@@ -7,34 +7,40 @@
         style="width:100%"
       >
         <el-table-column label="No." type="index"></el-table-column>
-        <el-table-column label="Dirigido" width="300" prop="dirigido"></el-table-column>
+        <el-table-column label="Empresa" width="300" prop="empresa"></el-table-column>
         <el-table-column label="Correlativo" width="150" prop="correlativo"></el-table-column>
         <el-table-column label="Direccón" prop="descripcion"></el-table-column>
+        <el-table-column label="Fecha" prop="fecha">
+          <template slot-scope="scope">
+            <i class="el-icon-time"></i>
+            <span style="margin-left: 10px">{{ scope.row.fecha }}</span>
+          </template>
+        </el-table-column>
         <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
         <el-table-column label="Operaciones" width="180">
           <template slot-scope="scope" class="pl-3">
             <el-button
               type="danger"
               size="mini"
-              icon="el-icon-search"
+              icon="el-icon-s-comment"
               plain
-              @click="preview(scope.row.code,scope.row.id_dependencia)"
+              @click="preview(scope.row.code,scope.row.idTraslado)"
             ></el-button>
             <!-- v-if="trasladarBtn === scope.row.estado" -->
-            <el-button
+            <!-- <el-button
               size="mini"
               type="primary"
               icon="el-icon-right"
               plain
               @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
-            ></el-button>
-            <el-button
+            ></el-button>-->
+            <!-- <el-button
               size="mini"
               type="primary"
               icon="el-icon-s-check"
               plain
               @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
-            ></el-button>
+            ></el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -93,22 +99,39 @@
         destroy-on-close
       >
         <el-row :gutter="10">
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="15">
-            <embed
-              :src="src"
-              type="application/pdf"
-              width="90%"
-              height="600px"
-            />
+          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
+            <el-table
+              :data="list_response.listComentarios"
+              :row-class-name="tableRowClassName"
+              height="550"
+            >
+              <el-table-column label="No." type="index"></el-table-column>
+              <el-table-column label="Usuario" prop="usuario" width="250"></el-table-column>
+              <el-table-column label="Comentario" prop="comentario"></el-table-column>
+            </el-table>
           </el-col>
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
-
-          </el-col>
+          <!-- <embed :src="src" type="application/pdf" width="90%" height="600px" /> -->
+          <!-- <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
+          </el-col>-->
         </el-row>
       </el-dialog>
     </div>
   </div>
 </template>
+
+<style>
+.el-table .warning-row {
+  background: oldlace;
+}
+
+.el-table .success-row {
+  background: #f0f9eb;
+}
+
+.formComentario {
+  width: 100%;
+}
+</style>
 
 <script>
 import jsPDF from "jspdf";
@@ -118,16 +141,22 @@ import html2pdf from "html2pdf.js";
 export default {
   data() {
     return {
+      datacoment: {
+        idDocumento: "",
+        idTraslado: "",
+      },
       url_list: {
-        lista: "lista",
+        lista: "listDocumentAll",
         dependencias: "dependencias",
         trasladar: "Trasladar",
         info: "infoPDF",
+        comentario: "getComentario",
       },
       list_response: {
         documentos: [],
         list_dependencia: [],
         listInfo: [],
+        listComentarios: [],
       },
       total: 0,
       currentPage: 1,
@@ -153,7 +182,7 @@ export default {
         preview: {
           title: "Visualizar Documento",
           visible: false,
-          width: "70%",
+          width: "50%",
           top: "3vh",
           ver: false,
         },
@@ -172,11 +201,11 @@ export default {
   methods: {
     createPDF() {
       const doc = new jsPDF();
-      doc.fromHTML(document.getElementById('mypdf'), 15, 15, {
-      'width': 170
-    });
+      doc.fromHTML(document.getElementById("mypdf"), 15, 15, {
+        width: 170,
+      });
 
-    doc.save('hola.pdf');
+      doc.save("hola.pdf");
       // doc.html('<p>hola</p>', {
       // callback: function (doc) {
       //   doc.save();
@@ -197,11 +226,19 @@ export default {
       //   doc.save("sample.pdf");
       // });
     },
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex % 2 == 0) {
+        return "warning-row";
+      } else {
+        return "success-row";
+      }
+      return "";
+    },
     getLista() {
       axios.get(this.url_list.lista).then((response) => {
         this.list_response.documentos = response.data;
         this.total = response.data.length;
-        // console.log(response.data);
+        console.log(response.data);
       });
     },
     getTraslado(id, dependencia) {
@@ -237,21 +274,27 @@ export default {
         }
       });
     },
-    preview(code, dependencia) {
-      this.handlerDialog.preview.visible = true;
-
+    getComentario(traslado, documento) {
       axios
-        .post(this.url_list.info, {
-          code: code,
+        .post(this.url_list.comentario, {
+          code: traslado,
+          documento: documento,
         })
         .then((response) => {
-          this.list_response.listInfo = response.data;
           const status = JSON.parse(response.status);
-          console.log(response.data);
-          if(status == "200"){
-            this.src = response.data;
+          const result = response.data;
+          if (status == "200") {
+            this.list_response.listComentarios = response.data;
+            console.log(response.data);
+            // this.total = response.data.length;
           }
         });
+    },
+    preview(code, traslado) {
+      this.handlerDialog.preview.visible = true;
+      this.datacoment.idDocumento = code;
+      this.datacoment.idTraslado = traslado;
+      this.getComentario(code, traslado);
     },
   },
 };

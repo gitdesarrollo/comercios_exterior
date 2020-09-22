@@ -15,6 +15,22 @@ class roles extends Seeder
             'description' => 'Administrador',
             'idEstado'  => 4
         ]); 
+        DB::table('roles_users')->insert([
+            'description' => 'Usuario',
+            'idEstado'  => 4
+        ]); 
+        DB::table('roles_users')->insert([
+            'description' => 'Recepción',
+            'idEstado'  => 4
+        ]); 
+        DB::table('roles_users')->insert([
+            'description' => 'Secretaria',
+            'idEstado'  => 4
+        ]); 
+        DB::table('roles_users')->insert([
+            'description' => 'Despacho',
+            'idEstado'  => 4
+        ]); 
     }
     
 }

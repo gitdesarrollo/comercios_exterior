@@ -27,10 +27,11 @@ class recepcionController extends Controller
         //     DB::Transaction();
             // $usuario = $this->getUserbyId();
             // $usuario = json_decode(json_encode($usuario));
-            $documento = new documento;
+            $documento = new documento; 
 
             $documento->interesado = $request->interesado;
             $documento->correlativo_documento = $request->correlativo;
+            $documento->folios = $request->folio;
             $documento->descripcion = $request->descripcion;
             $documento->id_status = 1;
             $documento->save();

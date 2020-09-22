@@ -27,6 +27,10 @@
 </head>
 <body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show" >
     <main id="app">
+    <!-- ,['rol' => $rol] -->
+        
+            
+        
         @include('common.header')
             <div class="app-body"  >
                 <div class="sidebar">

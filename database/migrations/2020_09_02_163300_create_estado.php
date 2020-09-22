@@ -16,13 +16,17 @@ class CreateEstado extends Migration
         Schema::create('estado', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('idTraslado')->unsigned();
-            $table->bigInteger('idDepartamento')->unsigned();
-            $table->bigInteger('estado')->unsigned();
+            $table->bigInteger('estadoAnterior')->unsigned();
+            $table->bigInteger('estadoActual')->unsigned();
+            $table->bigInteger('estatus')->unsigned();
+            $table->bigInteger('UsuarioActual')->unsigned();
             $table->timestamps();
 
             $table->foreign('idTraslado')->references('id')->on('traslados');
-            $table->foreign('idDepartamento')->references('id_dependencia')->on('dependencias');
-            $table->foreign('estado')->references('id')->on('estado_documentos');
+            $table->foreign('estadoAnterior')->references('id')->on('estado_documentos');
+            $table->foreign('estadoActual')->references('id')->on('estado_documentos');
+            $table->foreign('estatus')->references('id')->on('estado_documentos');
+            $table->foreign('UsuarioActual')->references('id')->on('users');
         });
     }
 

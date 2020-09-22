@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use App\Model\bienes_activos;
 use App\Model\sequences;
 use App\Model\product;
+use App\Model\userHasRoles;
 
 use App\Model\cuentas_activo;
 use App\Model\checkInventory;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth; 
 
 class inventario extends Controller
 {
@@ -19,6 +21,7 @@ class inventario extends Controller
     }
 
     public function index(){
+
         return view('admin.home');
     }
 

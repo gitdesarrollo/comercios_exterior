@@ -7,41 +7,51 @@
         style="width:100%"
       >
         <el-table-column label="No." type="index"></el-table-column>
-        <el-table-column label="Dirigido" prop="dirigido"></el-table-column>
-        <el-table-column label="Correlativo" prop="correlativo_documento"></el-table-column>
-        <el-table-column label="Direccón" width="500" prop="direccion"></el-table-column>
+        <el-table-column label="Dirigido" prop="empresa"></el-table-column>
+        <el-table-column label="Correlativo" prop="correlativo"></el-table-column>
+        <el-table-column label="Descripción" width="500" prop="descripcion"></el-table-column>
         <el-table-column label="Operaciones" width="200">
           <template slot-scope="scope" class="pl-3">
-            <div v-if="Accept == scope.row.estado">
+            <div v-if="scope.row.estado == 2">
+                   
               <el-button
                 type="danger"
                 size="mini"
                 icon="el-icon-check"
                 plain
-                @click="toAccepts(scope.row.code)"
+                @click="toAccepts(scope.row.idTraslado,scope.row.code)"
               ></el-button>
             </div>
             <div v-else>
+            
               <el-button
                 type="danger"
                 size="mini"
-                icon="el-icon-search"
+                icon="el-icon-s-comment"
                 plain
-                @click="preview(scope.row.code,scope.row.id_dependencia,scope.row.documento, scope.row.traslado)"
+                @click="preview(scope.row.code,scope.row.idTraslado)"
               ></el-button>
-              <el-button
+              <!-- <el-button
                 type="primary"
                 size="mini"
                 icon="el-icon-refresh-left"
                 plain
                 @click="getTraslado(scope.row.code)"
-              ></el-button>
+              ></el-button>-->
               <el-button
                 size="mini"
                 type="primary"
                 icon="el-icon-s-check"
                 plain
-                @click="getTrasladoInterno(scope.row.code)"
+                @click="getTrasladoInterno(scope.row.code,scope.row.idTraslado)"
+              ></el-button>
+              <el-button
+                v-if="scope.row.rol == 4"
+                size="mini"
+                type="el-icon-error"
+                icon="el-icon-error"
+                plain
+                @click="cierreDocumento(scope.row.code,scope.row.idTraslado)"
               ></el-button>
             </div>
           </template>
@@ -94,6 +104,44 @@
         </el-form>
       </el-dialog>
       <el-dialog
+        :title="handlerDialog.previewClose.title"
+        :visible.sync="handlerDialog.previewClose.visible"
+        :width="handlerDialog.previewClose.width"
+        :top="handlerDialog.previewClose.top"
+        center
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        destroy-on-close
+      >
+        <el-form
+          :inline="false"
+          :model="formClose"
+          ref="formClose"
+          :rules="rulesClose"
+          id="formClose"
+          label-width="150px"
+        >
+          <el-form-item label="Comentario:" prop="comentarioCierre">
+            <el-input
+              type="textarea"
+              v-model="formClose.comentarioCierre"
+              maxlength="1000"
+              :autosize="{ minRows: 7, maxRows: 13}"
+              show-word-limit
+            ></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              @click="archivarDocument('formClose')"
+              v-loading.fullscreen.lock="trasladoUsuario"
+            >Archivar</el-button>
+            <el-button @click="cierreClose('formClose')">Cancel</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <el-dialog
         title="Traslado a personal interno"
         :visible.sync="interno"
         width="35%"
@@ -140,16 +188,20 @@
         destroy-on-close
       >
         <el-row :gutter="10">
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="13">
-            <embed :src="src" type="application/pdf" width="90%" height="600px" />
+          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
+            <el-table
+              :data="list_response.listComentarios"
+              :row-class-name="tableRowClassName"
+              height="550"
+            >
+              <el-table-column label="No." type="index"></el-table-column>
+              <el-table-column label="Usuario" prop="usuario" width="180"></el-table-column>
+              <el-table-column label="Comentario" prop="comentario"></el-table-column>
+            </el-table>
           </el-col>
+          <!-- <embed :src="src" type="application/pdf" width="90%" height="600px" /> -->
           <!-- <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
           </el-col>-->
-          <el-table :data="list_response.listComentarios" :row-class-name="tableRowClassName" style="width:45%" height="550">
-            <el-table-column label="No." type="index"></el-table-column>
-            <el-table-column label="Usuario" prop="usuario" width="180"></el-table-column>
-            <el-table-column label="Comentario" prop="comentario"></el-table-column>
-          </el-table>
         </el-row>
         <el-row :gutter="10">
           <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="formComentario">
@@ -212,6 +264,7 @@ export default {
         info: "infoPDF",
         comentario: "getComentario",
         setComentario: "setComentario",
+        closeDocumento: "closeDocumento"
       },
       list_response: {
         documentos: [],
@@ -234,6 +287,9 @@ export default {
       },
       formUser: {
         usuario: "",
+      },
+      formClose: {
+        comentarioCierre: "",
       },
       rules: {
         comentario: [
@@ -258,17 +314,33 @@ export default {
           },
         ],
       },
+      rulesClose: {
+        comentarioCierre: [
+          {
+            require: true,
+            message: "Ingrese el comentario",
+            trigger: "blur",
+          },
+        ],
+      },
       handlerDialog: {
         preview: {
           title: "Visualizar Documento",
           visible: false,
-          width: "70%",
+          width: "50%",
+          top: "3vh",
+          ver: false,
+        },
+        previewClose: {
+          title: "Cierre del Documento",
+          visible: false,
+          width: "35%",
           top: "3vh",
           ver: false,
         },
       },
       src: "",
-      Accept: 5,
+      Accept: 2,
     };
   },
   mounted() {
@@ -300,17 +372,62 @@ export default {
                 this.ComentLoading = false;
                 this.$refs[form].resetFields();
                 // this.handlerDialog.preview.visible = false;
-                this.list_response.listComentarios = [];
-                this.getComentario(this.datacoment.idTraslado);
+                
+                this.getComentario(this.datacoment.idTraslado,this.datacoment.idDocumento);
               }
             });
         }
       });
     },
-    getComentario(traslado) {
+
+    archivarDocument(form) {
+      const h = this.$createElement;
+      if (this.formClose.comentarioCierre != "") {
+        console.log("adentro");
+        this.trasladoUsuario = true;
+        axios
+          .put(this.url_list.closeDocumento, {
+            code: this.idDocumento,
+            traslado: this.depActual,
+            comentario: this.formClose.comentarioCierre,
+          })
+          .then((response) => {
+            const status = JSON.parse(response.status);
+            if (status == "200" && response.data != false) {
+              this.$message({
+                message: h("p", null, [
+                  h("i", { style: "color: teal" }, "Documento Archivado!"),
+                ]),
+                type: "success",
+              });
+              this.trasladoUsuario = false;
+              this.handlerDialog.previewClose.visible = false;
+              this.getLista();
+              // this.$refs[form].resetFields();
+              // this.handlerDialog.preview.visible = false;
+              // this.list_response.listComentarios = [];
+              // this.getComentario(this.datacoment.idTraslado);
+            }
+          });
+      } else {
+        this.$message({
+          showClose: true,
+          message: "Ingrese comentario",
+          type: "error",
+        });
+        this.$refs[form].$el[0].autofocus = true;
+        this.$refs.formClose.$el[0].placeholder = "Ingrese Comentario para continuar";
+      }
+    },
+    cierreClose(form) {
+      this.handlerDialog.previewClose.visible = false;
+      this.$refs[form].resetFields();
+    },
+    getComentario(traslado,documento) {
       axios
         .post(this.url_list.comentario, {
           code: traslado,
+          documento: documento
         })
         .then((response) => {
           const status = JSON.parse(response.status);
@@ -339,11 +456,17 @@ export default {
       console.log(id);
       // console.log(id);
     },
-    getTrasladoInterno(id, dependencia) {
+    getTrasladoInterno(id, traslado) {
       this.interno = true;
       this.idDocumento = id;
-      // this.depActual = dependencia;
-      // console.log(id);
+      this.depActual = traslado;
+      this.getComentario(traslado,id);
+    },
+
+    cierreDocumento(id, traslado) {
+      this.handlerDialog.previewClose.visible = true;
+      this.idDocumento = id;
+      this.depActual = traslado;
     },
     current_change: function (currentPage) {
       this.currentPage = currentPage;
@@ -379,7 +502,7 @@ export default {
           axios
             .put(this.url_list.TrasladoInterno, {
               Documento: this.idDocumento,
-              // actual: this.depActual,
+              Traslado: this.depActual,
               idUsuario: this.form.usuario,
             })
             .then((response) => {
@@ -391,7 +514,8 @@ export default {
         }
       });
     },
-    toAccepts(id) {
+    toAccepts(id,documento) {
+      this.getComentario(documento,id);
       const h = this.$createElement;
       axios
         .put(this.url_list.toAccept, {
@@ -408,8 +532,9 @@ export default {
               type: "success",
             });
             this.Accept = 1;
+            this.getLista();
           }
-          console.log(response.data);
+          // console.log(response.data);
         });
     },
     getUserTransfer() {
@@ -425,23 +550,13 @@ export default {
       }
       return "";
     },
-    preview(code, dependencia, documento, traslado) {
+    preview(code, traslado) {
+      
+      this.getComentario(traslado,code);
       this.handlerDialog.preview.visible = true;
-      this.datacoment.idDocumento = documento;
+      this.datacoment.idDocumento = code;
       this.datacoment.idTraslado = traslado;
-      this.getComentario(traslado);
-      axios
-        .post(this.url_list.info, {
-          code: documento,
-        })
-        .then((response) => {
-          this.list_response.listInfo = response.data;
-          const status = JSON.parse(response.status);
-          console.log(response.data);
-          if (status == "200") {
-            this.src = response.data;
-          }
-        });
+
     },
   },
 };

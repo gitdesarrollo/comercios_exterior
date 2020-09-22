@@ -14,11 +14,20 @@
                 </el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="12">
+            <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="8">
               <el-form-item prop="expediente">
                 <el-input v-model="form.expediente">
                   <template slot="prepend">
-                    <span class="requiredColor mr-1">*</span> No. Expediente:
+                    <span class="requiredColor mr-1">*</span> No. Expediente: 
+                  </template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="4">
+              <el-form-item prop="folios">
+                <el-input v-model="form.folios">
+                  <template slot="prepend">
+                    <span class="requiredColor mr-1">*</span> Folios
                   </template>
                 </el-input>
               </el-form-item>
@@ -87,6 +96,7 @@ export default {
         expediente: "",
         asunto: "",
         persona: "",
+        folios:""
       },
       rules: {
         interesado: [
@@ -146,7 +156,8 @@ export default {
                     interesado: this.form.interesado,
                     correlativo: this.form.expediente,
                     descripcion: this.form.asunto,
-                    usuario: this.form.persona
+                    usuario: this.form.persona,
+                    folio: this.form.folios
                 }).then(response => {
                     const status = JSON.parse(response.status);
                     if(status == "200" && response.data != false){
