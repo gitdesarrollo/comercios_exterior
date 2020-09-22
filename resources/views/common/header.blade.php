@@ -22,7 +22,7 @@
         <span class=" navbar-toggler-icon"></span>
       </button>
           <ul class="nav navbar-nav ml-auto mr-3">
-              <mensaje-component ></mensaje-component> 
+              <!-- <mensaje-component ></mensaje-component>  -->
 
 
         <div class="topbar-divider d-none d-sm-block"></div>

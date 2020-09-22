@@ -3,6 +3,10 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route; 
+use App\Model\userHasRoles;
+
+
+
 
 Auth::routes();
 
@@ -107,7 +111,7 @@ Route::post('setRoles','catalogo@setRoles');
 
   //Administrador
   //Crear
-  Route::get('DocumentCreate','documentos@showCreate')->name('showCreate');
+  Route::get('DocumentCreate','documentos@showCreate')->name('showCreate'); 
   Route::post('setDocumentos', 'documentos@createDocumento')->name('setDocumentos');
   Route::get('showReceptores','documentos@showReceptores')->name('showReceptores');
   Route::get('getReceptores','documentos@getReceptores')->name('getReceptores');
@@ -133,7 +137,18 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getProfesiones','documentos@getProfesiones')->name('getProfesiones');
   Route::post('infoPDF','documentos@getDataPDF')->name('infoPDF');
   Route::post('getComentario','documentos@getComentario')->name('getComentario');
-  Route::post('setComentario','documentos@setComentario')->name('setComentario');
+  Route::post('setComentario','documentos@setComentario')->name('setComentario'); 
+  Route::put('closeDocumento','documentos@closeDocumento');
 
 
   /********************************************* */
+
+  /**Nuevo */
+
+  Route::get('getRecepcion','recepcionController@recepcion')->name('recepcion'); 
+  Route::post('storeDocumento','recepcionController@storeRecepcion')->name('Almacenar');
+  Route::get('listDocumentAll','documentos@listDocumentAll');
+ 
+
+
+  /************************************************ */

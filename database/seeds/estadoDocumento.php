@@ -29,5 +29,8 @@ class estadoDocumento extends Seeder
         DB::table('estado_documentos')->insert([
             'descripcion' => 'trasladoInterno'
         ]); 
+        DB::table('estado_documentos')->insert([
+            'descripcion' => 'archivado'
+        ]); 
     } 
 }

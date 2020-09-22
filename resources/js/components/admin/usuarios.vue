@@ -332,7 +332,8 @@ export default {
                   email: this.form.email,
                   password: this.form.password,
                   admin:this.roles.is_admin,
-                  id_unidad: this.form.unidad
+                  id_unidad: this.form.unidad,
+                  idRoles: this.form.rol
                 })
                 .then(response => {
                     console.log(response.data)
