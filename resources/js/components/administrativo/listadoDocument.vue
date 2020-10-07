@@ -106,8 +106,14 @@
               height="550"
             >
               <el-table-column label="No." type="index"></el-table-column>
-              <el-table-column label="Usuario" prop="usuario" width="250"></el-table-column>
+              <el-table-column label="Usuario" prop="usuario" width="200"></el-table-column>
               <el-table-column label="Comentario" prop="comentario"></el-table-column>
+              <el-table-column label="Fecha" prop="fecha">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span style="margin-left: 10px">{{ scope.row.fecha }}</span>
+                </template>
+              </el-table-column>
             </el-table>
           </el-col>
           <!-- <embed :src="src" type="application/pdf" width="90%" height="600px" /> -->
