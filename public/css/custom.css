@@ -77,3 +77,12 @@
         width: 13rem !important;
     }
 }
+
+body{
+    background-color: #e8e8e8 !important;
+}
+
+.el-input-group__prepend{
+    background-color: #ebebeb !important;
+    color: #000 !important;
+}

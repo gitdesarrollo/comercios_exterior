@@ -34,6 +34,7 @@
         "tiptap": "^1.29.6",
         "vue-barcode-scanner": "^0.8.1",
         "vue-pdf": "^4.1.0",
+        "vue2-datatable-component": "^2.3.1",
         "xlsx": "^0.15.6"
     },
     "devDependencies": {

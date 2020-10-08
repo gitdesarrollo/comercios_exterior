@@ -23,10 +23,11 @@ class recepcionController extends Controller
     public function storeRecepcion(Request $request){ 
 
         // dd($request);
-        // try {
-        //     DB::Transaction();
-            // $usuario = $this->getUserbyId();
-            // $usuario = json_decode(json_encode($usuario));
+        try {
+            DB::beginTransaction();
+            $usuario = $this->getUserbyId();
+            $usuario = json_decode(json_encode($usuario));
+            
             $documento = new documento; 
 
             $documento->interesado = $request->interesado;
@@ -45,17 +46,31 @@ class recepcionController extends Controller
             $traslado->save();
             $idTraslado = $traslado->id;
 
-            // $estado = new estado;
+            $estado = new estado;
 
-            // $estado->idTraslado = $idTraslado;
-            // $estado->
+            $estado->idTraslado = $idTraslado;
+            $estado->estadoAnterior = 1;
+            $estado->estadoActual = 1;
+            $estado->estatus = 5;
+            $estado->UsuarioActual = $usuario->original;
+            $estado->save();
 
-            // DB::commit();
+            $estado = new estado;
+
+            $estado->idTraslado = $idTraslado;
+            $estado->estadoAnterior = 1;
+            $estado->estadoActual = 8;
+            $estado->estatus = 4;
+            $estado->UsuarioActual = $request->usuario;
+            $estado->save();
+
+
+            DB::commit();
 
             return response()->json($traslado,200);
-        // } catch (\Throwable $th) {
-        //     return response()->json(false,200);
-        //     DB::rollBack();
-        // }
+        } catch (\Throwable $th) {
+            return response()->json(false,200);
+            DB::rollBack();
+        }
     }
 }

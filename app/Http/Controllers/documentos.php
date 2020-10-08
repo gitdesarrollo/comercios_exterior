@@ -499,8 +499,24 @@ class documentos extends Controller
                 $idDocumentoTraslado = $idTraslado[0]->documento;
                 $estadoTraslado = $idTraslado[0]->estado;
 
+
+                $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
+
+                $idAnterior = $estados[0]->actual;
+
                 $update = traslados::where('id',$idTransfer)->update(['estado' => 2 ,'idUsuarioTramito' => $request->idUsuario]);  
                 $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
+                // $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4, 'estadoActual','!=' => 8])->update(['estatus' => 5]);
+
+                
+                $estado = new estado;
+
+                $estado->idTraslado = $idTransfer;
+                $estado->estadoAnterior = $idAnterior;
+                $estado->estadoActual = 8;
+                $estado->estatus = 4;
+                $estado->UsuarioActual = $request->idUsuario;
+                $estado->save();
 
                 DB::commit();
                 return response()->json($update,200);
@@ -714,14 +730,10 @@ class documentos extends Controller
     }
 
     public function bitacoraDocument(Request $request){
-        // $documento = traslados::select('traslados.id','estado_documentos.descripcion as estado','dependencias.descripcion as dependencia')
-        //     ->join('documentos','documentos.id','=','traslados.idDocumento')
-        //     ->join('estado_documentos','traslados.estado','=','estado_documentos.id')
-        //     ->join('dependencias','traslados.idDepartamentoActual','=','dependencias.id_dependencia')
-        //     ->where('documentos.correlativo_documento','=',$request->id)
-        //     ->get();
 
-        $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, date_format(es.created_at,'%d/%m/%Y') as fecha FROM estado es
+        try {
+            DB::beginTransaction();
+                $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, date_format(es.created_at,'%d/%m/%Y') as fecha FROM estado es
                         INNER JOIN traslados tr
                             ON es.idTraslado = tr.id
                         INNER JOIN documentos doc
@@ -733,7 +745,16 @@ class documentos extends Controller
                         INNER JOIN dependencias dep
                             ON us.id_unidad = dep.id_dependencia
                     WHERE doc.correlativo_documento = :id",["id" => $request->id]);
-        return response()->json($documento,200);
+               
+        
+                return response()->json($documento,200);
+                
+                DB::commit();
+            } catch (\Throwable $th) {
+                return response()->json(false,200);
+                DB::rollBack();
+        }
+        
     }
 
     public function previewPDF(){

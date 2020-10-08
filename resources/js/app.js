@@ -21,12 +21,14 @@ import locale from 'element-ui/lib/locale/lang/es';
 import VueBarcodeScanner from 'vue-barcode-scanner';
 // import CKEditor from '@ckeditor/ckeditor5-vue';
 import CKEditor from 'ckeditor4-vue';
+// import Datatable from 'vue2-datatable-component'
 
 
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
 
 Vue.use( CKEditor );
+// Vue.use(Datatable);
 
 
 
