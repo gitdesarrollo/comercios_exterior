@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>Recepcion de documentos</title>
+</head>
+<body>
+    <p>Hola! {{ $usuario_to }}</p>
+    <p>se te a sido asignado un documento que contiene la siguiente información:</p>
+    <ul>
+        <li>Empresa: {{ $empresa_to }} </li>
+        <li>Correlativo:  {{ $numero_to }} </li>
+        <l>Asunto: {{ $asunto_to }} </li>
+    </ul>
+    <p>entra a tu panel del sistema de documentos y acepta la recepción</p>
+    <p>Saludos.</p>
+    <!-- <ul>
+        <li>Latitud: </li>
+        <li>Longitud: </li>
+        <li>
+            <a href="https://www.google.com/maps/dir/">
+                Ver en Google Maps
+            </a>
+        </li>
+    </ul> -->
+</body>
+</html>
