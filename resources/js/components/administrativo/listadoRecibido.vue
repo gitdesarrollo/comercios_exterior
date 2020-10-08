@@ -9,7 +9,7 @@
         <el-table-column label="No." type="index"></el-table-column>
         <el-table-column label="Dirigido" prop="empresa"></el-table-column>
         <el-table-column label="Correlativo" prop="correlativo"></el-table-column>
-        <el-table-column label="Descripción" width="500" prop="descripcion"></el-table-column>
+        <el-table-column label="Asunto" width="500" prop="descripcion"></el-table-column>
         <el-table-column label="Operaciones" width="200">
           <template slot-scope="scope" class="pl-3">
             <div v-if="scope.row.estado == 2">
