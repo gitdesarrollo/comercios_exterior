@@ -63,7 +63,7 @@
         </el-table-column>
         <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
         <el-table-column label="Operaciones" width="180" header-align="center">
-          <template slot="header" slot-scope="scope">
+          <template slot="header" >
             <el-input
               v-model="search"
               size="mini"

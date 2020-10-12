@@ -9,9 +9,9 @@
     <p>Hola! {{ $usuario_to }}</p>
     <p>se te a sido asignado un documento que contiene la siguiente información:</p>
     <ul>
-        <li>Empresa: {{ $empresa_to }} </li>
-        <li>Correlativo:  {{ $numero_to }} </li>
-        <l>Asunto: {{ $asunto_to }} </li>
+        <li><b>Empresa:</b> {{ $empresa_to }} </li>
+        <li><b>Correlativo:</b>  {{ $numero_to }} </li>
+        <li><b>Asunto:</b> {{ $asunto_to }} </li>
     </ul>
     <p>entra a tu panel del sistema de documentos y acepta la recepción</p>
     <p>Saludos.</p>
