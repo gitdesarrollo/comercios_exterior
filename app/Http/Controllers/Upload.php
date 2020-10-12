@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Model\uploadFile;
+use iio\libmergepdf\Merger;
+use Illuminate\Support\Facades\DB;
 
 class Upload extends Controller
 {
@@ -16,20 +18,79 @@ class Upload extends Controller
     public function store(Request $request)
     {
         
-        // dd($request->id_documento);
-        $uploadId = array();
-        if ( $files =  $request->file('file')) {
-            foreach ($request->file('file') as $key => $file) {
-                $name = time() . $key . $file->getClientOriginalName();
-                $nameFile = $file->getClientOriginalName();
-                $filename = $file->move('files', $name);
-                $uploadId[] = uploadFile::create([
-                    'file' => $name,
-                    'file_name' =>$nameFile,
-                    'evento_id' => $request->id_documento])->id;
+        // dd($request->correlativo);
+
+        if($request->count > 0){
+
+            $uploadId = array();
+            if ( $files =  $request->file('file')) {
+                foreach ($request->file('file') as $key => $file) {
+                    // $name = time() . $key . $file->getClientOriginalName();
+                    $name = $request->correlativo . 'temp'. '.'. $file->getClientOriginalExtension();
+                    $nameFile = $file->getClientOriginalName();
+                    $filename = $file->move('files', $name);
+                    $uploadId[] = uploadFile::create([
+                        'file' => $name,
+                        'file_name' =>$nameFile,
+                        'evento_id' => $request->id_documento])->id;
+                }
+
+                $file1 = public_path() . '/files/' . $request->correlativo . '.pdf';
+                $file2 = public_path() . '/files/' . $name;
+                $this->mergePDF($file1,$file2);
+                return response()->json($uploadId,200);
             }
+
+        }else{
+            $uploadId = array();
+            if ( $files =  $request->file('file')) {
+                foreach ($request->file('file') as $key => $file) {
+                    $name = $request->correlativo . '.'. $file->getClientOriginalExtension();
+                    $nameFile = $file->getClientOriginalName();
+                    $filename = $file->move('files', $name);
+                    $uploadId[] = uploadFile::create([
+                        'file' => $name,
+                        'file_name' =>$nameFile,
+                        'evento_id' => $request->id_documento])->id;
+                }
+            }
+            return response()->json($uploadId, 200);
         }
-        return response()->json($uploadId, 200);
+    }
+
+
+    public function mergePDF($file1,$file2){
+        $merger = new Merger;
+
+        $documento = [$file1, $file2];
+
+        foreach($documento as $documento){
+            $merger->addFile($documento);
+        }
+
+        
+        $createNewMerger = $merger->merge();
+
+        $newName = public_path() . '/files/' . 'combinado.pdf';
+
+        $bytes = file_put_contents($newName,$createNewMerger);
+
+        
+        if($bytes !== false){
+
+            
+                if (file_exists($file1)) {
+                    unlink($file1);
+                }
+
+                if (file_exists($file2)) {
+                    unlink($file2);
+                }
+            
+
+            return response()->json($bytes,200);
+        }
+
     }
 
     public function update(Request $request, Upload $upload)
@@ -50,7 +111,7 @@ class Upload extends Controller
             }
             uploadFile::where('id', $upload->id)->delete();
         }
-        return response()->json(null, 204);
+        return response()->json(null, 200);
     }
 
 
@@ -76,9 +137,16 @@ class Upload extends Controller
     }
 
     public function getNameFiles(Request $data){
-        $info = uploadFile::where('file_name',$data->correlativoD)->select('file_name as name')->get();
 
-        return response()->json($info,200);
+        try {
+            DB::beginTransaction();
+                $info = uploadFile::where('file_name',$data->correlativoD)->select('file_name as name')->get();
+             
+            DB::commit();
+            return response()->json($info,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+        }
     }
 
 }

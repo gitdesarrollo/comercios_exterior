@@ -257,13 +257,13 @@
                   class="upload-demo"
                   :action="'/upload'"
                   name="file[]"
-                  :data="{ id_documento: datacoment.idDocumento }"
+                  :data="{ id_documento: datacoment.idDocumento, correlativo: datacoment.correlativo, count: numberFiles }"
                   :headers="{ 'X-CSRF-TOKEN': csrf}"
                   :on-preview="handlePreview"
                   :on-remove="handleRemove"
                   :on-success="cargaSuccess"
                   multiple
-                  :limit="1"
+                  :limit="limitNumber"
                   :on-exceed="handleExceed"
                   :file-list="fileList"
                   accept=".pdf"
@@ -311,6 +311,8 @@ export default {
   props: {csrf:{type: String}},
   data() {
     return {
+      limitNumber: 1,
+      numberFiles: 0,
       fileList: [],
       datacoment: {
         idDocumento: "",
@@ -681,7 +683,10 @@ export default {
       })
       .then(response => {
         this.fileList = response.data;
-        console.log(this.fileList);
+        if(response.data.length > 0){
+          this.limitNumber = 2;
+          this.numberFiles = response.data.length;
+        }
       });
     },
   },
