@@ -25,9 +25,9 @@ class recepcionController extends Controller
 
     public function storeRecepcion(Request $request){ 
 
-        // dd($request);
-        // try {
-        //     DB::beginTransaction();
+      
+        try {
+            DB::beginTransaction();
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
             
@@ -76,18 +76,19 @@ class recepcionController extends Controller
             $to_numero = $request->correlativo;
             $to_asunto = $request->descripcion;
             $data = array('name'=> $usuarioTo[0]->name);
+            $subject = 'Recepción de Documento';
 
-            Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto), function ($message){
+            Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject), function ($message){
                 
                 $message->from('jjolon@correo.com','envio');
             });
             
-            // DB::commit();
+            DB::commit();
 
             return response()->json($documento,200);
-        // } catch (\Throwable $th) {
-        //     return response()->json(false,200);
-        //     DB::rollBack();
-        // }
+        } catch (\Throwable $th) {
+            return response()->json(false,200);
+            DB::rollBack();
+        }
     }
 }

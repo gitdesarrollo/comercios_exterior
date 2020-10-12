@@ -199,6 +199,20 @@
               <el-table-column label="Comentario" prop="comentario"></el-table-column>
             </el-table>
           </el-col>
+
+          <!-- upload file PDF -->
+          <!-- <el-upload
+            class="upload-demo"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            multiple
+            :limit="3"
+            :on-exceed="handleExceed"
+            :file-list="fileList">
+            <el-button size="small" type="primary">Clic para subir archivo</el-button>
+            <div slot="tip" class="el-upload__tip">Solo archivos jpg/png con un tamaño menor de 500kb</div>
+          </el-upload> -->
           <!-- <embed :src="src" type="application/pdf" width="90%" height="600px" /> -->
           <!-- <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
           </el-col>-->
@@ -246,6 +260,7 @@
 export default {
   data() {
     return {
+      fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
       datacoment: {
         idDocumento: "",
         idTraslado: "",

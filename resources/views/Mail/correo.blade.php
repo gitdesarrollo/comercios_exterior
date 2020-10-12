@@ -7,7 +7,7 @@
 </head>
 <body>
     <p>Hola! {{ $usuario_to }}</p>
-    <p>se te a sido asignado un documento que contiene la siguiente información:</p>
+    <p>se te ha sido asignado un documento que contiene la siguiente información:</p>
     <ul>
         <li><b>Empresa:</b> {{ $empresa_to }} </li>
         <li><b>Correlativo:</b>  {{ $numero_to }} </li>
@@ -15,14 +15,6 @@
     </ul>
     <p>entra a tu panel del sistema de documentos y acepta la recepción</p>
     <p>Saludos.</p>
-    <!-- <ul>
-        <li>Latitud: </li>
-        <li>Longitud: </li>
-        <li>
-            <a href="https://www.google.com/maps/dir/">
-                Ver en Google Maps
-            </a>
-        </li>
-    </ul> -->
+
 </body>
 </html>
