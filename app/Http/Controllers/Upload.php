@@ -31,13 +31,14 @@ class Upload extends Controller
                     $filename = $file->move('files', $name);
                     $uploadId[] = uploadFile::create([
                         'file' => $name,
-                        'file_name' =>$nameFile,
+                        'file_name' => $request->correlativo,
                         'evento_id' => $request->id_documento])->id;
                 }
 
                 $file1 = public_path() . '/files/' . $request->correlativo . '.pdf';
                 $file2 = public_path() . '/files/' . $name;
-                $this->mergePDF($file1,$file2);
+                $newName = $request->correlativo . '.pdf';
+                $this->mergePDF($file1,$file2,$newName,$name);
                 return response()->json($uploadId,200);
             }
 
@@ -50,7 +51,7 @@ class Upload extends Controller
                     $filename = $file->move('files', $name);
                     $uploadId[] = uploadFile::create([
                         'file' => $name,
-                        'file_name' =>$nameFile,
+                        'file_name' => $request->correlativo,
                         'evento_id' => $request->id_documento])->id;
                 }
             }
@@ -59,7 +60,9 @@ class Upload extends Controller
     }
 
 
-    public function mergePDF($file1,$file2){
+    public function mergePDF($file1,$file2,$correlativo,$name){
+
+        
         $merger = new Merger;
 
         $documento = [$file1, $file2];
@@ -71,25 +74,30 @@ class Upload extends Controller
         
         $createNewMerger = $merger->merge();
 
-        $newName = public_path() . '/files/' . 'combinado.pdf';
+        $newName = public_path() . '/files/' . $correlativo;
+        // $newName = $file1;
+        
 
         $bytes = file_put_contents($newName,$createNewMerger);
 
-        
         if($bytes !== false){
 
             
-                if (file_exists($file1)) {
-                    unlink($file1);
-                }
+                // if (file_exists($file1)) {
+                //     unlink($file1);
+                //     // uploadFile::where('id', $upload->id)->delete();
+                // }
 
                 if (file_exists($file2)) {
                     unlink($file2);
+                    uploadFile::where('file', $name)->delete();
                 }
             
 
             return response()->json($bytes,200);
         }
+
+        
 
     }
 

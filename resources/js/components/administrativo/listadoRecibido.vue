@@ -41,7 +41,13 @@
                 size="mini"
                 icon="el-icon-s-comment"
                 plain
-                @click="preview(scope.row.code, scope.row.idTraslado,scope.row.correlativo)"
+                @click="
+                  preview(
+                    scope.row.code,
+                    scope.row.idTraslado,
+                    scope.row.correlativo
+                  )
+                "
               ></el-button>
               <!-- <el-button
                 type="primary"
@@ -250,33 +256,6 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-            <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
-              <el-form-item label="Adjunto:">
-                <!-- upload file PDF -->
-                <el-upload
-                  class="upload-demo"
-                  :action="'/upload'"
-                  name="file[]"
-                  :data="{ id_documento: datacoment.idDocumento, correlativo: datacoment.correlativo, count: numberFiles }"
-                  :headers="{ 'X-CSRF-TOKEN': csrf}"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :on-success="cargaSuccess"
-                  multiple
-                  :limit="limitNumber"
-                  :on-exceed="handleExceed"
-                  :file-list="fileList"
-                  accept=".pdf"
-                >
-                  <el-button size="small" type="primary"
-                    >Clic para subir archivo</el-button
-                  >
-                  <div slot="tip" class="el-upload__tip">
-                    Solo archivos pdf con un tamaño menor de 500kb
-                  </div>
-                </el-upload>
-              </el-form-item>
-            </el-col>
             <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="8">
               <el-form-item>
                 <el-button type="primary" @click="submitComent('ruleForm')"
@@ -286,6 +265,55 @@
             </el-col>
           </el-form>
         </el-row>
+            <el-row :gutter="20" class="mt-2">
+              <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12">
+                  <el-upload
+                    class="upload-demo"
+                    :action="'/upload'"
+                    name="file[]"
+                    :data="{
+                      id_documento: datacoment.idDocumento,
+                      correlativo: datacoment.correlativo,
+                      count: numberFiles,
+                    }"
+                    :headers="{ 'X-CSRF-TOKEN': csrf }"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :show-file-list="false"
+                    :on-success="cargaSuccess"
+                    multiple
+                    :limit="limitNumber"
+                    :on-exceed="handleExceed"
+                    :file-list="fileList"
+                    accept=".pdf"
+                  >
+                    <el-button size="small" type="primary"
+                      >Clic para subir archivo</el-button
+                    >
+                    <div slot="tip" class="el-upload__tip">
+                      Solo archivos pdf con un tamaño menor de 500kb
+                    </div>
+                  </el-upload>
+              </el-col>
+              <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12">
+                  <el-divider direction="vertical"></el-divider>
+                  <el-button
+                    @click="drawer = true"
+                    type="primary"
+                    style="margin-left: 16px"
+                  >
+                    Visualizar Documento
+                  </el-button>
+                  <el-drawer
+                    title="Documento"
+                    :visible.sync="drawer"
+                    :with-header="false"
+                    :modal="false"
+                  >
+                    <embed :src="src" type="application/pdf" width="100%" height="100%" />
+                  </el-drawer>
+              </el-col>
+            </el-row>
       </el-dialog>
     </div>
   </div>
@@ -308,16 +336,17 @@
 
 <script>
 export default {
-  props: {csrf:{type: String}},
+  props: { csrf: { type: String } },
   data() {
     return {
+      drawer: false,
       limitNumber: 1,
       numberFiles: 0,
       fileList: [],
       datacoment: {
         idDocumento: "",
         idTraslado: "",
-        correlativo:"",
+        correlativo: "",
       },
       ruleForm: {
         comentario: "",
@@ -342,7 +371,6 @@ export default {
         list_dependencia: [],
         list_user: [],
         listcomentarios: [],
-        
       },
       total: 0,
       currentPage: 1,
@@ -585,7 +613,6 @@ export default {
               this.trasladoUsuario = false;
               this.interno = false;
               this.getLista();
-              // console.log(response.data);
             });
         }
       });
@@ -610,7 +637,6 @@ export default {
             this.Accept = 1;
             this.getLista();
           }
-          // console.log(response.data);
         });
     },
     getUserTransfer() {
@@ -647,7 +673,7 @@ export default {
         });
     },
     handlePreview(file) {
-      console.log("files",file);
+      console.log("files", file);
     },
     handleExceed(files, fileList) {
       this.$message.warning(
@@ -656,38 +682,36 @@ export default {
         } archivos esta vez, añade hasta ${files.length + fileList.length}`
       );
     },
-    cargaSuccess(response, file, fileList) {
-      let id_fila = "";
-      var vm = this;
-      _.map(response, function (data) {
-        file["uid"] = data;
-      });
-
-      // vm.fileList = fileList
+    cargaSuccess(res, file, fileList) {
+      const _this = this;
+      if (res.success === false) {
+        _this.$message({
+          message: res.desc,
+          type: "warning",
+        });
+      } else {
+        this.$notify.success({
+          title: "Carga de Archivo",
+          message: "Documento cargado!",
+          showClose: false,
+        });
+        this.src = './../files/' + response.data[0].name + '.pdf'; 
+      }
+    },
+    getNameFiles(correlativo) {
       axios
-        .post(this.url_list.uploadFile, {
-          id_evento: this.datacoment.idDocumento,
-          id_file: file.uid,
-          name_file: this.datacoment.correlativo,
+        .post(this.url_list.getFiles, {
+          correlativoD: correlativo,
         })
         .then((response) => {
-          this.$message.success(`Documento Cargado`);
-        })
-        .catch((error) => {
-          console.log(error.message);
+          this.fileList = response.data;
+         
+          if (response.data.length > 0) {
+            this.limitNumber = 2;
+            this.numberFiles = response.data.length;
+            this.src = './../files/' + response.data[0].name + '.pdf'; 
+          }
         });
-    },
-    getNameFiles(correlativo){
-      axios.post(this.url_list.getFiles,{
-        correlativoD: correlativo,
-      })
-      .then(response => {
-        this.fileList = response.data;
-        if(response.data.length > 0){
-          this.limitNumber = 2;
-          this.numberFiles = response.data.length;
-        }
-      });
     },
   },
 };
