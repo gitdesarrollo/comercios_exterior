@@ -16,6 +16,9 @@ use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; 
 
+use App\Mail\NotificationMail;
+use Illuminate\Support\Facades\Mail;
+
 class documentos extends Controller 
 {
 
@@ -518,8 +521,35 @@ class documentos extends Controller
                 $estado->UsuarioActual = $request->idUsuario;
                 $estado->save();
 
+                $usuarioTo = User::where('id',$request->idUsuario)->select('name','email')->get();
+
+                $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion')->get();
+
+                $empresa_to_document = $documentoTo[0]->interesado;
+                $correlativo_to_document = $documentoTo[0]->correlativo_documento;
+                $descripcion_to_document = $documentoTo[0]->descripcion;
+
+                $to_name = $usuarioTo[0]->name;
+                $to_email = 'jjolong@miumg.edu.gt';
+                $to_empresa = $empresa_to_document;
+                $to_numero = $correlativo_to_document;
+                $to_asunto = $descripcion_to_document;
+                $subject = 'Traslado de Documento';
+
+                Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject), function ($message){
+                
+                    $message->from('jjolon@correo.com','envio');
+                });
+
+
                 DB::commit();
+
+
+
+
                 return response()->json($update,200);
+
+
             }
                 // $idTraslado = traslados::where('id',$idTransfer)->select('estado','idUsuarioTramito as Usuario')->get();
 

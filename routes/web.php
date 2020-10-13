@@ -148,6 +148,10 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getRecepcion','recepcionController@recepcion')->name('recepcion'); 
   Route::post('storeDocumento','recepcionController@storeRecepcion')->name('Almacenar');
   Route::get('listDocumentAll','documentos@listDocumentAll');
+
+  Route::post('upload','Upload@store');
+  Route::post('Uploadfile','Upload@uploadfiles');
+  Route::post('getNameFiles','Upload@getNameFiles');
  
 
 

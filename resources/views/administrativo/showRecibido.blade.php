@@ -3,7 +3,7 @@
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <recibos-component></recibos-component>
+                <recibos-component csrf="{{ csrf_token() }}"></recibos-component>
             </div>
         </div>
     </div>

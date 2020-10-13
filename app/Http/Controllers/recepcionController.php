@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use App\Model\documento;
 use App\Model\traslados;
 use App\Model\estado;
+use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\NotificationMail;
+use Illuminate\Support\Facades\Mail;
 
 class recepcionController extends Controller
 {
@@ -22,7 +25,7 @@ class recepcionController extends Controller
 
     public function storeRecepcion(Request $request){ 
 
-        // dd($request);
+      
         try {
             DB::beginTransaction();
             $usuario = $this->getUserbyId();
@@ -65,9 +68,24 @@ class recepcionController extends Controller
             $estado->save();
 
 
+            $usuarioTo = User::where('id',$request->usuario)->select('name','email')->get();
+
+            $to_name = $usuarioTo[0]->name;
+            $to_email = 'jjolong@miumg.edu.gt';
+            $to_empresa = $request->interesado;
+            $to_numero = $request->correlativo;
+            $to_asunto = $request->descripcion;
+            $data = array('name'=> $usuarioTo[0]->name);
+            $subject = 'Recepción de Documento';
+
+            Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject), function ($message){
+                
+                $message->from('jjolon@correo.com','envio');
+            });
+            
             DB::commit();
 
-            return response()->json($traslado,200);
+            return response()->json($documento,200);
         } catch (\Throwable $th) {
             return response()->json(false,200);
             DB::rollBack();

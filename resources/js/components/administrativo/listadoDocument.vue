@@ -24,7 +24,6 @@
         height="450"
         ref="filterInfo"
         @filter-change="datos"
-        
       >
         <el-table-column label="No." type="index" fixed></el-table-column>
         <el-table-column
@@ -63,7 +62,7 @@
         </el-table-column>
         <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
         <el-table-column label="Operaciones" width="180" header-align="center">
-          <template slot="header" slot-scope="scope">
+          <template slot="header">
             <el-input
               v-model="search"
               size="mini"
@@ -76,8 +75,43 @@
               size="mini"
               icon="el-icon-s-comment"
               plain
-              @click="preview(scope.row.code, scope.row.idTraslado)"
+              @click="
+                preview(
+                  scope.row.code,
+                  scope.row.idTraslado,
+                  scope.row.correlativo
+                )
+              "
             ></el-button>
+            <el-button
+              @click="showDrawer(scope.row.correlativo)"
+              type="primary"
+              style="margin-left: 16px"
+              plain
+              icon="el-icon-full-screen"
+            >
+            </el-button>
+            <el-drawer
+              title="Documento"
+              :visible.sync="drawer"
+              :with-header="false"
+              :modal="false"
+            >
+              <embed
+                :src="src"
+                type="application/pdf"
+                width="100%"
+                height="100%"
+              />
+              <el-alert
+                title="Sin Documentos"
+                type="error"
+                description="no se ha cargado ningun archivo"
+                show-icon
+                v-if="verError"
+              >
+              </el-alert>
+            </el-drawer>
             <!-- v-if="trasladarBtn === scope.row.estado" -->
             <!-- :default-sort = "{prop: 'empresa', order: 'descending'}" -->
             <!-- <el-button
@@ -97,7 +131,6 @@
           </template>
         </el-table-column>
       </el-table>
-
 
       <div style="text-align: left; margin-top: 30px">
         <el-pagination
@@ -191,51 +224,50 @@
         </el-row>
       </el-dialog>
     </div>
-  <div v-show="ver">
-    <div v-if="handlerData === false">
-    <table class="table" id="reporte" v-show="infoAll">
-      <thead>
-        <tr>
-          <td>Empresa</td>
-          <td>Correlativo</td>
-          <td>Asunto</td>
-          <td>Fecha</td>
-        </tr>
-      </thead>
-      <tbody >
-        <tr v-for="(index,x) in list_response.documentos" :key="x">
-          <!-- {{ index }} -->
-          <td>{{ index.empresa}}</td>
-          <td>{{ index.correlativo }}</td>
-          <td>{{ index.descripcion }}</td>
-          <td>{{ index.fecha }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-show="ver">
+      <div v-if="handlerData === false">
+        <table class="table" id="reporte" v-show="infoAll">
+          <thead>
+            <tr>
+              <td>Empresa</td>
+              <td>Correlativo</td>
+              <td>Asunto</td>
+              <td>Fecha</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(index, x) in list_response.documentos" :key="x">
+              <!-- {{ index }} -->
+              <td>{{ index.empresa }}</td>
+              <td>{{ index.correlativo }}</td>
+              <td>{{ index.descripcion }}</td>
+              <td>{{ index.fecha }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div else>
+        <table class="table" id="reporte" v-show="infoFilter">
+          <thead>
+            <tr>
+              <td>Empresa</td>
+              <td>Correlativo</td>
+              <td>Asunto</td>
+              <td>Fecha</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(index, x) in list_response.listFilter" :key="x">
+              <!-- {{ index }} -->
+              <td>{{ index.data.empresa }}</td>
+              <td>{{ index.data.correlativo }}</td>
+              <td>{{ index.data.descripcion }}</td>
+              <td>{{ index.data.fecha }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div else>
-    <table class="table" id="reporte" v-show="infoFilter">
-      <thead>
-        <tr>
-          <td>Empresa</td>
-          <td>Correlativo</td>
-          <td>Asunto</td>
-          <td>Fecha</td>
-        </tr>
-      </thead>
-      <tbody >
-        <tr v-for="(index,x) in list_response.listFilter" :key="x">
-          <!-- {{ index }} -->
-          <td>{{ index.data.empresa}}</td>
-          <td>{{ index.data.correlativo }}</td>
-          <td>{{ index.data.descripcion }}</td>
-          <td>{{ index.data.fecha }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    </div>
-     </div>
   </div>
 </template>
 
@@ -261,6 +293,8 @@ import html2pdf from "html2pdf.js";
 export default {
   data() {
     return {
+      verError: false,
+      drawer: false,
       datacoment: {
         idDocumento: "",
         idTraslado: "",
@@ -271,6 +305,7 @@ export default {
         trasladar: "Trasladar",
         info: "infoPDF",
         comentario: "getComentario",
+        getFiles: "getNameFiles",
       },
       list_response: {
         documentos: [],
@@ -279,8 +314,8 @@ export default {
         listComentarios: [],
         listFilter: [
           {
-            'data':''
-          }
+            data: "",
+          },
         ],
       },
       total: 0,
@@ -319,16 +354,16 @@ export default {
       currentPagePDF: 0,
       numPages: undefined,
       pageCount: 0,
-      src: "/pdf/1.pdf",
+      src: "",
       show: true,
       search: "",
       query: {},
       data: [],
       total: 0,
-      infoAll:false,
-      infoFilter:false,
-      handlerData:false,
-      ver:false,
+      infoAll: false,
+      infoFilter: false,
+      handlerData: false,
+      ver: false,
       columns: [
         { title: "User ID", field: "uid", sortable: true },
         { title: "Username", field: "name" },
@@ -398,7 +433,6 @@ export default {
       return "";
     },
     getLista() {
-      
       axios.get(this.url_list.lista).then((response) => {
         this.list_response.documentos = response.data;
         this.infoAll = true;
@@ -470,11 +504,12 @@ export default {
           }
         });
     },
-    preview(code, traslado) {
+    preview(code, traslado, correlativo) {
       this.handlerDialog.preview.visible = true;
       this.datacoment.idDocumento = code;
       this.datacoment.idTraslado = traslado;
       this.getComentario(code, traslado);
+      this.getNameFiles(correlativo);
     },
     filterData(value, row) {
       // this.list_response.listFilter = [];
@@ -485,46 +520,90 @@ export default {
     },
     filterCorrelativo(value, row) {
       return row.correlativo === value;
-      console.log(row);
+      
     },
-    datos(row){
-      console.log(row)
-      if(row.empresa && row.empresa.length > 0){
+    datos(row) {
+      
+      if (row.empresa && row.empresa.length > 0) {
         this.list_response.listFilter = [];
         for (let filtro = 0; filtro < row.empresa.length; filtro++) {
-          for (let index = 0; index < this.list_response.documentos.length; index++) {
-            if(this.list_response.documentos[index].empresa === row.empresa[filtro]){
+          for (
+            let index = 0;
+            index < this.list_response.documentos.length;
+            index++
+          ) {
+            if (
+              this.list_response.documentos[index].empresa ===
+              row.empresa[filtro]
+            ) {
               this.list_response.listFilter.push({
-                'data':this.list_response.documentos[index]
-              })
-              
+                data: this.list_response.documentos[index],
+              });
             }
           }
         }
         this.handlerData = true;
         this.infoAll = false;
         this.infoFilter = true;
-      }else if(row.correlativo && row.correlativo.length > 0){
+      } else if (row.correlativo && row.correlativo.length > 0) {
         this.list_response.listFilter = [];
         for (let filtro = 0; filtro < row.correlativo.length; filtro++) {
-          for (let index = 0; index < this.list_response.documentos.length; index++) {
-            if(this.list_response.documentos[index].correlativo === row.correlativo[filtro]){
+          for (
+            let index = 0;
+            index < this.list_response.documentos.length;
+            index++
+          ) {
+            if (
+              this.list_response.documentos[index].correlativo ===
+              row.correlativo[filtro]
+            ) {
               this.list_response.listFilter.push({
-                'data':this.list_response.documentos[index]
-              })
-              
+                data: this.list_response.documentos[index],
+              });
             }
           }
         }
         this.handlerData = true;
         this.infoAll = false;
         this.infoFilter = true;
-      }else{
+      } else {
         this.handlerData = false;
         this.infoAll = true;
         this.infoFilter = false;
       }
-    }
+    },
+    getNameFiles(correlativo) {
+      this.src = "";
+      axios
+        .post(this.url_list.getFiles, {
+          correlativoD: correlativo,
+        })
+        .then((response) => {
+          
+          
+          if (response.data.length > 0) {
+            this.limitNumber = 2;
+            this.numberFiles = response.data.length;
+            this.src = "./../files/" + response.data[0].name + ".pdf";
+          }else{
+            this.src = "";
+            this.verError = true;
+          }
+        }).catch(error => {
+          this.src = "";
+          this.verError = true;
+          
+        })
+    },
+    showDrawer(correlativo) {
+      this.drawer = true;
+      this.getNameFiles(correlativo);
+      
+        // this.src = "./../files/" + correlativo + ".pdf";
+      
+        // this.verError = true;
+      
+    },
   },
 };
 </script>
