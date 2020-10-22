@@ -531,6 +531,7 @@ class documentos extends Controller
 
                 $to_name = $usuarioTo[0]->name;
                 $to_email = 'jjolong@miumg.edu.gt';
+                // $to_email = 'mahernandez@mineco.gob.gt';
                 $to_empresa = $empresa_to_document;
                 $to_numero = $correlativo_to_document;
                 $to_asunto = $descripcion_to_document;

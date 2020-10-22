@@ -72,6 +72,7 @@ class recepcionController extends Controller
 
             $to_name = $usuarioTo[0]->name;
             $to_email = 'jjolong@miumg.edu.gt';
+            // $to_email = 'mahernandez@mineco.gob.gt';
             $to_empresa = $request->interesado;
             $to_numero = $request->correlativo;
             $to_asunto = $request->descripcion;
