@@ -46,6 +46,10 @@ class estadoDocumento extends Seeder
     $estado->descripcion = 'pendiente';
     $estado->save();
 
+    $estado = new estado_documento;
+    $estado->descripcion = 'Traslado Externo';
+    $estado->save();
+
 
         // DB::table('estado_documentos')->insert([
         //     'descripcion' => 'creado'

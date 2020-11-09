@@ -21,6 +21,7 @@ class CreateDocumentosTable extends Migration
             $table->string('folios');
             $table->string('descripcion',10000);
             $table->bigInteger('id_status')->unsigned();
+            $table->string('correlativo_externo',200);
             $table->timestamps();
             
         

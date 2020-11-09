@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="card">
-      <div class="card-header text-white bg-primary">Recepción de Documentos</div>
+      <div class="card-header text-white bg-primary">Recepción de Documentos 2</div>
       <div class="card-body">
         <el-form ref="form" :model="form" :rules="rules">
           <el-row :gutter="10" class="mt-2">

@@ -10,7 +10,10 @@ use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\NotificationMail;
+use App\Model\correlativos;
+use App\Model\nombreCorrelativo;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class recepcionController extends Controller
 {
@@ -22,6 +25,69 @@ class recepcionController extends Controller
         $usuario = Auth::user()->id;
         return response()->json($usuario,200);
     }
+
+    public function getCorrelativoDocumento(){
+
+        $carbon = Carbon::now();
+
+        $anio = $carbon->isoFormat('YYYY');
+
+        if(correlativos::select('numero')->where(['unidad_id' => 1, 'ano' => $anio])->count() === 0){
+
+            $string = nombreCorrelativo::select('id')->where(['unidad_id' => 1])->get();
+
+            $data = new correlativos;
+
+            $data->unidad_id = 1;
+            $data->string_id = $string[0]->id;
+            $data->numero = 1;
+            $data->ano = $anio;
+            $data->save();
+
+            return response()->json($data,200);
+        }else{
+
+            $infoAnterior = correlativos::where(['unidad_id' => 1, 'ano' => $anio])->select('numero','id')->get();
+
+            $update = correlativos::where(['id' => $infoAnterior[0]->id])->update(['numero' => ($infoAnterior[0]->numero + 1)]);
+
+            $infoActual = correlativos::where(['unidad_id' => 1, 'ano' => $anio])->select('numero','id')->get();
+
+            return response()->json($infoActual,200);
+        }
+
+
+    }
+
+
+
+    public function sequences_data($tabla){
+        
+        if($data = sequences::where('name','=',$tabla)->select('value')->count() === 0){
+            $value = 0;
+            $vacio = true;
+            
+        }else{
+            $value = sequences::select('value')->where('name','=', $tabla)->get(); 
+            $vacio = false;
+            
+        };
+
+        if($vacio === true){
+            $data = new sequences;
+            $data->name = $tabla;
+            $data->value = $value + 1;
+            $data->save();
+        }else{
+            $cantidad = $data = sequences::where('name','=',$tabla)->select('value')->count();
+            $data = new sequences;
+            $data->name = $tabla;
+            $data->value = $cantidad+1;
+            $data->save();
+        }
+        return response()->json($data,200);
+    }
+
 
     public function storeRecepcion(Request $request){ 
 

@@ -152,6 +152,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('upload','Upload@store');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');
+
+  Route::get('correlativoN','recepcionController@getCorrelativoDocumento');
  
 
 
