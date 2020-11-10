@@ -17,6 +17,7 @@ class CreateTrasladoExternosTable extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('traslado_id')->unsigned();
             $table->string('lugar_destino',500);
+            $table->string('correlativo_salida',500);
             $table->timestamps();
 
 

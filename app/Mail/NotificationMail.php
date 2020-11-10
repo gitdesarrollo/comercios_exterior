@@ -16,13 +16,14 @@ class NotificationMail extends Mailable
     public $numero_to;
     public $asunto_to;
     public $subject;
+    public $interno;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($subject,$empresa,$correlativo,$asunto,$titulo)
+    public function __construct($subject,$empresa,$correlativo,$asunto,$titulo,$nInterno)
     // public function __construct()
     {
         $this->usuarioTo = $subject;
@@ -30,6 +31,7 @@ class NotificationMail extends Mailable
         $this->numero_to = $correlativo;
         $this->asunto_to = $asunto;
         $this->subject = $titulo;
+        $this->interno = $nInterno;
     }
 
     /**
@@ -44,6 +46,6 @@ class NotificationMail extends Mailable
         $numero_to = $this->numero_to;
         $asunto_to = $this->asunto_to;
         $subject_to = $this->subject;
-        return $this->view('Mail.correo', compact("usuario_to",'empresa_to','numero_to','asunto_to'))->subject($subject_to);
+        return $this->view('Mail.correo', compact("usuario_to",'empresa_to','numero_to','asunto_to','interno'))->subject($subject_to);
     }
 }
