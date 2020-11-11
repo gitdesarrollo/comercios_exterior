@@ -93,8 +93,8 @@ class recepcionController extends Controller
     public function storeRecepcion(Request $request){ 
 
       
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
 
@@ -146,7 +146,8 @@ class recepcionController extends Controller
             
 
             $to_name = $usuarioTo[0]->name;
-            $to_email = 'jjolong@miumg.edu.gt';
+            // $to_email = 'jjolong@miumg.edu.gt';
+            $to_email = $usuarioTo[0]->email;
             // $to_email = 'mahernandez@mineco.gob.gt';
             $to_empresa = $request->interesado;
             $to_numero = $request->correlativo;
@@ -160,12 +161,12 @@ class recepcionController extends Controller
                 $message->from('jjolon@correo.com','envio');
             });
             
-            DB::commit();
+            // DB::commit();
 
             return response()->json($documento,200);
-        } catch (\Throwable $th) {
-            return response()->json(false,200);
-            DB::rollBack();
-        }
+        // } catch (\Throwable $th) {
+        //     return response()->json(false,200);
+        //     DB::rollBack();
+        // }
     }
 }
