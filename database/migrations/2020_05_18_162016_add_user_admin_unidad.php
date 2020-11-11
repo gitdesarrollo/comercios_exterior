@@ -18,6 +18,7 @@ class AddUserAdminUnidad extends Migration
             $table->bigInteger('id_unidad')->after('admin')->unsigned();
             $table->bigInteger('idEstado')->after('admin')->unsigned();
             
+            
             $table->foreign('id_unidad')->references('id_dependencia')->on('dependencias');
             $table->foreign('idEstado')->references('id')->on('estado_documentos');
 

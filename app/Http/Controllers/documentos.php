@@ -13,6 +13,7 @@ use App\Model\estado;
 use App\Model\profesiones;
 use App\Model\comentarios;
 use App\User;
+use App\Model\trasladoExterno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; 
 
@@ -136,7 +137,7 @@ class documentos extends Controller
                     return response()->json(true,200);
                 } catch (\Throwable $th) {
                     DB::rollBack();
-                    return response()->json($th,500); 
+                    return response()->json(false,500); 
                 }
         }
     }
@@ -481,116 +482,140 @@ class documentos extends Controller
         
         try {
             DB::beginTransaction();
-
             $idUsuario = $this->getUserbyId();
             $idUsuario = json_decode(json_encode($idUsuario));
 
-            $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
+            if($request->externo){
+                $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
+    
+                if($trasladoU > 0){
 
-            if($trasladoU > 0){
-                $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
-                $idTranfer = $trasladoUs[0]->id;
-                $usuario = $this->getUserbyId();
-                $usuario = json_decode(json_encode($usuario));
+                    
+                    $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
+                    $idTranfer = $trasladoUs[0]->id;
+                    $usuario = $this->getUserbyId();
+                    $usuario = json_decode(json_encode($usuario));
+    
+                    $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado 
+                        FROM traslados 
+                        WHERE id = :id and estado = 3
+                    ',['id' => $request->Documento]);
+                    $idTransfer = $idTraslado[0]->code;
+                    $UsuarioTraslado = $idTraslado[0]->name;
+                    $idDocumentoTraslado = $idTraslado[0]->documento;
+                    $estadoTraslado = $idTraslado[0]->estado;
+                    $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
+                    $idAnterior = $estados[0]->actual;
+    
+                    $update = traslados::where('id',$idTransfer)->update(['estado' => 9 ,'idUsuarioTramito' => $idUsuario->original]);  
+                    $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
+                    // $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4, 'estadoActual','!=' => 8])->update(['estatus' => 5]);
+                    $estado = new estado;
+                    $estado->idTraslado = $idTransfer;
+                    $estado->estadoAnterior = $idAnterior;
+                    $estado->estadoActual = 9;
+                    $estado->estatus = 4;
+                    $estado->UsuarioActual = $idUsuario->original;
+                    $estado->save();
 
-                $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado 
-                    FROM traslados 
-                    WHERE id = :id and estado = 3
-                ',['id' => $request->Documento]);
-                $idTransfer = $idTraslado[0]->code;
-                $UsuarioTraslado = $idTraslado[0]->name;
-                $idDocumentoTraslado = $idTraslado[0]->documento;
-                $estadoTraslado = $idTraslado[0]->estado;
+                    // dd($idTransfer);
 
-
-                $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
-
-                $idAnterior = $estados[0]->actual;
-
-                $update = traslados::where('id',$idTransfer)->update(['estado' => 2 ,'idUsuarioTramito' => $request->idUsuario]);  
-                $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
-                // $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4, 'estadoActual','!=' => 8])->update(['estatus' => 5]);
-
-                
-                $estado = new estado;
-
-                $estado->idTraslado = $idTransfer;
-                $estado->estadoAnterior = $idAnterior;
-                $estado->estadoActual = 8;
-                $estado->estatus = 4;
-                $estado->UsuarioActual = $request->idUsuario;
-                $estado->save();
-
-                $usuarioTo = User::where('id',$request->idUsuario)->select('name','email')->get();
-
-                $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion')->get();
-
-                $empresa_to_document = $documentoTo[0]->interesado;
-                $correlativo_to_document = $documentoTo[0]->correlativo_documento;
-                $descripcion_to_document = $documentoTo[0]->descripcion;
-
-                $to_name = $usuarioTo[0]->name;
-                $to_email = 'jjolong@miumg.edu.gt';
-                // $to_email = 'mahernandez@mineco.gob.gt';
-                $to_empresa = $empresa_to_document;
-                $to_numero = $correlativo_to_document;
-                $to_asunto = $descripcion_to_document;
-                $subject = 'Traslado de Documento';
-
-                Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject), function ($message){
-                
-                    $message->from('jjolon@correo.com','envio');
-                });
-
-
-                DB::commit();
-
-
-
-
-                return response()->json($update,200);
-
+                    $TrasladoExterno = new trasladoExterno;
+                    $TrasladoExterno->traslado_id = $idTransfer;
+                    $TrasladoExterno->lugar_destino = $request->destino;
+                    $TrasladoExterno->correlativo_salida = $request->correlativoEx;
+                    $TrasladoExterno->save();
+    
+                    $usuarioTo = User::where('id',$idUsuario->original)->select('name','email')->get();
+    
+                    $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion','correlativo_externo')->get();
+    
+                    $empresa_to_document = $documentoTo[0]->interesado;
+                    $correlativo_to_document = $documentoTo[0]->correlativo_documento;
+                    $descripcion_to_document = $documentoTo[0]->descripcion;
+                    $externo_to_document = $documentoTo[0]->correlativo_externo;
+    
+                    $to_name = $usuarioTo[0]->name;
+                    $to_email = $usuarioTo[0]->email;
+                    // $to_email = 'jjolong@miumg.edu.gt';
+                    // $to_email = 'mahernandez@mineco.gob.gt';
+                    $to_empresa = $empresa_to_document;
+                    $to_numero = $correlativo_to_document;
+                    $to_asunto = $descripcion_to_document;
+                    $subject = 'Traslado Externo a: ' . $request->destino . ' con numero de correlativo: ' . $request->correlativoEx;
+                    $externo = $externo_to_document;
+    
+                    Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
+                    
+                        $message->from('jjolon@correo.com','envio');
+                    });
+                    DB::commit();
+                    return response()->json($update,200);
+                }
+            }else{
+    
+                $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
+    
+                if($trasladoU > 0){
+                    $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
+                    $idTranfer = $trasladoUs[0]->id;
+                    $usuario = $this->getUserbyId();
+                    $usuario = json_decode(json_encode($usuario));
+    
+                    $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado 
+                        FROM traslados 
+                        WHERE id = :id and estado = 3
+                    ',['id' => $request->Documento]);
+                    $idTransfer = $idTraslado[0]->code;
+                    $UsuarioTraslado = $idTraslado[0]->name;
+                    $idDocumentoTraslado = $idTraslado[0]->documento;
+                    $estadoTraslado = $idTraslado[0]->estado;
+                    $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
+                    $idAnterior = $estados[0]->actual;
+    
+                    $update = traslados::where('id',$idTransfer)->update(['estado' => 2 ,'idUsuarioTramito' => $request->idUsuario]);  
+                    $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
+                    // $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4, 'estadoActual','!=' => 8])->update(['estatus' => 5]);
+                    $estado = new estado;
+                    $estado->idTraslado = $idTransfer;
+                    $estado->estadoAnterior = $idAnterior;
+                    $estado->estadoActual = 8;
+                    $estado->estatus = 4;
+                    $estado->UsuarioActual = $request->idUsuario;
+                    $estado->save();
+    
+                    $usuarioTo = User::where('id',$request->idUsuario)->select('name','email')->get();
+    
+                    $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion','correlativo_externo')->get();
+    
+                    $empresa_to_document = $documentoTo[0]->interesado;
+                    $correlativo_to_document = $documentoTo[0]->correlativo_documento;
+                    $descripcion_to_document = $documentoTo[0]->descripcion;
+                    $externo_to_document = $documentoTo[0]->correlativo_externo;
+    
+                    $to_name = $usuarioTo[0]->name;
+                    $to_email = 'jjolong@miumg.edu.gt';
+                    // $to_email = 'mahernandez@mineco.gob.gt';
+                    $to_empresa = $empresa_to_document;
+                    $to_numero = $correlativo_to_document;
+                    $to_asunto = $descripcion_to_document;
+                    $subject = 'Traslado de Documento';
+                    $externo = $externo_to_document;
+    
+                    Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
+                    
+                        $message->from('jjolon@correo.com','envio');
+                    });
+                    DB::commit();
+                    return response()->json($update,200);
+                }
 
             }
-                // $idTraslado = traslados::where('id',$idTransfer)->select('estado','idUsuarioTramito as Usuario')->get();
-
-
-                // $traslados = new estado;
-                // $traslados->idTraslado = $idTransfer;
-                // $traslados->estadoAnterior = $estadoTraslado;
-                // $traslados->estadoActual = 2;
-                // $traslados->estatus = 4;
-                // $traslados->UsuarioActual = $idTraslado[0]->Usuario; 
-                // $traslados->save();
-
-            // }else{
-            //     $usuario = $this->getUserbyId();
-            //     $usuario = json_decode(json_encode($usuario));
-            //     $idTraslado = DB::select('SELECT id as code, idDepartamentoActual as name, idDocumento as documento
-            //         FROM traslados 
-            //         WHERE id = :id and estado = 2
-            //     ',['id' => $request->Documento]);
-            //     $idTransfer = $idTraslado[0]->code;
-            //     $update = traslados::where('id',$idTransfer)->update(['estado' => 6,'idUsuarioInterno' => $request->idUsuario]);                
-            //     DB::commit();
-            //     return response()->json($update,200);
-
-                // $idDepTransfer = $idTraslado[0]->name;
-                // $idDocumento = $idTraslado[0]->documento; 
-               
-                // $traslados = new traslados;
-                // $traslados->idDocumento = $idDocumento;
-                // $traslados->idDepartamentoActual = $request->idDireccionTraslado;
-                // $traslados->idDepartamentoTraslado = $idDepTransfer;
-                // $traslados->idUsuarioTramito = $usuario->original;
-                // $traslados->estado = 2;
-                // $traslados->save();
-                // $IdTrasladoNuevo = $traslados->id;
-                // $this->setEstadoTransfer($IdTrasladoNuevo,$request->idDireccionTraslado);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json($th,200);
         }
+
 
     }
 
@@ -629,7 +654,8 @@ class documentos extends Controller
                                         us.NAME AS usuario,
                                         d.created_at as fecha,
                                         tras.id as idTraslado,
-                                        rol.idRoles as rol
+                                        rol.idRoles as rol,
+                                        d.correlativo_externo as formato
                                         FROM documentos d
                                         INNER JOIN traslados tras
                                             ON d.id = tras.id

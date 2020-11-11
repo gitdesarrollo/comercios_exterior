@@ -56,7 +56,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'documentos@mineco.gob.gt'),
+        'address' => env('MAIL_FROM_ADDRESS', 'sistemadedocumentos@mineco.gob.gt'),
         'name' => env('MAIL_FROM_NAME', 'Recepcion de Documentos'),
     ],
 

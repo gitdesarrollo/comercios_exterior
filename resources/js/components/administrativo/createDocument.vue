@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="card">
-      <div class="card-header text-white bg-primary">Creación de documentos</div>
+      <div class="card-header text-white bg-primary">Creación de documentos </div>
       <div class="card-body">
           <el-form ref="form" :model="form" :rules="rules" label-width="20px">
               <el-row :gutter="10" class="mt-2">

@@ -20,11 +20,27 @@
           prop="correlativo"
         ></el-table-column>
         <el-table-column
+          label="Correlativo Interno"
+          prop="formato"
+        ></el-table-column>
+        <el-table-column
           label="Asunto"
           width="500"
           prop="descripcion"
         ></el-table-column>
-        <el-table-column label="Operaciones" width="200">
+        <el-table-column
+          prop="estado"
+          label="Etiqueta"
+          width="100">
+          <template slot-scope="scope">
+            <div v-if="scope.row.estado === 9">
+              <el-tag
+                :type="scope.row.estado === '9' ? 'primary' : 'warning'"
+                disable-transitions>Externo</el-tag>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Operaciones" width="250">
           <template slot-scope="scope" class="pl-3">
             <div v-if="scope.row.estado == 2">
               <el-button
@@ -33,6 +49,16 @@
                 icon="el-icon-check"
                 plain
                 @click="toAccepts(scope.row.idTraslado, scope.row.code)"
+              ></el-button>
+            </div>
+            <div v-else-if="scope.row.estado == 9">
+              <el-button
+                v-if="scope.row.rol == 4"
+                size="mini"
+                type="el-icon-error"
+                icon="el-icon-error"
+                plain
+                @click="cierreDocumento(scope.row.code, scope.row.idTraslado)"
               ></el-button>
             </div>
             <div v-else>
@@ -63,6 +89,15 @@
                 plain
                 @click="
                   getTrasladoInterno(scope.row.code, scope.row.idTraslado)
+                "
+              ></el-button>
+              <el-button
+                size="mini"
+                type="warning"
+                icon="el-icon-s-promotion"
+                plain
+                @click="
+                  getTrasladoExterno(scope.row.code, scope.row.idTraslado)
                 "
               ></el-button>
               <el-button
@@ -166,6 +201,39 @@
               >Archivar</el-button
             >
             <el-button @click="cierreClose('formClose')">Cancel</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <el-dialog
+        title="Traslado Externo"
+        :visible.sync="externo"
+        width="35%"
+        top="3vh"
+        center
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        destroy-on-close
+      >
+        <el-form :inline="false" :model="formExterno" ref="formExterno" label-width="150px">
+          <el-form-item label="Lugar:" >
+            <el-input
+              v-model="formExterno.lugar"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="Correlativo:" >
+            <el-input
+              v-model="formExterno.correlativo"
+            ></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              @click="transferExterno()"
+              v-loading.fullscreen.lock="trasladoUsuario"
+              >Trasladar</el-button
+            >
+            <el-button @click="externo = false">Cancel</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -378,12 +446,17 @@ export default {
       EditscreenLoading: false,
       dialogo: false,
       interno: false,
+      externo: false,
       trasladoUsuario: false,
       idDocumento: 0,
       depActual: 0,
       form: {
         departamentoId: "",
         usuario: "",
+      },
+      formExterno: {
+        lugar:"",
+        correlativo:""
       },
       formUser: {
         usuario: "",
@@ -567,6 +640,13 @@ export default {
       this.getComentario(traslado, id);
     },
 
+    getTrasladoExterno(id, traslado) {
+      this.externo = true;
+      this.idDocumento = id;
+      this.depActual = traslado;
+      this.getComentario(traslado, id);
+    },
+
     cierreDocumento(id, traslado) {
       this.handlerDialog.previewClose.visible = true;
       this.idDocumento = id;
@@ -608,6 +688,7 @@ export default {
               Documento: this.idDocumento,
               Traslado: this.depActual,
               idUsuario: this.form.usuario,
+              externo: false
             })
             .then((response) => {
               this.trasladoUsuario = false;
@@ -616,6 +697,25 @@ export default {
             });
         }
       });
+    },
+
+    transferExterno() {
+
+          this.trasladoUsuario = true;
+          axios
+            .put(this.url_list.TrasladoInterno, {
+              Documento: this.idDocumento,
+              Traslado: this.depActual,
+              idUsuario: this.form.usuario,
+              externo: true,
+              destino: this.formExterno.lugar,
+              correlativoEx: this.formExterno.correlativo
+            })
+            .then((response) => {
+              this.trasladoUsuario = false;
+              this.externo = false;
+              this.getLista();
+            });
     },
     toAccepts(id, documento) {
       this.getComentario(documento, id);
