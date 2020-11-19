@@ -594,7 +594,8 @@ class documentos extends Controller
                     $externo_to_document = $documentoTo[0]->correlativo_externo;
     
                     $to_name = $usuarioTo[0]->name;
-                    $to_email = 'jjolong@miumg.edu.gt';
+                    $to_email = $usuario[0]->email;
+                    // $to_email = 'jjolong@miumg.edu.gt';
                     // $to_email = 'mahernandez@mineco.gob.gt';
                     $to_empresa = $empresa_to_document;
                     $to_numero = $correlativo_to_document;
@@ -604,7 +605,7 @@ class documentos extends Controller
     
                     Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
                     
-                        $message->from('jjolon@correo.com','envio');
+                        $message->from($to_email,'envio');
                     });
                     DB::commit();
                     return response()->json($update,200);
