@@ -158,7 +158,7 @@ class recepcionController extends Controller
 
             Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$correlativo_interno), function ($message){
                 
-                $message->from('jjolon@correo.com','envio');
+                $message->from($to_email,'envio');
             });
             
             // DB::commit();

@@ -15,6 +15,7 @@
         <li><b>Asunto:</b> {{ $asunto_to }} </li>
     </ul>
     <p>entra a tu panel del sistema de documentos y acepta la recepción</p>
+    <p>https://documentos.mineco.gob.gt</p>
     <p>Saludos.</p>
 
 </body>
