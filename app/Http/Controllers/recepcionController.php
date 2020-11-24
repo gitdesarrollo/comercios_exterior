@@ -17,6 +17,11 @@ use Carbon\Carbon;
 
 class recepcionController extends Controller
 {
+
+    public function __construct(){
+        $this->middleware('auth');
+    }
+    
     public function recepcion(){
         return view('administrativo.recepcion');
     }
