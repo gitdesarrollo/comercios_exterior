@@ -1,0 +1,4 @@
+php artisan migrate --path=database/migrations/2020_12_23_181656_create_viceministerios_table.php
+composer dump-autoload
+php artisan db:seed
+php artisan migrate --path=database/migrations/2020_12_23_182700_add_column_vice.php
