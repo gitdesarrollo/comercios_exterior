@@ -198,6 +198,8 @@ class documentos extends Controller
             $id = $this->getUserbyId();
             $id = json_decode(json_encode($id)); 
 
+            
+
             $documento = DB::select('SELECT 
                                         d.id as code,
                                         d.interesado AS empresa,
@@ -214,6 +216,12 @@ class documentos extends Controller
                                         ON tras.estado = ed.id
                                         INNER JOIN users us
                                             ON tras.idUsuarioTramito = us.id
+                                        INNER JOIN dependencias dep
+   		                                    ON  dep.id_dependencia = us.id_unidad
+                                        INNER JOIN viceministerios vice
+   	                                        ON vice.id = dep.idVice
+                                        WHERE us.id = :id
+                                        
                                         
             ',['id' => $id->original]);
             DB::commit();
