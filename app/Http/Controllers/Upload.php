@@ -24,7 +24,7 @@ class Upload extends Controller
     {
         $bandera = "";
         if($request->count > 0){
-            $uploadId = array();
+            $uploadId = [];
             if ( $files =  $request->file('file')) {
                 foreach ($request->file('file') as $key => $file) {
                     // $name = time() . $key . $file->getClientOriginalName();
@@ -37,17 +37,24 @@ class Upload extends Controller
                     $upload->file_name = $request->correlativo;
                     $upload->formato = $request->type;
                     $upload->save();
-                    $id = $upload->id;
-
+                    $file = $upload->file;
+                    $format = $upload->formato;
 
                 }
 
                 $file1 = public_path() . '/files/' . $request->correlativo . '.pdf';
+                $nameF =  $request->correlativo . '.pdf';
                 $file2 = public_path() . '/files/' . $name;
                 $newName = $request->correlativo . '.pdf';
                 $this->mergePDF($file1,$file2,$newName,$name);
-                $bandera = "documento cargado pdf Id." . $id;
-                return response()->json($bandera,200);
+                array_push($uploadId, [
+                    [
+                        "file"      =>      $nameF,
+                        "format"    =>      $format
+                    ]
+                ]);
+                // $bandera =  $id;
+                return response()->json($uploadId,200);
             }
 
         }else{
@@ -64,12 +71,20 @@ class Upload extends Controller
                     $upload->file_name = $request->correlativo;
                     $upload->formato = $request->type;
                     $upload->save();
-                    $id = $upload->id;
+                    $file = $upload->file;
+                    $format = $upload->formato;
+
+                    array_push($uploadId, [
+                        [
+                            "file"      =>      $file,
+                            "format"    =>      $format
+                        ]
+                    ]);
 
                 }
             }
-            $bandera = "documento añadido pdf Id." . $id;
-            return response()->json($bandera, 200);
+            // $bandera = $id;
+            return response()->json($uploadId, 200);
         }
         return response()->json($bandera, 200);
     }
@@ -90,8 +105,17 @@ class Upload extends Controller
                     $upload->file_name = $request->correlativo;
                     $upload->formato = $request->type;
                     $upload->save();
-                    $id = $upload->id;
-                    $bandera = "documento word Id." . $id;
+                    // $id = $upload->file;
+                    // $bandera = $id;
+                    $file = $upload->file;
+                    $format = $upload->formato;
+
+                    array_push($uploadId, [
+                        [
+                            "file"      =>      $file,
+                            "format"    =>      $format
+                        ]
+                    ]);
                 }
             }
             return response()->json($uploadId, 200);

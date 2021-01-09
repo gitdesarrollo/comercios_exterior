@@ -286,6 +286,8 @@
                 :visible.sync="handlerDialog.preview.visible"
                 :width="handlerDialog.preview.width"
                 :top="handlerDialog.preview.top"
+                @close="closeEvent()"
+                @open="openEvent()"
                 center
                 destroy-on-close
             >
@@ -389,9 +391,11 @@
                         </el-upload>
                     </el-col>
                     <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12">
+                        
                         <el-divider direction="vertical"></el-divider>
                         <el-button
                             @click="verDocumento(true,'pdf')"
+                            v-if="controlButton.buttonPdf"
                             type="danger"
                             :icon="controlButton.icon"
                             :disabled="controlButton.disabled"
@@ -409,7 +413,7 @@
                         </el-drawer>
                         <el-divider direction="vertical"></el-divider>
 
-                        <el-link :href="documentWord.url" :underline="false" v-if="">
+                        <el-link :href="documentWord.url" :underline="false" v-if="controlButton.buttonWord">
                             <el-button
                                 type="primary"
                                 icon="el-icon-download"
@@ -463,7 +467,8 @@ export default {
                 loading:false,
                 icon:"",
                 disabled:false,
-                buttonWord:true,
+                buttonWord:false,
+                buttonPdf:false,
             },
             fileList: [],
             datacoment: {
@@ -587,25 +592,25 @@ export default {
     },
     methods: {
         verDocumento(flag,type){
-            this.controlButton.disabled = true;
-            this.controlButton.icon ="el-icon-loading";
+            // this.controlButton.disabled = true;
+            // this.controlButton.icon ="el-icon-loading";
 
-            axios.post(this.url_list.url,{
-                id: this.datacoment.idDocumento,
-                formato: type
-            })
-            .then(response => {
-                const status = JSON.parse(response.status);
-                const length = JSON.parse(response.data.length);
-                console.log(response);
-                if(status == '200' && length > 0){
-                    this.src = './../files/' + response.data[0].file;
+            // axios.post(this.url_list.url,{
+            //     id: this.datacoment.idDocumento,
+            //     formato: type
+            // })
+            // .then(response => {
+            //     const status = JSON.parse(response.status);
+            //     const length = JSON.parse(response.data.length);
+            //     console.log(response);
+            //     if(status == '200' && length > 0){
+            //         this.src = './../files/' + response.data[0].file;
                     this.drawer = flag;
-                    this.controlButton.disabled = false;
-                    this.controlButton.icon ="";
-                }
+            //         this.controlButton.disabled = false;
+            //         this.controlButton.icon ="";
+            //     }
 
-            })
+            // })
 
         },
         submitComent(form) {
@@ -845,14 +850,51 @@ export default {
             this.datacoment.idTraslado = traslado;
             this.datacoment.correlativo = correlativo;
 
+            
+            this.getNameFiles(code);
+        },
+        closeEvent(){
+            this.controlButton.buttonWord = false;
+            this.controlButton.buttonPdf = false;
+            this.src  = "";
+            this.documentWord.url = ""
+        },
+        openEvent(){
+            
             axios.post(this.url_list.exists,{
-                id:code,
+                id:this.datacoment.idDocumento,
                 formato: "word"
             })
             .then(response => {
-                console.log(response.data)
+                
+                const result = response.data;
+                if(result != false){
+                   this.documentWord.url = './../files/' + response.data[0].file;
+                   this.controlButton.buttonWord = true;
+                }else{
+                    this.controlButton.buttonWord = false;
+                }
             })
-            this.getNameFiles(code);
+
+            axios.post(this.url_list.url,{
+                id: this.datacoment.idDocumento,
+                formato: "pdf"
+            })
+            .then(response => {
+                const status = JSON.parse(response.status);
+                const length = JSON.parse(response.data.length);
+                if(status == '200' && length > 0){
+                    this.src = './../files/' + response.data[0].file;
+                    // this.drawer = flag;
+                    // this.controlButton.disabled = false;
+                    // this.controlButton.icon ="";
+                    this.controlButton.buttonPdf = true;
+                }else{
+                    this.controlButton.buttonPdf = false;
+                }
+
+            })
+
         },
         handleRemove(file, fileList) {
             let vm = this;
@@ -890,8 +932,14 @@ export default {
                     message: "Documento cargado!",
                     showClose: false,
                 });
-                console.log(this.src);
-                // this.src = './../files/' + res.data[0].name + '.pdf';
+                console.log(res[0][0].file);
+                if(res[0][0].format == "pdf"){
+                    this.src = './../files/' + res[0][0].file;
+                    this.controlButton.buttonPdf = true;
+                }else{
+                    this.controlButton.buttonWord = true;
+                    this.documentWord.url = './../files/' + res[0][0].file;
+                }
             }
         },
         getNameFiles(correlativo) {
