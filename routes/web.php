@@ -2,7 +2,7 @@
 
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route; 
+use Illuminate\Support\Facades\Route;
 use App\Model\userHasRoles;
 
 
@@ -62,7 +62,7 @@ Route::post('reportInventory','BarCode@BarCodeAllReport');
   /** Printer BarCode */
 
   Route::get('printer/{data_account}','BarCode@BarCodePrinter');
-  Route::get('search','inventario@showSearch'); 
+  Route::get('search','inventario@showSearch');
   Route::get('printCode/{code}','BarCode@GetBarCodeById');
   Route::get('searchCode/{code}','BarCode@GetSearchCodeById');
   Route::get('List','inventario@showList');
@@ -98,20 +98,20 @@ Route::get('showUsuarios','catalogo@showUsuarios');
 Route::get('getUser','catalogo@getUser');
 Route::post('registerUser','catalogo@createUser');
 Route::get('visualizar', 'catalogo@visualizar');
-Route::post('setDataExcel','Inventario\ControllerInitial@setDataExcel'); 
+Route::post('setDataExcel','Inventario\ControllerInitial@setDataExcel');
 Route::get('getRoles','catalogo@getRoles');
 Route::get('roles','catalogo@showroles');
 Route::post('setRoles','catalogo@setRoles');
 
   /************** */
 
- 
 
-  /********** COMERCIO EXTERIOR **************** */ 
+
+  /********** COMERCIO EXTERIOR **************** */
 
   //Administrador
   //Crear
-  Route::get('DocumentCreate','documentos@showCreate')->name('showCreate'); 
+  Route::get('DocumentCreate','documentos@showCreate')->name('showCreate');
   Route::post('setDocumentos', 'documentos@createDocumento')->name('setDocumentos');
   Route::get('showReceptores','documentos@showReceptores')->name('showReceptores');
   Route::get('getReceptores','documentos@getReceptores')->name('getReceptores');
@@ -119,12 +119,12 @@ Route::post('setRoles','catalogo@setRoles');
   Route::put('updateReceptor','documentos@updateReceptor')->name('updateReceptor');
   Route::get('showDocument','documentos@showDocument')->name('showDocument');
   Route::get('lista','documentos@listDocument')->name('lista');
-  Route::get('showTraslados','documentos@showTraslados')->name('showTraslados'); 
+  Route::get('showTraslados','documentos@showTraslados')->name('showTraslados');
   Route::put('Trasladar','documentos@documentTransfer')->name('Trasladar');
   Route::get('getMessage','documentos@getRecepcion')->name('getMessage');
   Route::get('getRecepcionMessage','documentos@getRecepcionMessage')->name('getRecepcionMessage');
   Route::get('recibido','documentos@showRecibido')->name('recibido');
-  Route::put('Aceptar','documentos@toAccept')->name('Aceptar');  
+  Route::put('Aceptar','documentos@toAccept')->name('Aceptar');
   Route::post('filterReceptores','documentos@getReceptoresbyId')->name('filterDocumentos');
   Route::put('retornar','documentos@retornar')->name('retornar');
   Route::get('traslados','documentos@listDocumentTransfert')->name('traslados');
@@ -137,7 +137,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getProfesiones','documentos@getProfesiones')->name('getProfesiones');
   Route::post('infoPDF','documentos@getDataPDF')->name('infoPDF');
   Route::post('getComentario','documentos@getComentario')->name('getComentario');
-  Route::post('setComentario','documentos@setComentario')->name('setComentario'); 
+  Route::post('setComentario','documentos@setComentario')->name('setComentario');
   Route::put('closeDocumento','documentos@closeDocumento');
 
 
@@ -145,16 +145,20 @@ Route::post('setRoles','catalogo@setRoles');
 
   /**Nuevo */
 
-  Route::get('getRecepcion','recepcionController@recepcion')->name('recepcion'); 
+  Route::get('getRecepcion','recepcionController@recepcion')->name('recepcion');
   Route::post('storeDocumento','recepcionController@storeRecepcion')->name('Almacenar');
   Route::get('listDocumentAll','documentos@listDocumentAll');
 
   Route::post('upload','Upload@store');
+  Route::post('uploadWord','Upload@storeWord');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');
 
   Route::post('correlativoN','recepcionController@getCorrelativoDocumento');
- 
+  Route::post('url','documentos@getUrlDocument');
+  Route::post('exists','documentos@existDocument');
+  Route::get('tipos','documentos@getTypeDocument');
+
 
 
   /************************************************ */

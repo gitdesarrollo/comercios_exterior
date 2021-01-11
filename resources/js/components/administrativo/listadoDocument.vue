@@ -84,7 +84,7 @@
               "
             ></el-button>
             <el-button
-              @click="showDrawer(scope.row.correlativo)"
+              @click="showDrawer(scope.row.code)"
               type="primary"
               style="margin-left: 16px"
               plain
@@ -509,7 +509,7 @@ export default {
       this.datacoment.idDocumento = code;
       this.datacoment.idTraslado = traslado;
       this.getComentario(code, traslado);
-      this.getNameFiles(correlativo);
+      this.getNameFiles(code);
     },
     filterData(value, row) {
       // this.list_response.listFilter = [];
@@ -520,10 +520,10 @@ export default {
     },
     filterCorrelativo(value, row) {
       return row.correlativo === value;
-      
+
     },
     datos(row) {
-      
+
       if (row.empresa && row.empresa.length > 0) {
         this.list_response.listFilter = [];
         for (let filtro = 0; filtro < row.empresa.length; filtro++) {
@@ -573,14 +573,15 @@ export default {
       }
     },
     getNameFiles(correlativo) {
+        console.log(correlativo)
       this.src = "";
       axios
         .post(this.url_list.getFiles, {
           correlativoD: correlativo,
         })
         .then((response) => {
-          
-          
+
+
           if (response.data.length > 0) {
             this.limitNumber = 2;
             this.numberFiles = response.data.length;
@@ -592,17 +593,17 @@ export default {
         }).catch(error => {
           this.src = "";
           this.verError = true;
-          
+
         })
     },
     showDrawer(correlativo) {
       this.drawer = true;
       this.getNameFiles(correlativo);
-      
+
         // this.src = "./../files/" + correlativo + ".pdf";
-      
+
         // this.verError = true;
-      
+
     },
   },
 };

@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <recepcion-component></recepcion-component>
+                <recepcion-component csrf="{{ csrf_token() }}"></recepcion-component>
             </div>
         </div>
     </div>

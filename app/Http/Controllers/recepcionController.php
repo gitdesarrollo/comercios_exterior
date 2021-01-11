@@ -21,7 +21,7 @@ class recepcionController extends Controller
     public function __construct(){
         $this->middleware('auth');
     }
-    
+
     public function recepcion(){
         return view('administrativo.recepcion');
     }
@@ -68,15 +68,15 @@ class recepcionController extends Controller
 
 
     public function sequences_data($tabla){
-        
+
         if($data = sequences::where('name','=',$tabla)->select('value')->count() === 0){
             $value = 0;
             $vacio = true;
-            
+
         }else{
-            $value = sequences::select('value')->where('name','=', $tabla)->get(); 
+            $value = sequences::select('value')->where('name','=', $tabla)->get();
             $vacio = false;
-            
+
         };
 
         if($vacio === true){
@@ -95,11 +95,11 @@ class recepcionController extends Controller
     }
 
 
-    public function storeRecepcion(Request $request){ 
+    public function storeRecepcion(Request $request){
 
-      
-        // try {
-        //     DB::beginTransaction();
+
+        try {
+            DB::beginTransaction();
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
 
@@ -107,16 +107,19 @@ class recepcionController extends Controller
 
             $correlativoFormato = $this->getCorrelativoDocumento($usuarioTo[0]->id_unidad);
             // $correlativoFormato = json_decode(json_encode($correlativoFormato));
-            
+
             // dd($correlativoFormato->original[0]->formato);
-            
-            $documento = new documento; 
+
+            $documento = new documento;
 
             $documento->interesado = $request->interesado;
             $documento->correlativo_documento = $request->correlativo;
             $documento->folios = $request->folio;
             $documento->descripcion = $request->descripcion;
             $documento->id_status = 1;
+            $documento->idTipoDocumento = $request->type;
+            $documento->dateOfAdmission = $request->fechaDocumento;
+            $documento->ReceptionDate = $request->fechaRecepcion;
             $documento->correlativo_externo = $correlativoFormato->original[0]->formato;
             $documento->save();
             $id = $documento->id;
@@ -148,7 +151,7 @@ class recepcionController extends Controller
             $estado->save();
 
 
-            
+
 
             $to_name = $usuarioTo[0]->name;
             // $to_email = 'jjolong@miumg.edu.gt';
@@ -162,16 +165,16 @@ class recepcionController extends Controller
             $correlativo_interno = $correlativoFormato->original[0]->formato;
 
             Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$correlativo_interno), function ($message){
-                
+
                 $message->from($to_email,'envio');
             });
-            
-            // DB::commit();
+
+            DB::commit();
 
             return response()->json($documento,200);
-        // } catch (\Throwable $th) {
-        //     return response()->json(false,200);
-        //     DB::rollBack();
-        // }
+        } catch (\Throwable $th) {
+            return response()->json(false,200);
+            DB::rollBack();
+        }
     }
 }

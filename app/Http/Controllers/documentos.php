@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\receiptOfNotification;
 use Illuminate\Http\Request;
-use App\Model\receptor; 
+use App\Model\receptor;
 use App\Model\sequences;
 use App\Model\documento;
 use App\Model\copiaDestinatarios;
@@ -15,12 +16,14 @@ use App\Model\comentarios;
 use App\User;
 use App\Model\trasladoExterno;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
+use App\Model\typeDocument;
+use App\Model\uploadFile;
 
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
 
-class documentos extends Controller 
+class documentos extends Controller
 {
 
     public function __construct(){
@@ -43,16 +46,16 @@ class documentos extends Controller
     public function showCreate(){
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
-        
+
         return view('administrativo.showCreate',[
             'departamento'   => $usuario->original
         ]);
     }
-    
+
     public function showTraslados(){
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
-        
+
         return view('administrativo.showTraslados',[
             'departamento'   => $usuario->original
         ]);
@@ -74,7 +77,7 @@ class documentos extends Controller
         $usuario = Auth::user()->id;
         return response()->json($usuario,200);
     }
- 
+
 
 
     public function getNamebyId($id){
@@ -93,7 +96,7 @@ class documentos extends Controller
         if($count_receptor > 0){
             try {
                 DB::beginTransaction();
-    
+
                 $documento = new documento;
                 $documento->dirigido = $request->dirigido;
                 $documento->id_dependencia = $request->departamento;
@@ -104,24 +107,24 @@ class documentos extends Controller
                 $documento->id_status = 1;
                 $documento->save();
                 $id_documento = $documento->id;
-    
+
                 for($iteration = 0; $iteration < $count_receptor; $iteration++){
                     $copias = new copiaDestinatarios;
                     $copias->id_receptor = $request->receptor[$iteration];
                     $copias->id_documento = $id_documento;
-                    $copias->save();                   
+                    $copias->save();
                 }
                 DB::commit();
                 return response()->json(true,200);
             } catch (\Throwable $th) {
                 DB::rollBack();
-                return response()->json($th,500); 
+                return response()->json($th,500);
             }
-            
+
         }else{
                 try {
                     DB::beginTransaction();
-        
+
                     $documento = new documento;
                     $documento->dirigido = $request->dirigido;
                     $documento->id_dependencia = $request->departamento;
@@ -132,12 +135,12 @@ class documentos extends Controller
                     $documento->id_status = 1;
                     $documento->save();
                     $id_documento = $documento->id;
-        
+
                     DB::commit();
                     return response()->json(true,200);
                 } catch (\Throwable $th) {
                     DB::rollBack();
-                    return response()->json(false,500); 
+                    return response()->json(false,500);
                 }
         }
     }
@@ -147,7 +150,7 @@ class documentos extends Controller
         return response()->json($data,200);
     }
 
-    
+
 
     public function getReceptoresbyId(Request $request){
         $data = receptor::select('id as code','descripcion','idDepartamento as dep')
@@ -181,7 +184,7 @@ class documentos extends Controller
             DB::beginTransaction();
 
             $update = receptor::where('id', $request->id)->update(['descripcion' => $request->name]);
-            
+
             DB::commit();
             return response()->json($update,200);
         } catch (\Throwable $th) {
@@ -196,11 +199,11 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
             $id = $this->getUserbyId();
-            $id = json_decode(json_encode($id)); 
+            $id = json_decode(json_encode($id));
 
-            
 
-            $documento = DB::select('SELECT 
+
+            $documento = DB::select('SELECT
                                         d.id as code,
                                         d.interesado AS empresa,
                                         d.correlativo_documento AS correlativo,
@@ -220,20 +223,19 @@ class documentos extends Controller
    		                                    ON  dep.id_dependencia = us.id_unidad
                                         INNER JOIN viceministerios vice
    	                                        ON vice.id = dep.idVice
-                                        WHERE us.id = :id
-                                        
-                                        
-            ',['id' => $id->original]);
+                                        WHERE us.id = :id'
+            ,['id' => $id->original]
+            );
             DB::commit();
 
-            return response()->json($documento,200);    
-            
+            return response()->json($documento,200);
+
         } catch (\Throwable $th) {
-            return response()->json($th,200);    
+            return response()->json($th,200);
             DB::rollBack();
         }
-            
-            // $documento = DB::select('SELECT 
+
+            // $documento = DB::select('SELECT
             //                                 id as code,
             //                                 dirigido,
             //                                 id_dependencia,
@@ -241,13 +243,13 @@ class documentos extends Controller
             //                                 correlativo_documento as correlativo,
             //                                 created_at as fecha
             //                                 FROM documentos
-            //                     WHERE id_dependencia = :id AND id NOT IN 
-            //                         (SELECT idDocumento AS Documento FROM traslados WHERE estado = \'A\' and idDocumento IN 
+            //                     WHERE id_dependencia = :id AND id NOT IN
+            //                         (SELECT idDocumento AS Documento FROM traslados WHERE estado = \'A\' and idDocumento IN
             //                         (SELECT id AS code_document FROM documentos WHERE id_dependencia = :idd));
             // ',['id' => $id->original, 'idd' => $id->original]);
 
 
-        
+
         // $documento = documento::where('documentos.id_dependencia', $id->original)
         // ->select('documentos.id as code','documentos.dirigido','documentos.id_dependencia','documentos.direccion as descripcion','documentos.correlativo_documento as correlativo','documentos.created_at as fecha')
         // ->get();
@@ -264,7 +266,7 @@ class documentos extends Controller
         // ->leftjoin('dependencias','traslados.idDepartamentoActual','=','dependencias.id_dependencia')
         // ->where('traslados.estado' , '<>','A')
         // ->get();
-        
+
 
     }
     public function listDocument(){
@@ -273,9 +275,9 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
             $id = $this->getUserbyId();
-            $id = json_decode(json_encode($id)); 
+            $id = json_decode(json_encode($id));
 
-            $documento = DB::select('SELECT 
+            $documento = DB::select('SELECT
                                         d.id as code,
                                         d.interesado AS empresa,
                                         d.correlativo_documento AS correlativo,
@@ -294,14 +296,14 @@ class documentos extends Controller
             ',['id' => $id->original]);
             DB::commit();
 
-            return response()->json($documento,200);    
-            
+            return response()->json($documento,200);
+
         } catch (\Throwable $th) {
-            return response()->json($th,200);    
+            return response()->json($th,200);
             DB::rollBack();
         }
-            
-            // $documento = DB::select('SELECT 
+
+            // $documento = DB::select('SELECT
             //                                 id as code,
             //                                 dirigido,
             //                                 id_dependencia,
@@ -309,13 +311,13 @@ class documentos extends Controller
             //                                 correlativo_documento as correlativo,
             //                                 created_at as fecha
             //                                 FROM documentos
-            //                     WHERE id_dependencia = :id AND id NOT IN 
-            //                         (SELECT idDocumento AS Documento FROM traslados WHERE estado = \'A\' and idDocumento IN 
+            //                     WHERE id_dependencia = :id AND id NOT IN
+            //                         (SELECT idDocumento AS Documento FROM traslados WHERE estado = \'A\' and idDocumento IN
             //                         (SELECT id AS code_document FROM documentos WHERE id_dependencia = :idd));
             // ',['id' => $id->original, 'idd' => $id->original]);
 
 
-        
+
         // $documento = documento::where('documentos.id_dependencia', $id->original)
         // ->select('documentos.id as code','documentos.dirigido','documentos.id_dependencia','documentos.direccion as descripcion','documentos.correlativo_documento as correlativo','documentos.created_at as fecha')
         // ->get();
@@ -332,7 +334,7 @@ class documentos extends Controller
         // ->leftjoin('dependencias','traslados.idDepartamentoActual','=','dependencias.id_dependencia')
         // ->where('traslados.estado' , '<>','A')
         // ->get();
-        
+
 
     }
     public function listDocumentTransfert(){
@@ -342,7 +344,7 @@ class documentos extends Controller
             $id = $this->getdepartamentobyId();
             $id = json_decode(json_encode($id));
 
-            
+
 
             $documento = documento::where('documentos.id_dependencia', $id->original)
             ->select('documentos.id as code','documentos.dirigido','documentos.id_dependencia','documentos.direccion as descripcion','documentos.correlativo_documento as correlativo',
@@ -353,30 +355,30 @@ class documentos extends Controller
             // ->where('traslados.estado' , '=',2)
             ->get();
 
-            return response()->json($documento,200);    
-            
+            return response()->json($documento,200);
+
             DB::commit();
         } catch (\Throwable $th) {
-            return response()->json($th,200);    
+            return response()->json($th,200);
             DB::rollBack();
         }
 
     }
 
     public function sequences_data($tabla){
-        
+
         // verificar si es tabla vacia
         if($data = sequences::where('name','=',$tabla)->select('value')->count() === 0){
             $value = 0;
             $vacio = true;
-            
+
         }else{
-            $value = sequences::select('value')->where('name','=', $tabla)->get(); 
+            $value = sequences::select('value')->where('name','=', $tabla)->get();
             $vacio = false;
-            
+
         };
 
-        
+
         if($vacio === true){
             $data = new sequences;
             $data->name = $tabla;
@@ -386,7 +388,7 @@ class documentos extends Controller
             $cantidad = $data = sequences::where('name','=',$tabla)->select('value')->count();
             $data = new sequences;
             $data->name = $tabla;
-            $data->value = $cantidad+1; 
+            $data->value = $cantidad+1;
             $data->save();
         }
         return response()->json($data,200);
@@ -408,11 +410,11 @@ class documentos extends Controller
                 $idTransfer = $idTraslado[0]->code;
                 $idDepTransfer = $idTraslado[0]->name;
                 $vacio = false;
-            } 
+            }
 
             if($vacio === true){
                 $traslado = new traslados;
-                $traslado->idDocumento = $request->Documento; 
+                $traslado->idDocumento = $request->Documento;
                 $traslado->idDepartamentoActual = $request->idDireccionTraslado;
                 $traslado->idDepartamentoTraslado = $request->actual;
                 $traslado->idUsuarioTramito = $usuario->original;
@@ -428,7 +430,7 @@ class documentos extends Controller
                 DB::commit();
                 return response()->json($traslado,200);
             }else{
-                $update = traslados::where('id',$idTransfer)->update(['estado' => 5]);                
+                $update = traslados::where('id',$idTransfer)->update(['estado' => 5]);
                 $traslados = new traslados;
                 $traslados->idDocumento = $request->Documento;
                 $traslados->idDepartamentoActual = $request->idDireccionTraslado;
@@ -454,20 +456,20 @@ class documentos extends Controller
 
     public function retornar(Request $request){
 
-        
+
         // try {
         //         DB::beginTransaction();
                 $usuario = $this->getUserbyId();
                 $usuario = json_decode(json_encode($usuario));
                 $idTraslado = DB::select('SELECT id as code, idDepartamentoActual as name, idDocumento as documento
-                    FROM traslados 
+                    FROM traslados
                     WHERE id = :id and estado in (2,6)
                 ',['id' => $request->Documento]);
                 $idTransfer = $idTraslado[0]->code;
                 $idDepTransfer = $idTraslado[0]->name;
-                $idDocumento = $idTraslado[0]->documento; 
-               
-                $update = traslados::where('id',$idTransfer)->update(['estado' => 5]);                
+                $idDocumento = $idTraslado[0]->documento;
+
+                $update = traslados::where('id',$idTransfer)->update(['estado' => 5]);
                 $traslados = new traslados;
                 $traslados->idDocumento = $idDocumento;
                 $traslados->idDepartamentoActual = $request->idDireccionTraslado;
@@ -487,7 +489,7 @@ class documentos extends Controller
     }
     public function setTransferInt(Request $request){
 
-        
+
         try {
             DB::beginTransaction();
             $idUsuario = $this->getUserbyId();
@@ -495,17 +497,17 @@ class documentos extends Controller
 
             if($request->externo){
                 $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
-    
+
                 if($trasladoU > 0){
 
-                    
+
                     $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
                     $idTranfer = $trasladoUs[0]->id;
                     $usuario = $this->getUserbyId();
                     $usuario = json_decode(json_encode($usuario));
-    
-                    $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado 
-                        FROM traslados 
+
+                    $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado
+                        FROM traslados
                         WHERE id = :id and estado = 3
                     ',['id' => $request->Documento]);
                     $idTransfer = $idTraslado[0]->code;
@@ -514,8 +516,8 @@ class documentos extends Controller
                     $estadoTraslado = $idTraslado[0]->estado;
                     $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
                     $idAnterior = $estados[0]->actual;
-    
-                    $update = traslados::where('id',$idTransfer)->update(['estado' => 9 ,'idUsuarioTramito' => $idUsuario->original]);  
+
+                    $update = traslados::where('id',$idTransfer)->update(['estado' => 9 ,'idUsuarioTramito' => $idUsuario->original]);
                     $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
                     // $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4, 'estadoActual','!=' => 8])->update(['estatus' => 5]);
                     $estado = new estado;
@@ -533,16 +535,16 @@ class documentos extends Controller
                     $TrasladoExterno->lugar_destino = $request->destino;
                     $TrasladoExterno->correlativo_salida = $request->correlativoEx;
                     $TrasladoExterno->save();
-    
+
                     $usuarioTo = User::where('id',$idUsuario->original)->select('name','email')->get();
-    
+
                     $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion','correlativo_externo')->get();
-    
+
                     $empresa_to_document = $documentoTo[0]->interesado;
                     $correlativo_to_document = $documentoTo[0]->correlativo_documento;
                     $descripcion_to_document = $documentoTo[0]->descripcion;
                     $externo_to_document = $documentoTo[0]->correlativo_externo;
-    
+
                     $to_name = $usuarioTo[0]->name;
                     $to_email = $usuarioTo[0]->email;
                     // $to_email = 'jjolong@miumg.edu.gt';
@@ -552,26 +554,26 @@ class documentos extends Controller
                     $to_asunto = $descripcion_to_document;
                     $subject = 'Traslado Externo a: ' . $request->destino . ' con numero de correlativo: ' . $request->correlativoEx;
                     $externo = $externo_to_document;
-    
+
                     Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
-                    
+
                         $message->from('jjolon@correo.com','envio');
                     });
                     DB::commit();
                     return response()->json($update,200);
                 }
             }else{
-    
+
                 $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
-    
+
                 if($trasladoU > 0){
                     $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
                     $idTranfer = $trasladoUs[0]->id;
                     $usuario = $this->getUserbyId();
                     $usuario = json_decode(json_encode($usuario));
-    
-                    $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado 
-                        FROM traslados 
+
+                    $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado
+                        FROM traslados
                         WHERE id = :id and estado = 3
                     ',['id' => $request->Documento]);
                     $idTransfer = $idTraslado[0]->code;
@@ -580,8 +582,8 @@ class documentos extends Controller
                     $estadoTraslado = $idTraslado[0]->estado;
                     $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
                     $idAnterior = $estados[0]->actual;
-    
-                    $update = traslados::where('id',$idTransfer)->update(['estado' => 2 ,'idUsuarioTramito' => $request->idUsuario]);  
+
+                    $update = traslados::where('id',$idTransfer)->update(['estado' => 2 ,'idUsuarioTramito' => $request->idUsuario]);
                     $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
                     // $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4, 'estadoActual','!=' => 8])->update(['estatus' => 5]);
                     $estado = new estado;
@@ -591,16 +593,16 @@ class documentos extends Controller
                     $estado->estatus = 4;
                     $estado->UsuarioActual = $request->idUsuario;
                     $estado->save();
-    
+
                     $usuarioTo = User::where('id',$request->idUsuario)->select('name','email')->get();
-    
+
                     $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion','correlativo_externo')->get();
-    
+
                     $empresa_to_document = $documentoTo[0]->interesado;
                     $correlativo_to_document = $documentoTo[0]->correlativo_documento;
                     $descripcion_to_document = $documentoTo[0]->descripcion;
                     $externo_to_document = $documentoTo[0]->correlativo_externo;
-    
+
                     $to_name = $usuarioTo[0]->name;
                     $to_email = $usuarioTo[0]->email;
                     // $to_email = 'jjolong@miumg.edu.gt';
@@ -610,9 +612,9 @@ class documentos extends Controller
                     $to_asunto = $descripcion_to_document;
                     $subject = 'Traslado de Documento';
                     $externo = $externo_to_document;
-    
+
                     Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
-                    
+
                         $message->from($to_email,'envio');
                     });
                     DB::commit();
@@ -628,7 +630,7 @@ class documentos extends Controller
 
     }
 
-    public function setEstadoTransfer($idTraslado,$idDepartamento){ 
+    public function setEstadoTransfer($idTraslado,$idDepartamento){
         $estado = new estado;
 
         $estado->idTraslado = $idTraslado;
@@ -641,7 +643,7 @@ class documentos extends Controller
 
     public function getRecepcion(){
 
-        
+
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
 
@@ -650,33 +652,33 @@ class documentos extends Controller
 
         $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
 
-        
+
         if($trasladoU > 0){
             $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
-            $documento = DB::select('SELECT  
-                                        d.id as code,
-                                        d.interesado AS empresa,
-                                        d.correlativo_documento AS correlativo,
-                                        d.descripcion as descripcion,
-                                        ed.id AS estado,
-                                        us.NAME AS usuario,
-                                        d.created_at as fecha,
-                                        tras.id as idTraslado,
-                                        rol.idRoles as rol,
-                                        d.correlativo_externo as formato
-                                        FROM documentos d
-                                        INNER JOIN traslados tras
-                                            ON d.id = tras.id
-                                        INNER JOIN estado_documentos ed
-                                        ON tras.estado = ed.id
-                                        INNER JOIN users us
-                                            ON tras.idUsuarioTramito = us.id
-                                        INNER JOIN user_has_roles rol
-                                            ON us.id = rol.idUser
-                                        WHERE us.id = :id  AND d.id_status != 7
-            ',['id' => $idUsuario->original]);
-                 
+            $documento = DB::select("SELECT
+            d.id as code,
+            d.interesado AS empresa,
+            d.correlativo_documento AS correlativo,
+            d.descripcion as descripcion,
+            ed.id AS estado,
+            us.NAME AS usuario,
+            d.created_at as fecha,
+            tras.id as idTraslado,
+            rol.idRoles as rol,
+            d.correlativo_externo as formato
+            FROM documentos d
+            INNER JOIN traslados tras
+                ON d.id = tras.id
+            INNER JOIN estado_documentos ed
+            ON tras.estado = ed.id
+            INNER JOIN users us
+                ON tras.idUsuarioTramito = us.id
+            INNER JOIN user_has_roles rol
+                ON us.id = rol.idUser
+            WHERE us.id = :id  AND d.id_status != 7
+            ",['id' => $idUsuario->original]);
+
             return response()->json($documento,200);
         }
                          // $mensaje = estado::select(
@@ -694,7 +696,7 @@ class documentos extends Controller
                          // ->where('traslados.estado',6)
                          // ->where('estado.estado','I')
         // }else{
-        //     $documento = DB::select('SELECT 
+        //     $documento = DB::select('SELECT
         //                                 d.id as code,
         //                                 d.interesado AS empresa,
         //                                 d.correlativo_documento AS correlativo,
@@ -718,14 +720,28 @@ class documentos extends Controller
         //     // ->where('idDepartamento',$usuario->original)
         //     // ->where('traslados.estado',2)
         //     // // ->where('estado.estado','I')
-        //     // ->get();        
+        //     // ->get();
         //     return response()->json($documento,200);
         // }
 
         // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
     }
 
-    public function getRecepcionMessage(){ 
+    public function getUrlDocument(Request $request){
+        $url = uploadFile::select('file')->where(['evento_id' => $request->id, 'formato' => $request->formato])->get();
+        return response()->json($url,200);
+    }
+
+    public function existDocument(Request $request){
+        if(uploadFile::where(['evento_id' => $request->id, 'formato' => $request->formato])->exists()){
+            $url = uploadFile::select('file')->where(['evento_id' => $request->id, 'formato' => $request->formato])->get();
+            return response()->json($url,200);
+        }else{
+            return response()->json(false,200);
+        }
+    }
+
+    public function getRecepcionMessage(){
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
 
@@ -733,7 +749,7 @@ class documentos extends Controller
         $idUsuario = json_decode(json_encode($idUsuario));
 
         $trasladoU = traslados::where('idUsuarioInterno',$idUsuario->original)->select('id')->count();
-        
+
         if($trasladoU > 0){
             $trasladoUs = traslados::where('idUsuarioInterno',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
@@ -741,7 +757,7 @@ class documentos extends Controller
             ->join('traslados','estado.idTraslado','=','traslados.id')
             ->join('documentos','traslados.idDocumento','=','documentos.id')
             ->where('traslados.id',$idTranfer)
-            ->get();        
+            ->get();
             return response()->json($mensaje,200);
         }else{
             $mensaje = estado::select('estado.id as code','documentos.dirigido','documentos.direccion','documentos.correlativo_documento','documentos.created_at')
@@ -749,16 +765,16 @@ class documentos extends Controller
             ->join('documentos','traslados.idDocumento','=','documentos.id')
             ->where('idDepartamento',$usuario->original)
             ->where('estado.estado',5)
-            ->get();        
+            ->get();
             return response()->json($mensaje,200);
         }
-    
+
 
     }
 
 
     public function toAccept(Request $request){
-       
+
         try {
             DB::beginTransaction();
 
@@ -770,12 +786,40 @@ class documentos extends Controller
             $traslados->estadoAnterior = $idTraslado[0]->estado;
             $traslados->estadoActual = 3;
             $traslados->estatus = 4;
-            $traslados->UsuarioActual = $idTraslado[0]->Usuario; 
+            $traslados->UsuarioActual = $idTraslado[0]->Usuario;
             $traslados->save();
 
 
             $update = traslados::where('id',$request->code)->update(['estado' => 3]);
-            // $updateD = documento::where('id',$request->code)->update(['estado' => 'A']);
+            $document = documento::where('documentos.id',$request->code)
+                ->join('type_documents','type_documents.id','=','documentos.idTipoDocumento')
+                ->select('documentos.correlativo_documento as interno','documentos.correlativo_externo as externo','type_documents.descripcion as tipo')
+                ->get();
+
+
+            $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
+            // send Mail
+//            $to_email = $usuarioTo[0]->email;
+            $to_email = "jjolon@mineco.gob.gt";
+            $to_usuario = 'Juan José Jolón';
+            $to_internalCorrelative = $document[0]->interno;
+            $to_externalCorrelative = $document[0]->externo;
+            $to_typeDocument = $document[0]->tipo;
+            $to_receivingUser = $usuario[0]->name;
+
+
+            $subject = 'Información de Documento';
+            // Mail::to($to_email)->send(new receiptOfNotification(
+            //     $to_usuario,
+            //     $to_internalCorrelative,
+            //     $to_externalCorrelative,
+            //     $to_receivingUser,
+            //     $to_typeDocument
+            //     ), function ($message){
+            //     $message->from('jjolon@mineco.gob.gt','envio');
+            // });
+
+
             DB::commit();
             return response()->json($update,200);
 
@@ -811,20 +855,20 @@ class documentos extends Controller
                         INNER JOIN dependencias dep
                             ON us.id_unidad = dep.id_dependencia
                     WHERE doc.correlativo_documento = :id",["id" => $request->id]);
-               
-        
+
+
                 return response()->json($documento,200);
-                
+
                 DB::commit();
             } catch (\Throwable $th) {
                 return response()->json(false,200);
                 DB::rollBack();
         }
-        
+
     }
 
     public function previewPDF(){
-        
+
         return view('administrativo.previewPDF');
     }
 
@@ -846,7 +890,7 @@ class documentos extends Controller
         //     DB::beginTransaction();
             date_default_timezone_set('America/Guatemala');
             $data = documento::select('documentos.correlativo_documento as correlativo','documentos.dirigido',
-            DB::raw('CONCAT("Guatemala ",DATE_FORMAT(documentos.created_at,"%d"), " de ", 
+            DB::raw('CONCAT("Guatemala ",DATE_FORMAT(documentos.created_at,"%d"), " de ",
                         CASE DATE_FORMAT(documentos.created_at,"%m")
                             WHEN 1 THEN "Enero"
                             WHEN 2 THEN "Febrero"
@@ -880,7 +924,7 @@ class documentos extends Controller
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Documento</title>
-                   
+
                 <style>
 
                     @page {
@@ -899,27 +943,27 @@ class documentos extends Controller
                         left: 2cm;
                         right: 0cm;
                         height: 2cm;
-        
+
                         /** Extra personal styles **/
-                        
+
                         color: white;
                         text-align: justify;
                         line-height: 1.5cm;
-                        
+
                     }
 
                     footer {
-                        position: fixed; 
-                        bottom: 0cm; 
-                        left: 0cm; 
+                        position: fixed;
+                        bottom: 0cm;
+                        left: 0cm;
                         right: 0cm;
                         height: 2.2cm;
-        
+
                         /** Extra personal styles **/
                         color: white;
                         text-align: center;
                         line-height: 1.5cm;
-                        
+
                     }
                     footer img, header img {
                         opacity: 0.5;
@@ -933,12 +977,12 @@ class documentos extends Controller
 
                     .page-break {
                         page-break-after: always;
-                        
+
                     }
-  
+
                     .table{
                         width:100%;
-                        
+
                     }
 
                     .justificado{
@@ -955,8 +999,8 @@ class documentos extends Controller
                 </footer>
                 <main>
                     <br>
-                    
-               
+
+
                     <table class="table">
                         <tbody>
                             <tr>
@@ -983,11 +1027,11 @@ class documentos extends Controller
 
                     Atentamente.
                 </main>
-                    
+
                 </body>
                 </html>
-            
-            
+
+
             ';
 
             $pdf = \PDF::loadHTML($html);
@@ -1011,7 +1055,7 @@ class documentos extends Controller
             $usuario = json_decode(json_encode($usuario));
 
 
-            
+
             $data = comentarios::select('comentarios.id as code','users.name as usuario','comentarios.comentario as comentario','comentarios.created_at as fecha')
             ->join('users','comentarios.idUsuario','=','users.id')
             ->join('traslados','traslados.id','=','comentarios.idTraslado')
@@ -1030,7 +1074,7 @@ class documentos extends Controller
 
     public function setComentario(Request $request){
 
-        
+
         try {
             DB::beginTransaction();
 
@@ -1074,15 +1118,43 @@ class documentos extends Controller
             // $estadoData = estado::where('idTraslado',$request->traslado)->select('estadoActual','UsuarioActual')->get();
             $estadoData = estado::where('idTraslado',$request->traslado)->select('estadoActual','UsuarioActual')->orderBy('id','desc')->first();
 
-            
+
 
             $traslados = new estado;
             $traslados->idTraslado = $request->traslado;
             $traslados->estadoAnterior = $estadoData->estadoActual;
             $traslados->estadoActual = 7;
             $traslados->estatus = 7;
-            $traslados->UsuarioActual = $usuario->original; 
+            $traslados->UsuarioActual = $usuario->original;
             $traslados->save();
+
+            $document = documento::where('documentos.id',$request->code)
+                ->join('type_documents','type_documents.id','=','documentos.idTipoDocumento')
+                ->select('documentos.correlativo_documento as interno','documentos.correlativo_externo as externo','type_documents.descripcion as tipo')
+                ->get();
+
+            $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
+            $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
+
+            $to_email = "amorozco@mineco.gob.gt";
+            $to_usuario = 'Alexandra Orozco';
+            $to_internalCorrelative = $document[0]->interno;
+            $to_externalCorrelative = $document[0]->externo;
+            $to_typeDocument = $document[0]->tipo;
+            $to_receivingUser = $usuario[0]->name;
+
+            $subject = 'Información de Documento';
+
+            Mail::to($to_email)->send(new receiptOfNotification(
+                $to_usuario,
+                $to_internalCorrelative,
+                $to_externalCorrelative,
+                $to_receivingUser,
+                $to_typeDocument
+                ), function ($message){
+                $message->from('amorozco@mineco.gob.gt','envio');
+            });
+
 
             DB::commit();
 
@@ -1093,4 +1165,16 @@ class documentos extends Controller
 
         }
     }
+
+    public function getTypeDocument(){
+        try {
+            $type = typeDocument::all();
+
+            return response()->json($type,200);
+
+        }catch(\Throwable $th){
+            return response()->json(false,200);
+        }
+    }
+
 }
