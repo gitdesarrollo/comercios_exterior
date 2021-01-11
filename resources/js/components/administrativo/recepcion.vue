@@ -52,12 +52,28 @@
                                 </el-select>
                             </el-form-item>
                         </el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="12">
+                        <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="6">
                             <el-form-item  prop="fecha">
                                 <span class="demonstration">Fecha de Documento</span>
                                 <div class="block mt-2 ">
                                     <el-date-picker
                                         v-model="form.fecha"
+                                        type="date"
+                                        class="select_width"
+                                        placeholder="Seleccione Fecha"
+                                        format="dd-MM-yyyy"
+                                        value-format="yyyy-MM-dd"
+                                    >
+                                    </el-date-picker>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="6">
+                            <el-form-item  prop="recepcion">
+                                <span class="demonstration">Fecha de Recepción</span>
+                                <div class="block mt-2 ">
+                                    <el-date-picker
+                                        v-model="form.recepcion"
                                         type="date"
                                         class="select_width"
                                         placeholder="Seleccione Fecha"
@@ -150,10 +166,10 @@
                                 <div slot="tip" class="el-upload__tip">Solo archivos jpg/png con un tamaño menor de 500kb</div>
                             </el-upload>
                     </el-dialog>
-                    <span>¿Desea enviar el archivo sin adjunto?</span>
+                    <!-- <span>adjuntar </span> -->
                     <span slot="footer" class="dialog-footer">
                         <el-button @click="innerVisible = true" icon="el-icon-paperclip" type="warning">Adjuntar</el-button>
-                        <el-button type="primary" @click="callMessage" :icon="icono" >Si</el-button>
+                        <!-- <el-button type="primary" @click="callMessage" :icon="icono" >Si</el-button> -->
                       </span>
                 </el-dialog>
             </div>
@@ -193,7 +209,8 @@ export default {
                 persona: "",
                 folios: "",
                 tipo:"",
-                fecha:""
+                fecha:"",
+                recepcion:"",
             },
             rules: {
                 interesado: [
@@ -341,7 +358,8 @@ export default {
                         usuario: this.form.persona,
                         folio: this.form.folios,
                         type: this.form.tipo,
-                        fechaDocumento: this.form.fecha
+                        fechaDocumento: this.form.fecha,
+                        fechaRecepcion: this.form.recepcion
                     }).then(response => {
                         // console.log(response.data);
                         const status = JSON.parse(response.status);

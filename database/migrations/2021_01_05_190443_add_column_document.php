@@ -16,6 +16,7 @@ class AddColumnDocument extends Migration
         Schema::table('documentos', function (Blueprint $table) {
             $table->bigInteger('idTipoDocumento')->after('id_status')->unsigned()->default(1);
             $table->date('dateOfAdmission')->after('idTipoDocumento')->nullable();
+            $table->date('ReceptionDate')->after('dateOfAdmission')->nullable();
             $table->foreign('idTipoDocumento')->references('id')->on('type_documents');
 
         });
@@ -31,6 +32,7 @@ class AddColumnDocument extends Migration
         Schema::table('documentos', function (Blueprint $table) {
             $table->dropColumn('idTipoDocumento');
             $table->dropColumn('dateOfAdmission');
+            $table->dropColumn('ReceptionDate');
         });
     }
 }

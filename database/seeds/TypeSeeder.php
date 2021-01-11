@@ -13,15 +13,11 @@ class TypeSeeder extends Seeder
     public function run()
     {
         $Type = new typeDocument;
-        $Type->descripcion = "Documento";
+        $Type->descripcion = "Oficio";
         $Type->save();
 
         $Type = new typeDocument;
         $Type->descripcion = "Memorandum";
-        $Type->save();
-
-        $Type = new typeDocument;
-        $Type->descripcion = "Oficio";
         $Type->save();
 
         $Type = new typeDocument;

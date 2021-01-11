@@ -1136,8 +1136,8 @@ class documentos extends Controller
             $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
             $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
 
-            $to_email = "jjolon@mineco.gob.gt";
-            $to_usuario = 'Juan José Jolón';
+            $to_email = "amorozco@mineco.gob.gt";
+            $to_usuario = 'Alexandra Orozco';
             $to_internalCorrelative = $document[0]->interno;
             $to_externalCorrelative = $document[0]->externo;
             $to_typeDocument = $document[0]->tipo;
@@ -1152,7 +1152,7 @@ class documentos extends Controller
                 $to_receivingUser,
                 $to_typeDocument
                 ), function ($message){
-                $message->from('jjolon@mineco.gob.gt','envio');
+                $message->from('amorozco@mineco.gob.gt','envio');
             });
 
 
