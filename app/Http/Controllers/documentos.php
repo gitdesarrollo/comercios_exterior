@@ -809,15 +809,15 @@ class documentos extends Controller
 
 
             $subject = 'Información de Documento';
-            Mail::to($to_email)->send(new receiptOfNotification(
-                $to_usuario,
-                $to_internalCorrelative,
-                $to_externalCorrelative,
-                $to_receivingUser,
-                $to_typeDocument
-                ), function ($message){
-                $message->from('jjolon@mineco.gob.gt','envio');
-            });
+            // Mail::to($to_email)->send(new receiptOfNotification(
+            //     $to_usuario,
+            //     $to_internalCorrelative,
+            //     $to_externalCorrelative,
+            //     $to_receivingUser,
+            //     $to_typeDocument
+            //     ), function ($message){
+            //     $message->from('jjolon@mineco.gob.gt','envio');
+            // });
 
 
             DB::commit();
@@ -1127,6 +1127,34 @@ class documentos extends Controller
             $traslados->estatus = 7;
             $traslados->UsuarioActual = $usuario->original;
             $traslados->save();
+
+            $document = documento::where('documentos.id',$request->code)
+                ->join('type_documents','type_documents.id','=','documentos.idTipoDocumento')
+                ->select('documentos.correlativo_documento as interno','documentos.correlativo_externo as externo','type_documents.descripcion as tipo')
+                ->get();
+
+            $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
+            $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
+
+            $to_email = "jjolon@mineco.gob.gt";
+            $to_usuario = 'Juan José Jolón';
+            $to_internalCorrelative = $document[0]->interno;
+            $to_externalCorrelative = $document[0]->externo;
+            $to_typeDocument = $document[0]->tipo;
+            $to_receivingUser = $usuario[0]->name;
+
+            $subject = 'Información de Documento';
+
+            Mail::to($to_email)->send(new receiptOfNotification(
+                $to_usuario,
+                $to_internalCorrelative,
+                $to_externalCorrelative,
+                $to_receivingUser,
+                $to_typeDocument
+                ), function ($message){
+                $message->from('jjolon@mineco.gob.gt','envio');
+            });
+
 
             DB::commit();
 

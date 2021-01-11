@@ -134,6 +134,7 @@
                                 id_documento: upload.idUpload,
                                 correlativo: upload.correlativo,
                                 count: upload.numberFiles,
+                                type: upload.type
                                 }"
                                 :headers="{ 'X-CSRF-TOKEN': csrf }"
                                 :on-preview="handlePreview"
@@ -182,7 +183,8 @@ export default {
             upload: {
                 idUpload:100,
                 correlativo:"100",
-                numberFiles: 0
+                numberFiles: 0,
+                type: "pdf",
             },
             form: {
                 interesado: "",
