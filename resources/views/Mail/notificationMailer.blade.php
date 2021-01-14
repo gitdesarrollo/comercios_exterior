@@ -11,7 +11,7 @@
 <p>ha sido aceptado por {{ $receivingUser }}</p>
 
 
-<a href="https://documentos.mineco.gob.gt">https://documentos.mineco.gob.gt</a>
+<a href="http://documentos.mineco.gob.gt">https://documentos.mineco.gob.gt</a>
 <p>Saludos.</p>
 
 </body>
