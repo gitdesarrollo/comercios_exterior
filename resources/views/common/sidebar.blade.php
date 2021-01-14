@@ -83,10 +83,7 @@
                 </ul>
             </li>
             @elseif($rol[0]->idRoles  == 5)
-                <li class="nav-item ml-3">
-                    <a class="nav-link" href="{{ route('recibido') }}">
-                        <i class="nav-icon fas fa-plus"></i> Documentos</a>
-                </li>
+
                 <li class="nav-item nav-dropdown">
                     <a class="nav-link nav-dropdown-toggle" href="#">
                         Administrativo </a>
@@ -98,7 +95,11 @@
                         <li class="nav-item ml-3">
                             <a class="nav-link" href="{{ route('bitacora') }}">
                                 <i class="nav-icon fas fa-plus"></i> consulta</a>
-                        </li>   
+                        </li> 
+                        <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('recibido') }}">
+                                <i class="nav-icon fas fa-plus"></i> Documentos</a>
+                        </li>  
                     </ul>
                 </li>
 
