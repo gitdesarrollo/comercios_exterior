@@ -23,9 +23,17 @@
                             <a class="nav-link" href="{{ route('recibido') }}">
                                 <i class="nav-icon fas fa-plus"></i> Documentos</a>
                         </li>
+                        <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('showDocument') }}">
+                            <i class="nav-icon fas fa-plus"></i> Expedientes</a>
+                        </li>   
+                        <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('bitacora') }}">
+                                <i class="nav-icon fas fa-plus"></i> consulta</a>
+                        </li>   
     
                     </ul>
-                </li>
+        </li>
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#">
                  Herramientas</a>
@@ -49,11 +57,12 @@
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./showReceptores">
                         <i class="nav-icon fas fa-user-plus"></i> Receptores</a>
+                </li> 
+                                              
+                <li class="nav-item ml-3">
+                    <a class="nav-link" href="{{ route('settings') }}">
+                        <i class="nav-icon fas fa-cogs"></i> Configuración</a>
                 </li>                
-                <!-- <li class="nav-item ml-3">
-                    <a class="nav-link" href="./visualizar">
-                        <i class="nav-icon fas fa-dolly-flatbed"></i> Importar</a>
-                </li>                 -->
                 <!-- <li class="nav-item ml-3">
                     <a class="nav-link" href="./">
                         <i class="nav-icon fas fa-file-invoice"></i> Dependencias</a>

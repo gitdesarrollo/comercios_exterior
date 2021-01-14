@@ -77,6 +77,7 @@ Vue.component('download-component', require('./components/administrativo/downloa
 /* ******************** */
 
 Vue.component('recepcion-component', require('./components/administrativo/recepcion.vue').default);
+Vue.component('settings-component', require('./components/settings/settings.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

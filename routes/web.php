@@ -158,6 +158,10 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('url','documentos@getUrlDocument');
   Route::post('exists','documentos@existDocument');
   Route::get('tipos','documentos@getTypeDocument');
+  Route::get('settings','documentos@showSettings')->name('settings');
+  Route::post('settings','documentos@getSetting');
+  Route::post('setting','documentos@postSetting');
+  Route::post('editParameter','documentos@editParameter');
 
 
 

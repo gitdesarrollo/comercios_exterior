@@ -25,11 +25,11 @@
         @endif
     </div>
     <br>
-    <div class="checkbox mb-3">
+    <!-- <div class="checkbox mb-3">
         <label>
             <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Recordarme
         </label>
-    </div>
+    </div> -->
     <button class="btn btn-lg btn-primary btn-block" type="submit"><i class="fa fa-sign-in fa-lg mr-2"></i>Acceder</button>
     <div class="text-center mt-3">
         <!-- a class="btn btn-link text-center link" href="/password/reset">Olvidé mi contraseña</a-->

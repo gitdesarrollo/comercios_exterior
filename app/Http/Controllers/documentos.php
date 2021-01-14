@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Model\typeDocument;
 use App\Model\uploadFile;
+use App\Model\setting;
 
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
@@ -75,6 +76,11 @@ class documentos extends Controller
 
     public function getUserbyId(){
         $usuario = Auth::user()->id;
+        return response()->json($usuario,200);
+    }
+
+    public function getDependenciabyId(){
+        $usuario = Auth::user()->id_unidad;
         return response()->json($usuario,200);
     }
 
@@ -198,7 +204,7 @@ class documentos extends Controller
 
         try {
             DB::beginTransaction();
-            $id = $this->getUserbyId();
+            $id = $this->getDependenciabyId();
             $id = json_decode(json_encode($id));
 
 
@@ -223,10 +229,13 @@ class documentos extends Controller
    		                                    ON  dep.id_dependencia = us.id_unidad
                                         INNER JOIN viceministerios vice
    	                                        ON vice.id = dep.idVice
-                                        WHERE us.id = :id'
+                                        WHERE dep.id_dependencia = :id'
+                                       
             ,['id' => $id->original]
             );
             DB::commit();
+
+            // WHERE us.id = :id'
 
             return response()->json($documento,200);
 
@@ -555,10 +564,17 @@ class documentos extends Controller
                     $subject = 'Traslado Externo a: ' . $request->destino . ' con numero de correlativo: ' . $request->correlativoEx;
                     $externo = $externo_to_document;
 
-                    Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
+                    $parametro = setting::where(['commandString' => 'SHOW_EMAIL'])->select('valuesString')->get();
+                    $flag = $parametro[0]->valuesString;
 
-                        $message->from('jjolon@correo.com','envio');
-                    });
+                    if($flag == "true"){
+                        Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
+    
+                            $message->from('jjolon@correo.com','envio');
+                        });
+                    }
+
+
                     DB::commit();
                     return response()->json($update,200);
                 }
@@ -613,10 +629,16 @@ class documentos extends Controller
                     $subject = 'Traslado de Documento';
                     $externo = $externo_to_document;
 
-                    Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
+                    $parametro = setting::where(['commandString' => 'SHOW_EMAIL'])->select('valuesString')->get();
+                    $flag = $parametro[0]->valuesString;
 
-                        $message->from($to_email,'envio');
-                    });
+                    if($flag == "true"){
+                        Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$externo), function ($message){
+    
+                            $message->from($to_email,'envio');
+                        });
+                    }
+
                     DB::commit();
                     return response()->json($update,200);
                 }
@@ -1099,8 +1121,8 @@ class documentos extends Controller
     }
 
     public function closeDocumento(Request $request){
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
 
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
@@ -1137,6 +1159,7 @@ class documentos extends Controller
             $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
 
             $to_email = "amorozco@mineco.gob.gt";
+            $to_email = "jjolong@miumg.edu.gt";
             $to_usuario = 'Alexandra Orozco';
             $to_internalCorrelative = $document[0]->interno;
             $to_externalCorrelative = $document[0]->externo;
@@ -1145,25 +1168,31 @@ class documentos extends Controller
 
             $subject = 'Información de Documento';
 
-            Mail::to($to_email)->send(new receiptOfNotification(
-                $to_usuario,
-                $to_internalCorrelative,
-                $to_externalCorrelative,
-                $to_receivingUser,
-                $to_typeDocument
-                ), function ($message){
-                $message->from('amorozco@mineco.gob.gt','envio');
-            });
+            $parametro = setting::where(['commandString' => 'SHOW_EMAIL'])->select('valuesString')->get();
+            $flag = $parametro[0]->valuesString;
+
+            if($flag == "true"){
+                Mail::to($to_email)->send(new receiptOfNotification(
+                    $to_usuario,
+                    $to_internalCorrelative,
+                    $to_externalCorrelative,
+                    $to_receivingUser,
+                    $to_typeDocument
+                    ), function ($message){
+                    $message->from('jjolong@miumg.edu.gt','envio');
+                });
+            }
 
 
-            DB::commit();
+
+            // DB::commit();
 
             return response()->json($data,200);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(false,200);
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json(false,200);
 
-        }
+        // }
     }
 
     public function getTypeDocument(){
@@ -1173,6 +1202,51 @@ class documentos extends Controller
             return response()->json($type,200);
 
         }catch(\Throwable $th){
+            return response()->json(false,200);
+        }
+    }
+
+    /**
+     * application settings function
+     * return view 
+     */
+    public function showSettings(){
+        return view('settings.settings');
+    }
+
+    public function getSetting(){
+        $setting = setting::all();
+
+        return response()->json($setting,200);
+    }
+
+    public function postSetting(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $data = new setting;
+            $data->commandString = $request->parametro;
+            $data->valuesString = $request->valor;
+            $data->save();
+
+            DB::commit();
+            return response()->json(true,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function editParameter(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $data = setting::where(['id' => $request->id])->update(['valuesString' => $request->parametro]);
+            
+            DB::commit();
+            return response()->json(true,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(false,200);
         }
     }
