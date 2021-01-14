@@ -1159,7 +1159,7 @@ class documentos extends Controller
             $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
 
             $to_email = "amorozco@mineco.gob.gt";
-            $to_email = "jjolong@miumg.edu.gt";
+            // $to_email = "jjolong@miumg.edu.gt";
             $to_usuario = 'Alexandra Orozco';
             $to_internalCorrelative = $document[0]->interno;
             $to_externalCorrelative = $document[0]->externo;
@@ -1179,7 +1179,7 @@ class documentos extends Controller
                     $to_receivingUser,
                     $to_typeDocument
                     ), function ($message){
-                    $message->from('jjolong@miumg.edu.gt','envio');
+                    $message->from($to_email,'envio');
                 });
             }
 
