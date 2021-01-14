@@ -7,3 +7,6 @@ php artisan migrate --path=database/migrations/2021_01_05_190123_create_type_doc
 composer dump-autoload
 php artisan db:seed
 php artisan migrate --path=database/migrations/2021_01_05_190443_add_column_document.php
+php artisan migrate --path=database/migrations/2021_01_08_174314_add_column_type.php
+
+php artisan migrate

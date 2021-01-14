@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\NotificationMail;
 use App\Model\correlativos;
 use App\Model\nombreCorrelativo;
+use App\Model\setting;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
@@ -164,10 +165,16 @@ class recepcionController extends Controller
             $subject = 'Recepción de Documento';
             $correlativo_interno = $correlativoFormato->original[0]->formato;
 
-            Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$correlativo_interno), function ($message){
+            $parametro = setting::where(['commandString' => 'SHOW_EMAIL'])->select('valuesString')->get();
+            
+            $flag = $parametro[0]->valuesString;
 
-                $message->from($to_email,'envio');
-            });
+            if($flag == "true"){
+                Mail::to($to_email)->send(new NotificationMail($to_name,$to_empresa,$to_numero,$to_asunto,$subject,$correlativo_interno), function ($message){
+                    $message->from($to_email,'envio');
+                });
+            }
+
 
             DB::commit();
 
