@@ -501,7 +501,7 @@ export default {
         disabled: false,
         buttonWord: false,
         buttonPdf: false,
-        buttonClose: false,
+        buttonClose: true,
         buttonPdfClose:true,
       },
       fileList: [],
