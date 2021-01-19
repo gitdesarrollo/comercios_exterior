@@ -115,8 +115,8 @@ RUN echo "(crontab -l; echo '* * * * * cd /var/www && php artisan schedule:run >
 RUN echo "touch /etc/crontab /etc/cron.*/*" >> /entrypoint.sh
 RUN echo 'exec "$@"' >> /entrypoint.sh
 RUN echo "php /var/www/artisan config:cache" >> /entrypoint.sh
-RUN echo "php /var/www/artisan migrate" >> /entrypoint.sh
-RUN echo "php /var/www/artisan db:seed" >> /entrypoint.sh
+# RUN echo "php /var/www/artisan migrate" >> /entrypoint.sh
+# RUN echo "php /var/www/artisan db:seed" >> /entrypoint.sh
 #RUN echo "sh /app/runtime/takeover.sh" >> /entrypoint.sh
 RUN echo "/bin/bash" >> /entrypoint.sh
 
