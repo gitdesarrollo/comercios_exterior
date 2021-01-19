@@ -1,4 +1,4 @@
-FROM php:7.4-apache
+FROM php:7.2-apache
 
 RUN a2enmod rewrite
 
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
         libzip-dev \
         && docker-php-ext-install pdo pdo_mysql zip intl xmlrpc soap opcache \
         && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd  \
-        $$ docker-php-ext-configure intl  
+        && docker-php-ext-configure intl  
 
 
 RUN apt-get update -y 
