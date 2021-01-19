@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y \
         libpq-dev \
         libzip-dev \
         && docker-php-ext-install pdo pdo_mysql zip intl xmlrpc soap opcache \
-        && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd
+        && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd intl opcache 
 
 
 RUN apt-get update -y 
+
+
 
 # Add Node 8 LTS
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -- \
