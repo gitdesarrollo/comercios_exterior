@@ -1,41 +1,34 @@
 FROM composer:1.6.5 as build 
 WORKDIR /app 
 COPY . /app 
-
+RUN composer install
 
 FROM php:7.2-apache 
 EXPOSE 80 
 COPY --from=build /app /app 
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf 
-RUN apk add --no-cache \
-      freetype \
-      libjpeg-turbo \
-      libpng \
-      freetype-dev \
-      libjpeg-turbo-dev \
-      libpng-dev \
-    && docker-php-ext-configure gd \
-      --with-freetype=/usr/include/ \
-      # --with-png=/usr/include/ \ # No longer necessary as of 7.4; https://github.com/docker-library/php/pull/910#issuecomment-559383597
-      --with-jpeg=/usr/include/ \
+
+RUN apt-get update && apt-get install -y \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmcrypt-dev \
+        libpng-dev \
+    && pecl install mcrypt-1.0.1  \
+    && docker-php-ext-install -j$(nproc) iconv  \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-enable gd \
-    && apk del --no-cache \
-      freetype-dev \
-      libjpeg-turbo-dev \
-      libpng-dev \
-    && rm -rf /tmp/*
+    && docker-php-ext-enable mcrypt
 
 RUN chown -R www-data:www-data /app \
-    && a2enmod rewrite
+    && a2enmod rewrite 
+
 
 WORKDIR /app
+
 
 RUN chmod -R 777 /app/storage
 RUN chmod -R 777 /app/bootstrap/cache
 RUN chmod -R 777 /app/public
-
-RUN composer install
 
 ENV NODE_VERSION=12.6.0
 RUN apt install -y curl
