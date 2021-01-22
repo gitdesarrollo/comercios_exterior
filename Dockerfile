@@ -43,4 +43,4 @@ ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 # RUN rm -rf package-lock.json
 RUN npm install
 RUN npm run dev
-RUN cp .env.example .env
+RUN cp .env.dev .env
