@@ -107,6 +107,12 @@
                 plain
                 @click="cierreDocumento(scope.row.code, scope.row.idTraslado,scope.row.formato)"
               ></el-button>
+              <el-switch 
+                v-model="valuesSwitch"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="switchControl">
+              </el-switch>
             </div>
           </template>
         </el-table-column>
@@ -492,6 +498,7 @@ export default {
   props: { csrf: { type: String } },
   data() {
     return {
+      valuesSwitch: false,
       drawer: false,
       drawerWord: false,
       limitNumber: 1,
@@ -625,6 +632,20 @@ export default {
     this.getUserTransfer();
   },
   methods: {
+    switchControl() {
+
+      if(this.valuesSwitch){
+        this.$confirm('¿Desea activar el seguimiento de expediente?','Seguimiento',{
+          confirmButtonText: 'Activar',
+          cancelButtonText: 'Cancelar',
+          type: 'Warning'
+        }).then(() => {
+          this.valuesSwitch = true;
+        }).catch(() => {
+          this.valuesSwitch = false;
+        })
+      }
+    },
     verDocumento(flag, type) {
       // this.controlButton.disabled = true;
       // this.controlButton.icon ="el-icon-loading";

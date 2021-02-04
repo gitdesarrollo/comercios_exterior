@@ -31,6 +31,10 @@
                             <a class="nav-link" href="{{ route('bitacora') }}">
                                 <i class="nav-icon fas fa-plus"></i> consulta</a>
                         </li>   
+                        <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('Mis_ingresos') }}">
+                                <i class="nav-icon fas fa-plus"></i> Mis Ingresos</a>
+                        </li>   
     
                     </ul>
         </li>
@@ -63,10 +67,10 @@
                     <a class="nav-link" href="{{ route('settings') }}">
                         <i class="nav-icon fas fa-cogs"></i> Configuración</a>
                 </li>                
-                <!-- <li class="nav-item ml-3">
-                    <a class="nav-link" href="./">
-                        <i class="nav-icon fas fa-file-invoice"></i> Dependencias</a>
-                </li>                 -->
+                <li class="nav-item ml-3">
+                    <a class="nav-link" href="{{ route('delegado')}}">
+                        <i class="nav-icon fas fa-users"></i> Delegados</a>
+                </li>                
             </ul>
         </li>
         @else
@@ -79,7 +83,11 @@
                     <li class="nav-item ml-3">
                         <a class="nav-link" href="{{ route('recepcion') }}">
                             <i class="nav-icon fas fa-plus"></i> Ingreso</a>
-                    </li>   
+                    </li> 
+                    <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('Mis_ingresos') }}">
+                                <i class="nav-icon fas fa-plus"></i> Mis Ingresos</a>
+                    </li>    
                 </ul>
             </li>
             @elseif($rol[0]->idRoles  == 5)
@@ -99,7 +107,11 @@
                         <li class="nav-item ml-3">
                             <a class="nav-link" href="{{ route('recibido') }}">
                                 <i class="nav-icon fas fa-plus"></i> Documentos</a>
-                        </li>  
+                        </li> 
+                        <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('Mis_ingresos') }}">
+                                <i class="nav-icon fas fa-plus"></i> Mis Ingresos</a>
+                        </li>   
                     </ul>
                 </li>
 
@@ -116,6 +128,10 @@
                             <a class="nav-link" href="{{ route('recibido') }}">
                                 <i class="nav-icon fas fa-plus"></i> Documentos</a>
                         </li>
+                        <li class="nav-item ml-3">
+                            <a class="nav-link" href="{{ route('Mis_ingresos') }}">
+                                <i class="nav-icon fas fa-plus"></i> Mis Ingresos</a>
+                        </li>  
     
                     </ul>
                 </li>

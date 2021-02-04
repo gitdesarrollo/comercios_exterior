@@ -153,7 +153,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('uploadWord','Upload@storeWord');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');
-
+  
   Route::post('correlativoN','recepcionController@getCorrelativoDocumento');
   Route::post('url','documentos@getUrlDocument');
   Route::post('exists','documentos@existDocument');
@@ -162,6 +162,11 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('settings','documentos@getSetting');
   Route::post('setting','documentos@postSetting');
   Route::post('editParameter','documentos@editParameter');
+  
+  Route::get('ingresos','modulos@ingresosShow')->name('Mis_ingresos');
+  Route::get('listado','modulos@expedientesByUserId');
+  Route::get('delegado','modulos@delegadoShow')->name('delegado');
+  Route::post('getFilesByName','Upload@getFilesByName');
 
 
 
