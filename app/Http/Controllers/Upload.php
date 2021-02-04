@@ -219,5 +219,18 @@ class Upload extends Controller
             DB::rollBack();
         }
     }
+    public function getFilesByName(Request $data){
+
+        try {
+            DB::beginTransaction();
+                // $info = uploadFile::where('file_name',$data->correlativoD)->select('file_name as name')->get();
+               $info = uploadFile::where('file_name',$data->correlativoD)->select('file_name as name')->get();
+
+            DB::commit();
+            return response()->json($info,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+        }
+    }
 
 }
