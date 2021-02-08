@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Model\typeDocument;
 use App\Model\uploadFile;
 use App\Model\setting;
+use App\Model\tracing;
 
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
@@ -499,8 +500,8 @@ class documentos extends Controller
     public function setTransferInt(Request $request){
 
 
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
             $idUsuario = $this->getUserbyId();
             $idUsuario = json_decode(json_encode($idUsuario));
 
@@ -575,12 +576,14 @@ class documentos extends Controller
                     }
 
 
-                    DB::commit();
+                    // DB::commit();
                     return response()->json($update,200);
                 }
             }else{
 
                 $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
+
+                $tacing = tracing::where(['id' => $request->tracing])->update(['idUsuarioActual' => $request->idUsuario]);
 
                 if($trasladoU > 0){
                     $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
@@ -639,15 +642,15 @@ class documentos extends Controller
                         });
                     }
 
-                    DB::commit();
+                    // DB::commit();
                     return response()->json($update,200);
                 }
 
             }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json($th,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json($th,200);
+        // }
 
 
     }
@@ -688,7 +691,9 @@ class documentos extends Controller
             d.created_at as fecha,
             tras.id as idTraslado,
             rol.idRoles as rol,
-            d.correlativo_externo as formato
+            d.correlativo_externo as formato,
+            d.tracing,
+            (SELECT id FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS idTracing
             FROM documentos d
             INNER JOIN traslados tras
                 ON d.id = tras.id

@@ -167,6 +167,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('listado','modulos@expedientesByUserId');
   Route::get('delegado','modulos@delegadoShow')->name('delegado');
   Route::post('getFilesByName','Upload@getFilesByName');
+  Route::post('tracingsFiles','modulos@tracingsFiles');
+  Route::post('inactiveTracingFile','modulos@inactiveTracingFile');
 
 
 

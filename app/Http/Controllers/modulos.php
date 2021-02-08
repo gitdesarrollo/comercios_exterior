@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Model\traslados;
+use App\Model\tracing;
+use App\Model\documento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,6 +53,59 @@ class modulos extends Controller
     public function getUserbyId(){
         $usuario = Auth::user()->id;
         return response()->json($usuario,200);
+    }
+
+    public function tracingsFiles(Request $request){
+
+        try {
+            DB::beginTransaction();
+
+
+            $usuario = $this->getUserbyId();
+            $usuario = json_decode(json_encode($usuario));
+            $date = date("Y/m/d");
+
+            $documento = documento::where(['id' => $request->documento])->update(['tracing' => '1']);
+            if($request->tracing > 0){
+                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4]);
+            }else{
+    
+                $tracing = new tracing;
+                $tracing->idDocumento = $request->documento;
+                $tracing->idUsuarioTraslada = $usuario->original;
+                // $tracing->idUsuarioActual = $request->usuarioActual;
+                // $tracing->fechaInicial = $request->fechaI;
+                $tracing->fechaInicial = $date;
+                $tracing->fechafinal = $date;
+                $tracing->estado = 4;
+                $tracing->save();
+            }
+            DB::commit();
+
+            return response()->json($tracing,200);
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function inactiveTracingFile(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $documento = documento::where(['id' => $request->documento])->update(['tracing' => '0']);
+            $tracing = tracing::where(['id' => $request->tracing])->update(['estado' => 5]);
+
+            DB::commit();
+
+            return response()->json($tracing,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+        
     }
 
 
