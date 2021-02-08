@@ -39,7 +39,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="Operaciones" width="250">
+        <el-table-column label="Operaciones" width="280">
           <template slot-scope="scope" class="pl-3">
             <div v-if="scope.row.estado == 2">
               <el-button
@@ -87,7 +87,7 @@
                 icon="el-icon-s-check"
                 plain
                 @click="
-                  getTrasladoInterno(scope.row.code, scope.row.idTraslado)
+                  getTrasladoInterno(scope.row.code, scope.row.idTraslado,scope.row.idTracing)
                 "
               ></el-button>
               <el-button
@@ -108,10 +108,12 @@
                 @click="cierreDocumento(scope.row.code, scope.row.idTraslado,scope.row.formato)"
               ></el-button>
               <el-switch 
-                v-model="valuesSwitch"
+                v-model="scope.row.tracing"
+                active-value="1"
+                inactive-value="0"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="switchControl">
+                @change="switchControl(scope.row.tracing,scope.row.code,scope.row.idTracing)">
               </el-switch>
             </div>
           </template>
@@ -498,7 +500,7 @@ export default {
   props: { csrf: { type: String } },
   data() {
     return {
-      valuesSwitch: false,
+      switchFalse: false,
       drawer: false,
       drawerWord: false,
       limitNumber: 1,
@@ -542,6 +544,8 @@ export default {
         getFiles: "getNameFiles",
         url: "url",
         exists: "exists",
+        tracing:"tracingsFiles",
+        inactiveTracingFile:"inactiveTracingFile"
       },
       list_response: {
         documentos: [],
@@ -560,6 +564,7 @@ export default {
       trasladoUsuario: false,
       idDocumento: 0,
       depActual: 0,
+      idTracing: 0,
       form: {
         departamentoId: "",
         usuario: "",
@@ -632,17 +637,39 @@ export default {
     this.getUserTransfer();
   },
   methods: {
-    switchControl() {
+    switchControl(flag,file,tracing) {
 
-      if(this.valuesSwitch){
+      
+      if(flag == "1"){
         this.$confirm('¿Desea activar el seguimiento de expediente?','Seguimiento',{
           confirmButtonText: 'Activar',
           cancelButtonText: 'Cancelar',
           type: 'Warning'
         }).then(() => {
-          this.valuesSwitch = true;
+          axios.post(this.url_list.tracing,{
+            documento: file,
+            tracing: tracing
+          }).then(response => {
+            this.getLista();
+          })
         }).catch(() => {
-          this.valuesSwitch = false;
+          this.getLista();
+
+        })
+      }else{
+        this.$confirm('¿Desea inactivar el seguimiento de expediente?','Seguimiento',{
+          confirmButtonText: 'Inactivar',
+          cancelButtonText: 'Cancelar',
+          type: 'Warning'
+        }).then(() => {
+          axios.post(this.url_list.inactiveTracingFile,{
+            documento: file,
+            tracing: tracing
+          }).then(response => {
+            this.getLista();
+          })
+        }).catch(() => {
+          this.getLista();
         })
       }
     },
@@ -765,6 +792,8 @@ export default {
         this.list_response.documentos = response.data;
         this.total = response.data.length;
         console.log("lista", response.data);
+
+
       });
       // axios.get(this.url_list.lista).then((response) => {
       //   this.total = response.data.length;
@@ -778,10 +807,11 @@ export default {
       console.log(id);
       // console.log(id);
     },
-    getTrasladoInterno(id, traslado) {
+    getTrasladoInterno(id, traslado,tracing) {
       this.interno = true;
       this.idDocumento = id;
       this.depActual = traslado;
+      this.idTracing = tracing;
       this.getComentario(traslado, id);
     },
     getTrasladoExterno(id, traslado) {
@@ -836,6 +866,7 @@ export default {
               Traslado: this.depActual,
               idUsuario: this.form.usuario,
               externo: false,
+              tracing: this.idTracing,
             })
             .then((response) => {
               this.trasladoUsuario = false;
