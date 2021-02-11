@@ -679,6 +679,7 @@ class documentos extends Controller
 
 
         if($trasladoU > 0){
+            
             $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
             $documento = DB::select("SELECT
@@ -705,6 +706,8 @@ class documentos extends Controller
                 ON us.id = rol.idUser
             WHERE us.id = :id  AND d.id_status != 7
             ",['id' => $idUsuario->original]);
+
+            
 
             return response()->json($documento,200);
         }

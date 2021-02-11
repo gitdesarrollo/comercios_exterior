@@ -107,6 +107,7 @@ class recepcionController extends Controller
             $usuarioTo = User::where('id',$request->usuario)->select('name','email','id_unidad')->get();
 
             $correlativoFormato = $this->getCorrelativoDocumento($usuarioTo[0]->id_unidad);
+            
             // $correlativoFormato = json_decode(json_encode($correlativoFormato));
 
             // dd($correlativoFormato->original[0]->formato);
