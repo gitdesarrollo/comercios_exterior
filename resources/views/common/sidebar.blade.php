@@ -3,7 +3,8 @@
         $usuario = \Illuminate\Support\Facades\Auth::user()->id; 
         $rol = \App\Model\userHasRoles::where('idUser', $usuario)->select('idRoles')->get();
 
-        $permiso = App\Model\user_has_view::join('users','user_has_views.idUser','=','users.id')->select('user_has_views.idView as vista')->where('user_has_views.idUser',$usuario)->get();
+        $permiso = App\Model\user_has_view::join('roles_users','user_has_views.rol','=','roles_users.id')->select('user_has_views.permits as vista')
+                    ->where('user_has_views.rol',$rol[0]->idRoles)->distinct()->get();
 
   @endphp
 
@@ -13,43 +14,46 @@
     <hr class="sidebar-divider">
         <div class="sidebar-heading">MÓDULOS </div>
         <li class="nav-item nav-dropdown">
+            @if($permiso->count() > 0)
             <a class="nav-link nav-dropdown-toggle" href="#">
-                Administrativo </a>
-            <ul class="nav-dropdown-items">
-            @foreach ($permiso as $permisos)
-                @if($permisos->vista == 1)
-                    <li class="nav-item ml-3">
-                        <a class="nav-link" href="{{ route('recepcion') }}">
-                            <i class="nav-icon fas fa-plus"></i> Ingreso</a>
-                    </li>
-                @elseif($permisos->vista == 2)
-                    <li class="nav-item ml-3">
-                        <a class="nav-link" href="{{ route('recibido') }}">
-                            <i class="nav-icon fas fa-plus"></i> Documentos</a>
-                    </li>
-                @elseif($permisos->vista == 3)
-                    <li class="nav-item ml-3">
-                        <a class="nav-link" href="{{ route('showDocument') }}">
-                        <i class="nav-icon fas fa-plus"></i> Expedientes</a>
-                    </li>   
-                @elseif($permisos->vista == 4)
-                    <li class="nav-item ml-3">
-                        <a class="nav-link" href="{{ route('bitacora') }}">
-                            <i class="nav-icon fas fa-plus"></i> consulta</a>
-                    </li>   
-                @elseif($permisos->vista == 5)
-                    <li class="nav-item ml-3">
-                        <a class="nav-link" href="{{ route('Mis_ingresos') }}">
-                            <i class="nav-icon fas fa-plus"></i> Mis Ingresos</a>
-                    </li>   
-                @elseif($permisos->vista == 6)
-                        <li class="nav-item ml-3">
-                            <a class="nav-link" href="{{ route('Seguimientos') }}">
-                                <i class="nav-icon fas fa-plus"></i> Mis Seguimientos</a>
-                        </li>       
-                @endif
-            @endforeach
-            </ul>
+                Administrativo 
+            </a>
+                <ul class="nav-dropdown-items">
+                    @foreach ($permiso as $permisos)
+                        @if($permisos->vista == 1)
+                            <li class="nav-item ml-3">
+                                <a class="nav-link" href="{{ route('recepcion') }}">
+                                    <i class="nav-icon fas fa-angle-double-right"></i> Ingreso</a>
+                            </li>
+                        @elseif($permisos->vista == 2)
+                            <li class="nav-item ml-3">
+                                <a class="nav-link" href="{{ route('recibido') }}">
+                                    <i class="nav-icon fas fa-angle-double-right"></i> Documentos</a>
+                            </li>
+                        @elseif($permisos->vista == 3)
+                            <li class="nav-item ml-3">
+                                <a class="nav-link" href="{{ route('showDocument') }}">
+                                <i class="nav-icon fas fa-angle-double-right"></i> Expedientes</a>
+                            </li>   
+                        @elseif($permisos->vista == 4)
+                            <li class="nav-item ml-3">
+                                <a class="nav-link" href="{{ route('bitacora') }}">
+                                    <i class="nav-icon fas fa-angle-double-right"></i> consulta</a>
+                            </li>   
+                        @elseif($permisos->vista == 5)
+                            <li class="nav-item ml-3">
+                                <a class="nav-link" href="{{ route('Mis_ingresos') }}">
+                                    <i class="nav-icon fas fa-angle-double-right"></i> Mis Ingresos</a>
+                            </li>   
+                        @elseif($permisos->vista == 6)
+                                <li class="nav-item ml-3">
+                                    <a class="nav-link" href="{{ route('Seguimientos') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Mis Seguimientos</a>
+                                </li>       
+                        @endif
+                    @endforeach
+                </ul>
+            @endif
         
         </li>        
         @if (Auth()->user()->admin == 1)

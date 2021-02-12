@@ -8,7 +8,7 @@
         <el-form ref="form" :model="form" :rules="rules">
           <el-row :gutter="10" class="mt-2">
             <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12">
-              <el-form-item label="Usuario:" prop="name">
+              <el-form-item label="Rol:" prop="name">
                 <el-select
                   v-model="form.name"
                   class="select_width"
@@ -19,7 +19,7 @@
                   <el-option
                     v-for="item in response_data.listUser"
                     :key="item.id"
-                    :label="item.name"
+                    :label="item.description"
                     :value="item.id"
                   >
                   </el-option>
@@ -30,6 +30,7 @@
             <el-form-item label="Menú:" prop="views">
               <el-select
                 v-model="form.views"
+                multiple
                 class="select_width"
                 clearable
                 filterable
@@ -70,7 +71,7 @@
           <el-table-column label="No." type="index"></el-table-column>
           <el-table-column
             label="Usuario"
-            prop="usuario"
+            prop="description"
           ></el-table-column>
           <el-table-column
             label="Permiso"
@@ -133,7 +134,7 @@ export default {
   data() {
     return {
       url_data: {
-        showUser: "getUser",
+        showUser: "getRoles",
         showViews: "getViewsUsers",
         setPermiso:"setPermiso",
         getPermisoUsuario:"getPermisoUsuario",
@@ -148,7 +149,7 @@ export default {
       pagesize: 10,
       form: {
         name: "",
-        views:"",
+        views:[],
       },
       formEdit: {
         name: "",

@@ -263,13 +263,14 @@ class modulos extends Controller
 
             $permits =  DB::select("
             SELECT 
-                us.NAME AS usuario,
+                us.description,
                 vu.description AS permiso
             FROM user_has_views uv
                 INNER JOIN view_users vu
-                    ON uv.idView = vu.id
-                INNER JOIN users us
-                    ON uv.idUser = us.id;
+                    ON uv.permits = vu.id
+                INNER JOIN roles_users us
+                    ON uv.rol = us.id;
+        
             ");
 
             DB::commit();
@@ -287,11 +288,17 @@ class modulos extends Controller
         try {
             DB::beginTransaction();
 
-            $data = new user_has_view;
+            $cantidad = sizeof($request->view);
 
-            $data->idUser = $request->user;
-            $data->idView = $request->view;
-            $data->save();
+            
+            for ($item=0; $item < $cantidad ; $item++) { 
+                $data = new user_has_view;
+                $data->rol = $request->user;
+                $data->permits = $request->view[$item];
+                $data->estado = 4;
+                $data->save();
+                
+            }
 
             DB::commit();
 

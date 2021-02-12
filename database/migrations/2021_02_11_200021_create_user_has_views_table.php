@@ -15,12 +15,14 @@ class CreateUserHasViewsTable extends Migration
     {
         Schema::create('user_has_views', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('idUser')->unsigned();
-            $table->bigInteger('idView')->unsigned();
+            $table->bigInteger('rol')->unsigned();
+            $table->bigInteger('permits')->unsigned();
+            $table->bigInteger('estado')->unsigned();
             $table->timestamps();
 
-            $table->foreign('idUser')->references('id')->on('users');
-            $table->foreign('idView')->references('id')->on('view_users');
+            $table->foreign('rol')->references('id')->on('roles_users');
+            $table->foreign('permits')->references('id')->on('view_users');
+            $table->foreign('estado')->references('id')->on('estado_documentos');
         });
     }
 
