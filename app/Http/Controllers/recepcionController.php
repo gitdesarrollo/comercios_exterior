@@ -27,8 +27,10 @@ class recepcionController extends Controller
 
     public function recepcion(){
 
-        $permiso = $this->getPermissionById();
-        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('administrativo.recepcion');
+        }elseif($permiso->original[0]['permit']){
             return view('administrativo.recepcion');
         }else{
             // return view('admin.home');
@@ -41,12 +43,12 @@ class recepcionController extends Controller
         return response()->json($usuario,200);
     }
 
-    public function getPermissionById(){
+    public function getPermissionById($vista){
         $isAdmin = Auth::user()->admin;
         $idUser = Auth::user()->id;
 
         $rol = userHasRoles::where(['idUser' => $idUser ])->select('idRoles')->get();
-        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => 10])
+        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => $vista])
                 ->select('estado')->count();
         $permisos = [];
         if($isAdmin == 1){
