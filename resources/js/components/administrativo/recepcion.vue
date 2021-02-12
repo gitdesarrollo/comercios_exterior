@@ -4,38 +4,52 @@
             <div class="card-header text-white bg-primary">Recepción de Documentos</div>
             <div class="card-body">
                 <el-form ref="form" :model="form" :rules="rules">
-                    <el-row :gutter="10" class="mt-2">
+                    <el-row :gutter="10" >
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="12">
-                            <el-form-item prop="interesado">
-                                <el-input v-model="form.interesado">
+                            <el-form-item label="Remitente:" prop="interesado">
+                                <!-- <el-input v-model="form.interesado">
                                     <template slot="prepend">
                                         <span class="requiredColor mr-1">*</span> Remitente:
                                     </template>
-                                </el-input>
+                                </el-input> -->
+                                        <el-select
+                                            v-model="form.interesado"
+                                            class="select_width"
+                                            clearable
+                                            filterable
+                                            placeholder="Seleccione Remitente"
+                                        >
+                                            <el-option
+                                                v-for="items in handler_response.getRemitente"
+                                                :key="items.id"
+                                                :label="items.descripcion"
+                                                :value="items.descripcion"
+                                            ></el-option>
+                                        </el-select>
                             </el-form-item>
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="8">
-                            <el-form-item prop="expediente">
-                                <el-input v-model="form.expediente">
-                                    <template slot="prepend">
+                            <el-form-item prop="expediente" label="No. Expediente:" >
+                                <el-input v-model="form.expediente" >
+                                    <!-- <template slot="prepend">
                                         <span class="requiredColor mr-1">*</span> No. Expediente:
-                                    </template>
+                                    </template> -->
                                 </el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="4">
-                            <el-form-item prop="folios">
+                            <el-form-item prop="folios" label="Folios:">
                                 <el-input v-model="form.folios">
-                                    <template slot="prepend">
+                                    <!-- <template slot="prepend">
                                         <span class="requiredColor mr-1">*</span> Folios
-                                    </template>
+                                    </template> -->
                                 </el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10" >
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="12">
-                            <el-form-item prop="tipo" label="Tipo de Documento">
+                            <el-form-item prop="tipo" label="Tipo de Documento:">
                                 <el-select
                                     v-model="form.tipo"
                                     class="select_width"
@@ -54,7 +68,7 @@
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="6">
                             <el-form-item  prop="fecha">
-                                <span >Fecha de Documento</span>
+                                <span >Fecha de Documento:</span>
                                 <div class="mt-2">
                                     <el-date-picker
                                         v-model="form.fecha"
@@ -70,7 +84,7 @@
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="6">
                             <el-form-item  prop="recepcion">
-                                <span >Fecha de Recepción</span>
+                                <span >Fecha de Recepción:</span>
                                 <div class="mt-2">
                                     <el-date-picker
                                         v-model="form.recepcion"
@@ -266,10 +280,12 @@ export default {
                 storeDocumento: "storeDocumento",
                 storeFile: "upload",
                 types: "tipos",
+                remitente: "remitente",
             },
             handler_response: {
                 getUsuarios: [],
                 getTypesList: [],
+                getRemitente: [],
 
             },
         };
@@ -277,8 +293,15 @@ export default {
     mounted() {
         this.getUserTransfer();
         this.getType();
+        this.getRemitente();
     },
     methods: {
+        getRemitente(){
+            axios.get(this.handler_url.remitente)
+                .then(response => {
+                    this.handler_response.getRemitente = response.data;
+                })
+        },
         getType(){
             axios.get(this.handler_url.types).then(
                 response => {
