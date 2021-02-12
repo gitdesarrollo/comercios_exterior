@@ -25,11 +25,18 @@ import CKEditor from 'ckeditor4-vue';
 import { SimpleTimelinePlugin } from 'simple-vue-timeline';
 
 
+
+
+
+
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
 
 Vue.use( CKEditor );
 Vue.use(SimpleTimelinePlugin);
+
+
+
 // Vue.use(Datatable);
 
 
@@ -81,6 +88,9 @@ Vue.component('settings-component', require('./components/settings/settings.vue'
 
 Vue.component('ingresos-component', require('./components/modules/misIngresos/ingresos.vue').default);
 Vue.component('delegados-component', require('./components/modules/delegado/delegados.vue').default);
+Vue.component('seguimiento-component', require('./components/modules/seguimientos/seguimiento.vue').default);
+Vue.component('views-component', require('./components/admin/views.vue').default);
+Vue.component('permits-component', require('./components/admin/permits.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

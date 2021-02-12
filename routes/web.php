@@ -169,7 +169,17 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('getFilesByName','Upload@getFilesByName');
   Route::post('tracingsFiles','modulos@tracingsFiles');
   Route::post('inactiveTracingFile','modulos@inactiveTracingFile');
-
+  Route::get('Seguimientos','modulos@getSeguimiento')->name('Seguimientos');
+  Route::get('getFollowUp','modulos@getFollowUp');
+  Route::post('sendTracingMail','modulos@sendTracingMail');
+  Route::post('getMessagesTracking','modulos@getMessagesTracking');
+  Route::get('SystemViews','modulos@showViews')->name('SystemViews');
+  Route::get('userPermits','modulos@showPermits')->name('userPermits');
+  Route::get('getViewsUsers','modulos@getViewsUsers');
+  Route::post('setViewsUser','modulos@setViewsUser');
+  Route::get('getPermisoUsuario','modulos@getPermisoUsuario');
+  Route::post('setPermiso','modulos@setPermiso');
+  Route::get('remitente','modulos@remitente');
 
 
   /************************************************ */

@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Comericio Exterior</title>
+    <title>Sistema de Expedientes -MINECO-</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>

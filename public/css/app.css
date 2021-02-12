@@ -24167,8 +24167,8 @@ canvas {
 .sidebar .nav-link .nav-icon {
   display: inline-block;
   width: 1.25rem;
-  margin: 0 0.5rem 0 0;
-  font-size: 1rem;
+  margin: 0 0.1rem 0 0;
+  font-size: 13px;
   color: #6c757d;
   text-align: center;
 }
@@ -24181,6 +24181,7 @@ canvas {
 .sidebar .nav-link.active {
   color: #fff;
   background: #3f474e;
+  /* background: #dddddd; */
 }
 
 .sidebar .nav-link.active .nav-icon {

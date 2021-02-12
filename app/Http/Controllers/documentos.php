@@ -14,6 +14,8 @@ use App\Model\estado;
 use App\Model\profesiones;
 use App\Model\comentarios;
 use App\User;
+use App\Model\user_has_view;
+use App\Model\userHasRoles;
 use App\Model\trasladoExterno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -36,13 +38,56 @@ class documentos extends Controller
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
 
-        return view('administrativo.showDocument',[
-            'id_departamento'   =>  $usuario->original
-        ]);
+        $permiso = $this->getPermissionById();
+        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+            return view('administrativo.showDocument',[
+                'id_departamento'   =>  $usuario->original
+            ]);
+        }else{
+            return header( "refresh:0.1;url=/" );
+            // return view('admin.home');
+        }
+
+    }
+
+    public function getPermissionById(){
+        $isAdmin = Auth::user()->admin;
+        $idUser = Auth::user()->id;
+
+        $rol = userHasRoles::where(['idUser' => $idUser ])->select('idRoles')->get();
+        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => 10])
+                ->select('estado')->count();
+        $permisos = [];
+        if($isAdmin == 1){
+            array_push($permisos,[
+                    "admin"     =>  true,
+                    "permit"    =>  true
+            ]);
+        }else{
+            if($permit > 0){
+                array_push($permisos,[
+                        "admin"     =>  false,
+                        "permit"    =>  true
+                ]);
+            }else{
+                array_push($permisos,[
+                        "admin"     =>  false,
+                        "permit"    =>  false
+                ]);
+            }
+        }
+        return response()->json($permisos,200);
     }
 
     public function showRecibido(){
-        return view('administrativo.showRecibido');
+        $permiso = $this->getPermissionById();
+        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+            return view('administrativo.showRecibido');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
     }
 
     public function showCreate(){
@@ -679,6 +724,7 @@ class documentos extends Controller
 
 
         if($trasladoU > 0){
+            
             $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
             $documento = DB::select("SELECT
@@ -705,6 +751,8 @@ class documentos extends Controller
                 ON us.id = rol.idUser
             WHERE us.id = :id  AND d.id_status != 7
             ",['id' => $idUsuario->original]);
+
+            
 
             return response()->json($documento,200);
         }
@@ -863,7 +911,14 @@ class documentos extends Controller
 
 
     public function showBitacora(){
-        return view('administrativo.bitacora');
+        $permiso = $this->getPermissionById();
+        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+            return view('administrativo.bitacora');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
     }
 
     public function bitacoraDocument(Request $request){
