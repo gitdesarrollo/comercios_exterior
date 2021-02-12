@@ -38,24 +38,29 @@ class documentos extends Controller
         $usuario = $this->getdepartamentobyId();
         $usuario = json_decode(json_encode($usuario));
 
-        $permiso = $this->getPermissionById();
-        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+        $permiso = $this->getPermissionById(3);
+        if($permiso->original[0]['admin']){
             return view('administrativo.showDocument',[
                 'id_departamento'   =>  $usuario->original
             ]);
-        }else{
+        }elseif($permiso->original[0]['permit']){
+            return view('administrativo.showDocument',[
+                'id_departamento'   =>  $usuario->original
+            ]);
+        }
+        else{
             return header( "refresh:0.1;url=/" );
             // return view('admin.home');
         }
 
     }
 
-    public function getPermissionById(){
+    public function getPermissionById($vista){
         $isAdmin = Auth::user()->admin;
         $idUser = Auth::user()->id;
 
         $rol = userHasRoles::where(['idUser' => $idUser ])->select('idRoles')->get();
-        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => 10])
+        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => $vista])
                 ->select('estado')->count();
         $permisos = [];
         if($isAdmin == 1){
@@ -80,10 +85,13 @@ class documentos extends Controller
     }
 
     public function showRecibido(){
-        $permiso = $this->getPermissionById();
-        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+        $permiso = $this->getPermissionById(2);
+        if($permiso->original[0]['admin'] ){
             return view('administrativo.showRecibido');
-        }else{
+        }elseif($permiso->original[0]['permit']){
+            return view('administrativo.showRecibido');
+        }
+        else{
             // return view('admin.home');
             return header( "refresh:0.1;url=/" );
         }
@@ -911,10 +919,13 @@ class documentos extends Controller
 
 
     public function showBitacora(){
-        $permiso = $this->getPermissionById();
-        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+        $permiso = $this->getPermissionById(4);
+        if($permiso->original[0]['admin']){
             return view('administrativo.bitacora');
-        }else{
+        }elseif($permiso->original[0]['permit']){
+            return view('administrativo.bitacora');
+        }
+        else{
             // return view('admin.home');
             return header( "refresh:0.1;url=/" );
         }

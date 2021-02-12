@@ -20,8 +20,10 @@ use App\Mail\sendTracingMailModel;
 class modulos extends Controller
 {
     public function ingresosShow(){
-        $permiso = $this->getPermissionById();
-        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+        $permiso = $this->getPermissionById(5);
+        if($permiso->original[0]['admin']){
+            return view('modules.index');
+        }elseif($permiso->original[0]['permit']){
             return view('modules.index');
         }else{
             // return view('admin.home');
@@ -31,8 +33,10 @@ class modulos extends Controller
     }
 
     public function getSeguimiento(){
-        $permiso = $this->getPermissionById();
-        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+        $permiso = $this->getPermissionById(6);
+        if($permiso->original[0]['admin']){
+            return view('modules.seguimiento');
+        }elseif($permiso->original[0]['permit']){
             return view('modules.seguimiento');
         }else{
             // return view('admin.home');
@@ -53,12 +57,12 @@ class modulos extends Controller
         return view('modules.delegados');
     }
 
-    public function getPermissionById(){
+    public function getPermissionById($vista){
         $isAdmin = Auth::user()->admin;
         $idUser = Auth::user()->id;
 
         $rol = userHasRoles::where(['idUser' => $idUser ])->select('idRoles')->get();
-        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => 10])
+        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => $vista])
                 ->select('estado')->count();
         $permisos = [];
         if($isAdmin == 1){
