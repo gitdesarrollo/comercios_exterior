@@ -473,6 +473,35 @@
         </el-row>
       </el-dialog>
     </div>
+    <el-dialog
+      :title="message.title"
+      :visible.sync="message.visible"
+      :width="message.width"
+      center
+      destroy-on-close
+      :close-on-click-modal="message.closeModal"
+      :close-on-press-escape="message.closeModal"
+      @close="closeDate">
+
+      <div class="block">
+        <b><span class="textBlock">Fecha Limite para Seguimiento:</span></b>
+        <el-date-picker
+          class="select_width"
+          v-model="message.dialog.fecha.vModelSeguimiento"
+          type="datetime"
+          :placeholder="message.dialog.fecha.PlaceHolder"
+          default-time="12:00:00"
+          format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" 
+          @change="confirm()">
+        </el-date-picker>
+      </div>
+      
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeDate">Cancelar</el-button>
+        <el-button type="primary" @click="setActiveMonitoring" :disabled="message.button">Activar</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -493,6 +522,18 @@
 .formComentario {
   width: 100%;
 }
+
+.block{
+ padding: 30px 0;
+ text-align: left;
+ flex: 1; 
+}
+
+.textBlock{
+  display: block;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
 </style>
 <!--this.src = './../files/' + response.data[0].name + '.pdf';-->
 <script>
@@ -500,6 +541,24 @@ export default {
   props: { csrf: { type: String } },
   data() {
     return {
+      message: {
+        title:"",
+        visible: false,
+        width: "",
+        bodyText: "",
+        closeModal: false,
+        button:true,
+        dialog: {
+          fecha: {
+            vModelSeguimiento: '',
+            type: "datatime",
+            PlaceHolder: "Ingrese fecha de seguimiento",
+            defaultTime: "12:00:00",
+            file:"",
+            tracing:""
+          }
+        }
+      },
       switchFalse: false,
       drawer: false,
       drawerWord: false,
@@ -637,25 +696,36 @@ export default {
     this.getUserTransfer();
   },
   methods: {
+    closeDate(){
+      this.message.visible = false;
+      this.message.dialog.fecha.vModelSeguimiento = "";
+      this.getLista();
+    },
+    setActiveMonitoring(){
+        axios.post(this.url_list.tracing,{
+          documento: this.message.dialog.fecha.file,
+          tracing: this.message.dialog.fecha.tracing,
+          fechaF: this.message.dialog.fecha.vModelSeguimiento
+        }).then(response => {
+          this.closeDate();
+          // this.getLista();
+        })
+    },
+    confirm(){
+      this.message.button = false;
+    },
     switchControl(flag,file,tracing) {
-
+      const h = this.$createElement;
+      
       
       if(flag == "1"){
-        this.$confirm('¿Desea activar el seguimiento de expediente?','Seguimiento',{
-          confirmButtonText: 'Activar',
-          cancelButtonText: 'Cancelar',
-          type: 'Warning'
-        }).then(() => {
-          axios.post(this.url_list.tracing,{
-            documento: file,
-            tracing: tracing
-          }).then(response => {
-            this.getLista();
-          })
-        }).catch(() => {
-          this.getLista();
 
-        })
+        this.message.title = 'Seguimiento de Expediente';
+        this.message.visible = true;
+        this.message.width = '30%';
+        this.message.dialog.fecha.file = file;
+        this.message.dialog.fecha.tracing = tracing;
+
       }else{
         this.$confirm('¿Desea inactivar el seguimiento de expediente?','Seguimiento',{
           confirmButtonText: 'Inactivar',

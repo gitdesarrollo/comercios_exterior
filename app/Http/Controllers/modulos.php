@@ -6,13 +6,31 @@ use Illuminate\Http\Request;
 use App\Model\traslados;
 use App\Model\tracing;
 use App\Model\documento;
+use App\Model\mailTracking;
+use App\Model\view_users;
+use App\Model\user_has_view;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\sendTracingMailModel;
 
 class modulos extends Controller
 {
     public function ingresosShow(){
         return view('modules.index');
+    }
+
+    public function getSeguimiento(){
+        return view('modules.seguimiento');
+    }
+
+    public function showViews(){
+        return view('modules.viewsUser');
+    }
+
+    public function showPermits(){
+        return view('modules.permits');
     }
 
     public function delegadoShow(){
@@ -67,16 +85,16 @@ class modulos extends Controller
 
             $documento = documento::where(['id' => $request->documento])->update(['tracing' => '1']);
             if($request->tracing > 0){
-                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4]);
+                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4,'fechafinal' => $request->fechaF]);
             }else{
     
                 $tracing = new tracing;
                 $tracing->idDocumento = $request->documento;
                 $tracing->idUsuarioTraslada = $usuario->original;
                 // $tracing->idUsuarioActual = $request->usuarioActual;
-                // $tracing->fechaInicial = $request->fechaI;
                 $tracing->fechaInicial = $date;
-                $tracing->fechafinal = $date;
+                $tracing->fechafinal = $request->fechaF;
+                // $tracing->fechafinal = $date;
                 $tracing->estado = 4;
                 $tracing->save();
             }
@@ -108,5 +126,188 @@ class modulos extends Controller
         
     }
 
+    public function getFollowUp(){
+        try {
+            DB::beginTransaction();
+
+            $usuario = $this->getUserbyId();
+            $usuario = json_decode(json_encode($usuario));
+           
+            
+
+            $data = DB::select("
+            SELECT 
+                t.id AS idTracing,
+                d.id,
+                d.interesado AS Remitente,
+                d.correlativo_documento AS correlativo,
+                d.correlativo_externo AS correlativo_interno,
+                t.fechaFinal AS final,
+                TIMESTAMPDIFF(DAY, NOW(), t.fechaFinal) AS Dias,
+                u.NAME AS nombre_traslada,
+                (SELECT MAX(us.name) FROM estado es INNER JOIN users us ON es.UsuarioActual = us.id WHERE es.idTraslado = tr.id AND es.estatus = 4) AS usuarioActual
+            FROM tracings t
+            INNER JOIN documentos d
+                ON t.idDocumento = d.id
+            INNER JOIN users u
+                ON t.idUsuarioTraslada = u.id
+            INNER JOIN traslados tr
+                ON t.idDocumento = tr.idDocumento
+            WHERE t.idUsuarioTraslada = :id
+            ",['id' => $usuario->original]);
+
+            // $encriptado = Crypt::encrypt($data);
+            // $desencriptado = Crypt::decrypt($encriptado);
+
+           
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
+
+    public function sendTracingMail(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $send = new mailTracking;
+            $send->idTracings = $request->tracing;
+            $send->message = $request->message;
+            $send->save();
+            $data = DB::select('
+                SELECT 
+                        (
+                            CASE
+                                WHEN t.idUsuarioActual IS NULL
+                                THEN (SELECT email FROM users u WHERE u.id = t.idUsuarioTraslada)
+                                ELSE (SELECT email FROM users u WHERE u.id = t.idUsuarioActual)
+                                END
+                        ) AS email
+                FROM tracings t
+                WHERE t.id = :id
+            ',['id' => $request->tracing]);
+            // dd($data[0]->email);
+            $to_email = 'jjolong@miumg.edu.gt';
+            // $to_email = $data[0]->email;
+            $to_message = $request->message;
+            $to_traslada =$request->traslada;
+            $to_actual = $request->actual;
+            $to_correlativo = $request->correlativo;
+            Mail::to($to_email)->send(new sendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
+
+            DB::commit();
+
+            return response()->json($send,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function getMessagesTracking(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $data = DB::select('
+            SELECT mt.message, u.NAME, date_format(mt.created_at,"%d/%m/%Y   %h:%i:%S %p") AS fecha
+                FROM mail_trackings mt
+                INNER JOIN tracings t
+                    ON mt.idTracings = t.id
+                INNER JOIN users u
+                    ON t.idUsuarioTraslada = u.id
+            WHERE idTracings = :id
+            ',['id' => $request->id]);
+
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
+
+
+    public function getViewsUsers(){
+        $data  = view_users::all();
+        return response()->json($data,200);
+    }
+
+    public function setViewsUser(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $data = new view_users;
+
+            $data->description = $request->name;
+            $data->idEstado = 4;
+            $data->save();
+
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function getPermisoUsuario(){
+        try {
+            DB::beginTransaction();
+
+            $permits =  DB::select("
+            SELECT 
+                us.description,
+                vu.description AS permiso
+            FROM user_has_views uv
+                INNER JOIN view_users vu
+                    ON uv.permits = vu.id
+                INNER JOIN roles_users us
+                    ON uv.rol = us.id;
+        
+            ");
+
+            DB::commit();
+
+            return response()->json($permits,200);
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
+
+    public function setPermiso(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $cantidad = sizeof($request->view);
+
+            
+            for ($item=0; $item < $cantidad ; $item++) { 
+                $data = new user_has_view;
+                $data->rol = $request->user;
+                $data->permits = $request->view[$item];
+                $data->estado = 4;
+                $data->save();
+                
+            }
+
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
 
 }

@@ -9,7 +9,7 @@
                             <el-form-item prop="interesado">
                                 <el-input v-model="form.interesado">
                                     <template slot="prepend">
-                                        <span class="requiredColor mr-1">*</span> Interesado:
+                                        <span class="requiredColor mr-1">*</span> Remitente:
                                     </template>
                                 </el-input>
                             </el-form-item>
@@ -33,7 +33,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10" class="mt-2">
+                    <el-row :gutter="10" >
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="12">
                             <el-form-item prop="tipo" label="Tipo de Documento">
                                 <el-select
@@ -54,8 +54,8 @@
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="6">
                             <el-form-item  prop="fecha">
-                                <span class="demonstration">Fecha de Documento</span>
-                                <div class="block mt-2 ">
+                                <span >Fecha de Documento</span>
+                                <div class="mt-2">
                                     <el-date-picker
                                         v-model="form.fecha"
                                         type="date"
@@ -70,8 +70,8 @@
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="6">
                             <el-form-item  prop="recepcion">
-                                <span class="demonstration">Fecha de Recepción</span>
-                                <div class="block mt-2 ">
+                                <span >Fecha de Recepción</span>
+                                <div class="mt-2">
                                     <el-date-picker
                                         v-model="form.recepcion"
                                         type="date"
@@ -87,7 +87,7 @@
                     </el-row>
                     <el-row :gutter="10" class="mt-2">
                         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-                            <el-form-item prop="persona" label="Dirigido:">
+                            <el-form-item prop="persona" label="Destinatario:">
                                 <el-select
                                     v-model="form.persona"
                                     class="select_width"
@@ -361,7 +361,7 @@ export default {
                         fechaDocumento: this.form.fecha,
                         fechaRecepcion: this.form.recepcion
                     }).then(response => {
-                        // console.log(response.data);
+                        console.log(response.data);
                         const status = JSON.parse(response.status);
 
                         if (status == "200" && response.data != false) {
