@@ -24180,8 +24180,8 @@ canvas {
 
 .sidebar .nav-link.active {
   color: #fff;
-  /* background: #3f474e; */
-  background: #dddddd;
+  background: #3f474e;
+  /* background: #dddddd; */
 }
 
 .sidebar .nav-link.active .nav-icon {

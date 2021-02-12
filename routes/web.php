@@ -179,7 +179,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('setViewsUser','modulos@setViewsUser');
   Route::get('getPermisoUsuario','modulos@getPermisoUsuario');
   Route::post('setPermiso','modulos@setPermiso');
-
+  Route::get('remitente','modulos@remitente');
 
 
   /************************************************ */

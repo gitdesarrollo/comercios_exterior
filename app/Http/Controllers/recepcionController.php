@@ -13,6 +13,8 @@ use App\Mail\NotificationMail;
 use App\Model\correlativos;
 use App\Model\nombreCorrelativo;
 use App\Model\setting;
+use App\Model\user_has_view;
+use App\Model\userHasRoles;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
@@ -24,12 +26,48 @@ class recepcionController extends Controller
     }
 
     public function recepcion(){
-        return view('administrativo.recepcion');
+
+        $permiso = $this->getPermissionById();
+        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+            return view('administrativo.recepcion');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
     }
 
     public function getUserbyId(){
         $usuario = Auth::user()->id;
         return response()->json($usuario,200);
+    }
+
+    public function getPermissionById(){
+        $isAdmin = Auth::user()->admin;
+        $idUser = Auth::user()->id;
+
+        $rol = userHasRoles::where(['idUser' => $idUser ])->select('idRoles')->get();
+        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => 10])
+                ->select('estado')->count();
+        $permisos = [];
+        if($isAdmin == 1){
+            array_push($permisos,[
+                    "admin"     =>  true,
+                    "permit"    =>  true
+            ]);
+        }else{
+            if($permit > 0){
+                array_push($permisos,[
+                        "admin"     =>  false,
+                        "permit"    =>  true
+                ]);
+            }else{
+                array_push($permisos,[
+                        "admin"     =>  false,
+                        "permit"    =>  false
+                ]);
+            }
+        }
+        return response()->json($permisos,200);
     }
 
     public function getCorrelativoDocumento($unidad){

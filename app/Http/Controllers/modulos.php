@@ -9,6 +9,8 @@ use App\Model\documento;
 use App\Model\mailTracking;
 use App\Model\view_users;
 use App\Model\user_has_view;
+use App\Model\userHasRoles;
+use App\Model\remitente;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -18,11 +20,25 @@ use App\Mail\sendTracingMailModel;
 class modulos extends Controller
 {
     public function ingresosShow(){
-        return view('modules.index');
+        $permiso = $this->getPermissionById();
+        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+            return view('modules.index');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
     }
 
     public function getSeguimiento(){
-        return view('modules.seguimiento');
+        $permiso = $this->getPermissionById();
+        if($permiso->original[0]['admin'] || $permiso->original[0]['permit']){
+            return view('modules.seguimiento');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
     }
 
     public function showViews(){
@@ -35,6 +51,35 @@ class modulos extends Controller
 
     public function delegadoShow(){
         return view('modules.delegados');
+    }
+
+    public function getPermissionById(){
+        $isAdmin = Auth::user()->admin;
+        $idUser = Auth::user()->id;
+
+        $rol = userHasRoles::where(['idUser' => $idUser ])->select('idRoles')->get();
+        $permit = user_has_view::where(['rol' => $rol[0]->idRoles, 'permits' => 10])
+                ->select('estado')->count();
+        $permisos = [];
+        if($isAdmin == 1){
+            array_push($permisos,[
+                    "admin"     =>  true,
+                    "permit"    =>  true
+            ]);
+        }else{
+            if($permit > 0){
+                array_push($permisos,[
+                        "admin"     =>  false,
+                        "permit"    =>  true
+                ]);
+            }else{
+                array_push($permisos,[
+                        "admin"     =>  false,
+                        "permit"    =>  false
+                ]);
+            }
+        }
+        return response()->json($permisos,200);
     }
 
     public function expedientesByUserId(){
@@ -308,6 +353,12 @@ class modulos extends Controller
 
             return response()->json(false,200);
         }
+    }
+
+    public function remitente(){
+        $data = remitente::all();
+
+        return response()->json($data,200);
     }
 
 }
