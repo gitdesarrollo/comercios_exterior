@@ -747,7 +747,13 @@ class documentos extends Controller
             rol.idRoles as rol,
             d.correlativo_externo as formato,
             d.tracing,
-            (SELECT id FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS idTracing
+            (SELECT id FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS idTracing,
+            (SELECT 
+			(CASE 
+				WHEN idUsuarioTraslada = :local THEN 'true'
+				ELSE 'false'
+				END) AS flag 
+                FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS flag
             FROM documentos d
             INNER JOIN traslados tras
                 ON d.id = tras.id
@@ -758,7 +764,7 @@ class documentos extends Controller
             INNER JOIN user_has_roles rol
                 ON us.id = rol.idUser
             WHERE us.id = :id  AND d.id_status != 7
-            ",['id' => $idUsuario->original]);
+            ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
 
             
 
