@@ -240,8 +240,8 @@ class modulos extends Controller
                 WHERE t.id = :id
             ',['id' => $request->tracing]);
             // dd($data[0]->email);
-            $to_email = 'jjolong@miumg.edu.gt';
-            // $to_email = $data[0]->email;
+            // $to_email = 'jjolong@miumg.edu.gt';
+            $to_email = $data[0]->email;
             $to_message = $request->message;
             $to_traslada =$request->traslada;
             $to_actual = $request->actual;

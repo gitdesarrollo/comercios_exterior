@@ -108,6 +108,26 @@
                 @click="cierreDocumento(scope.row.code, scope.row.idTraslado,scope.row.formato)"
               ></el-button>
               <el-switch 
+                v-if="(scope.row.flag === 'true' && scope.row.tracing === '1')"
+                v-model="scope.row.tracing"
+                active-value="1"
+                inactive-value="0"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="switchControl(scope.row.tracing,scope.row.code,scope.row.idTracing)">
+              </el-switch>
+              <el-switch 
+                v-else-if="(scope.row.flag === 'false' && scope.row.tracing === '1')"
+                v-model="scope.row.tracing"
+                active-value="1"
+                inactive-value="0"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                disabled
+                @change="switchControl(scope.row.tracing,scope.row.code,scope.row.idTracing)">
+              </el-switch>
+              <el-switch 
+                v-else
                 v-model="scope.row.tracing"
                 active-value="1"
                 inactive-value="0"
