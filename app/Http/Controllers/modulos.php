@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\sendTracingMailModel;
+use App\Mail\SendTracingMailModel;
 
 class modulos extends Controller
 {
@@ -220,8 +220,8 @@ class modulos extends Controller
     }
 
     public function sendTracingMail(Request $request){
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
 
             $send = new mailTracking;
             $send->idTracings = $request->tracing;
@@ -240,21 +240,21 @@ class modulos extends Controller
                 WHERE t.id = :id
             ',['id' => $request->tracing]);
             // dd($data[0]->email);
-            $to_email = 'jjolong@miumg.edu.gt';
-            // $to_email = $data[0]->email;
+            // $to_email = 'jjolong@miumg.edu.gt';
+            $to_email = $data[0]->email;
             $to_message = $request->message;
             $to_traslada =$request->traslada;
             $to_actual = $request->actual;
             $to_correlativo = $request->correlativo;
-            Mail::to($to_email)->send(new sendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
+            Mail::to($to_email)->send(new SendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
 
-            DB::commit();
+            // DB::commit();
 
             return response()->json($send,200);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(false,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json(false,200);
+        // }
     }
 
     public function getMessagesTracking(Request $request){
