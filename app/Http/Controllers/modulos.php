@@ -220,8 +220,8 @@ class modulos extends Controller
     }
 
     public function sendTracingMail(Request $request){
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
 
             $send = new mailTracking;
             $send->idTracings = $request->tracing;
@@ -248,13 +248,13 @@ class modulos extends Controller
             $to_correlativo = $request->correlativo;
             Mail::to($to_email)->send(new sendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
 
-            DB::commit();
+            // DB::commit();
 
             return response()->json($send,200);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(false,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json(false,200);
+        // }
     }
 
     public function getMessagesTracking(Request $request){
