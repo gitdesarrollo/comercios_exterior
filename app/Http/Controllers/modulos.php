@@ -19,6 +19,10 @@ use App\Mail\SendTracingMailModel;
 
 class modulos extends Controller
 {
+    public function __construct(){
+        ini_set('max_execution_time', 3500);
+    }
+    
     public function ingresosShow(){
         $permiso = $this->getPermissionById(5);
         if($permiso->original[0]['admin']){

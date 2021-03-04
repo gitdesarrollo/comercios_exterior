@@ -23,6 +23,7 @@ use App\Model\typeDocument;
 use App\Model\uploadFile;
 use App\Model\setting;
 use App\Model\tracing;
+use App\Model\vice_has_dep;
 
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
@@ -31,6 +32,7 @@ class documentos extends Controller
 {
 
     public function __construct(){
+        ini_set('max_execution_time', 3500);
         $this->middleware('auth');
     }
 
@@ -136,6 +138,12 @@ class documentos extends Controller
     public function getDependenciabyId(){
         $usuario = Auth::user()->id_unidad;
         return response()->json($usuario,200);
+    }
+
+    public function getViceHasDeps($id){
+        
+        $union = vice_has_dep::where(['viceministro' => $id->original])->select('viceministerios')->get();
+        return response()->json($union,200);
     }
 
 
@@ -261,32 +269,105 @@ class documentos extends Controller
             $id = $this->getDependenciabyId();
             $id = json_decode(json_encode($id));
 
+            $user = $this->getUserbyId();
+            $user = json_decode(json_encode($user));
 
+            $departamento = $this->getViceHasDeps($user);
+            $departamento = json_decode(json_encode($departamento));
 
-            $documento = DB::select('SELECT
-                                        d.id as code,
-                                        d.interesado AS empresa,
-                                        d.correlativo_documento AS correlativo,
-                                        d.descripcion as descripcion,
-                                        ed.descripcion AS estado,
-                                        us.NAME AS usuario,
-                                        d.created_at as fecha,
-                                        tras.id as idTraslado
-                                        FROM documentos d
-                                        INNER JOIN traslados tras
-                                            ON d.id = tras.id
-                                        INNER JOIN estado_documentos ed
-                                        ON tras.estado = ed.id
-                                        INNER JOIN users us
-                                            ON tras.idUsuarioTramito = us.id
-                                        INNER JOIN dependencias dep
-   		                                    ON  dep.id_dependencia = us.id_unidad
-                                        INNER JOIN viceministerios vice
-   	                                        ON vice.id = dep.idVice
-                                        WHERE dep.id_dependencia = :id'
+            $ministro = sizeof($departamento->original);
+
+            
+
+            if($ministro > 0){
+                $documento = DB::select('
+                SELECT distinct
+                    doc.id as code,
+                    doc.interesado AS empresa,
+                    doc.correlativo_documento AS correlativo,
+                    doc.descripcion as descripcion,
+                    est.descripcion AS estado,
+                    us.NAME AS usuario,
+                    doc.created_at as fecha,
+                    tras.id as idTraslado,
+                    dep.descripcion AS unidad,
+                    td.descripcion AS tipo
+                    FROM viceministerios vice
+                    INNER JOIN dependencias dep
+                        ON dep.idVice = vice.id
+                    INNER JOIN users us
+                        ON dep.id_dependencia = us.id_unidad
+                    INNER JOIN traslados tras
+                        ON tras.idUsuarioTramito = us.id
+                    INNER JOIN documentos doc 
+                        ON tras.idDocumento = doc.id
+                    INNER JOIN estado es
+                        ON es.idTraslado = tras.id
+                    INNER JOIN estado_documentos est
+                        ON est.id = es.estatus
+                    INNER JOIN vice_has_deps viceHasDeps
+                        ON viceHasDeps.viceministerios = vice.id
+                    INNER JOIN type_documents td
+                        ON td.id = doc.idTipoDocumento
+                    WHERE vice.id = :unidad AND es.estatus = 4
+                ',['unidad' => $departamento->original[0]->viceministerios]);
+            }else{
+                $documento = DB::select('
+                SELECT distinct
+                    doc.id as code,
+                    doc.interesado AS empresa,
+                    doc.correlativo_documento AS correlativo,
+                    doc.descripcion as descripcion,
+                    est.descripcion AS estado,
+                    us.NAME AS usuario,
+                    doc.created_at as fecha,
+                    tras.id as idTraslado,
+                    dep.descripcion AS unidad,
+                    td.descripcion AS tipo
+                    FROM viceministerios vice
+                    INNER JOIN dependencias dep
+                        ON dep.idVice = vice.id
+                    INNER JOIN users us
+                        ON dep.id_dependencia = us.id_unidad
+                    INNER JOIN traslados tras
+                        ON tras.idUsuarioTramito = us.id
+                    INNER JOIN documentos doc 
+                        ON tras.idDocumento = doc.id
+                    INNER JOIN estado es
+                        ON es.idTraslado = tras.id
+                    INNER JOIN estado_documentos est
+                        ON est.id = es.estatus
+                    INNER JOIN type_documents td
+                        ON td.id = doc.idTipoDocumento
+                    WHERE dep.id_dependencia = :id AND es.estatus = 4
+                    ',['id' => $id->original]);
+            }
+            
+
+            // $documento = DB::select('SELECT
+            //                             d.id as code,
+            //                             d.interesado AS empresa,
+            //                             d.correlativo_documento AS correlativo,
+            //                             d.descripcion as descripcion,
+            //                             ed.descripcion AS estado,
+            //                             us.NAME AS usuario,
+            //                             d.created_at as fecha,
+            //                             tras.id as idTraslado
+            //                             FROM documentos d
+            //                             INNER JOIN traslados tras
+            //                                 ON d.id = tras.id
+            //                             INNER JOIN estado_documentos ed
+            //                             ON tras.estado = ed.id
+            //                             INNER JOIN users us
+            //                                 ON tras.idUsuarioTramito = us.id
+            //                             INNER JOIN dependencias dep
+   		    //                                 ON  dep.id_dependencia = us.id_unidad
+            //                             INNER JOIN viceministerios vice
+   	        //                                 ON vice.id = dep.idVice
+            //                             WHERE dep.id_dependencia = :id'
                                        
-            ,['id' => $id->original]
-            );
+            // ,['id' => $id->original]
+            // );
             DB::commit();
 
             // WHERE us.id = :id'
