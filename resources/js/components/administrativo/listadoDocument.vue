@@ -12,12 +12,16 @@
       <el-table
         :data="
           list_response.documentos
-            .slice((currentPage - 1) * pagesize, currentPage * pagesize)
             .filter(
-              (data) =>
-                !search ||
-                data.fecha.toLowerCase().includes(search.toLowerCase())
+              data => !search || 
+              data.empresa.toLowerCase().includes(search.toLowerCase()) ||
+              data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
+              data.fecha.toLowerCase().includes(search.toLowerCase()) ||
+              data.usuario.toLowerCase().includes(search.toLowerCase())  ||
+              data.tipo.toLowerCase().includes(search.toLowerCase())  
+              
             )
+            
         "
         style="width: 100%"
         border
@@ -60,13 +64,17 @@
             <span style="margin-left: 10px">{{ scope.row.fecha }}</span>
           </template>
         </el-table-column>
+        <el-table-column label="Asignado" prop="usuario" width="180">
+        </el-table-column>
+        <el-table-column label="Tipo" prop="tipo" width="180">
+        </el-table-column>
         <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
         <el-table-column label="Operaciones" width="180" header-align="center">
-          <template slot="header">
+          <template slot="header" slot-scope="scope">
             <el-input
               v-model="search"
               size="mini"
-              placeholder="Type to search"
+              placeholder="Buscar"
             />
           </template>
           <template slot-scope="scope" class="pl-3">
@@ -132,14 +140,15 @@
         </el-table-column>
       </el-table>
 
-      <div style="text-align: left; margin-top: 30px">
+      <!-- <div style="text-align: left; margin-top: 30px">
         <el-pagination
           background
           layout="total,prev, pager, next"
           :total="total"
           @current-change="current_change"
+          @size-change="handleSizeChange"
         ></el-pagination>
-      </div>
+      </div> -->
       <el-dialog
         title="Trasladar Documento"
         :visible.sync="dialogo"
@@ -389,6 +398,7 @@ export default {
     },
   },
   methods: {
+
     download() {
       const doc = new jsPDF();
       // doc.fromHTML(document.getElementById("tablamia"), 15, 15, {
@@ -403,6 +413,7 @@ export default {
         styles: { cellWidth: "auto", fontSize: 8, halign: "center" },
         bodyStyles: { fontSize: 8, halign: "left" },
       });
+
       doc.save("Informe de Cuentas.pdf");
       // doc.html('<p>hola</p>', {
       // callback: function (doc) {
@@ -436,6 +447,7 @@ export default {
       axios.get(this.url_list.lista).then((response) => {
         this.list_response.documentos = response.data;
         this.infoAll = true;
+        console.log(response.data)
 
         // this.list_response.listFilter.data.push({
         //   'data': response.data
@@ -462,6 +474,7 @@ export default {
       // console.log(id);
     },
     current_change: function (currentPage) {
+      
       this.currentPage = currentPage;
     },
     selectDireccion() {

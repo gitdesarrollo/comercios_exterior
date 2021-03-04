@@ -22,6 +22,7 @@ class recepcionController extends Controller
 {
 
     public function __construct(){
+        ini_set('max_execution_time', 3500);
         $this->middleware('auth');
     }
 
