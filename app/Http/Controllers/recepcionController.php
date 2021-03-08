@@ -90,8 +90,13 @@ class recepcionController extends Controller
             $data->numero = 1;
             $data->ano = $anio;
             $data->save();
+            
 
-            return response()->json($data,200);
+            $formato = correlativos::where(['correlativos.unidad_id' => $unidad, 'correlativos.ano' => $anio])
+                ->join('nombre_correlativos','nombre_correlativos.id','=','correlativos.string_id')->selectRaw('correlativos.id, concat(nombre_correlativos.name,correlativos.numero,"-",correlativos.ano) as formato')->get();
+
+
+            return response()->json($formato,200);
         }else{
 
             $infoAnterior = correlativos::where(['unidad_id' => $unidad, 'ano' => $anio])->select('numero','id')->get();
@@ -140,8 +145,8 @@ class recepcionController extends Controller
     public function storeRecepcion(Request $request){
 
 
-        // try {
-        //     DB::beginTransaction();
+        try {
+            DB::beginTransaction();
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
 
@@ -152,6 +157,7 @@ class recepcionController extends Controller
             $correlativoFormato = json_decode(json_encode($correlativoFormato));
 
             // dd($correlativoFormato->original[0]->formato);
+            // dd($correlativoFormato);
 
             $documento = new documento;
 
@@ -218,12 +224,12 @@ class recepcionController extends Controller
             }
 
 
-            // DB::commit();
+            DB::commit();
 
             return response()->json($documento,200);
-        // } catch (\Throwable $th) {
-        //     return response()->json(false,200);
-        //     DB::rollBack();
-        // }
+        } catch (\Throwable $th) {
+            return response()->json(false,200);
+            DB::rollBack();
+        }
     }
 }
