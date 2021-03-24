@@ -11,23 +11,20 @@
 
       <el-table
         :data="
-          list_response.documentos
-            .filter(
-              data => !search || 
+          list_response.documentos.filter(
+            (data) =>
+              !search ||
               data.empresa.toLowerCase().includes(search.toLowerCase()) ||
               data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
               data.fecha.toLowerCase().includes(search.toLowerCase()) ||
-              data.usuario.toLowerCase().includes(search.toLowerCase())  ||
-              data.tipo.toLowerCase().includes(search.toLowerCase())  
-              
-            )
-            
+              data.usuario.toLowerCase().includes(search.toLowerCase()) ||
+              data.tipo.toLowerCase().includes(search.toLowerCase())
+          )
         "
         style="width: 100%"
+        :header-cell-style="tableHeaderColor"
         border
-        height="450"
-        ref="filterInfo"
-        @filter-change="datos"
+        height="500"
       >
         <el-table-column label="No." type="index" fixed></el-table-column>
         <el-table-column
@@ -36,8 +33,7 @@
           prop="empresa"
           header-align="center"
           column-key="empresa"
-          :filters="handlerFilter.empresa"
-          :filter-method="filterData"
+       
         ></el-table-column>
         <el-table-column
           label="Correlativo"
@@ -45,8 +41,7 @@
           prop="correlativo"
           header-align="center"
           column-key="correlativo"
-          :filters="handlerFilter.correlativo"
-          :filter-method="filterCorrelativo"
+         
         ></el-table-column>
         <el-table-column
           label="Asunto"
@@ -68,14 +63,27 @@
         </el-table-column>
         <el-table-column label="Tipo" prop="tipo" width="180">
         </el-table-column>
-        <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
-        <el-table-column label="Operaciones" width="180" header-align="center">
+        <el-table-column width="180" header-align="center" fixed="right">
           <template slot="header" slot-scope="scope">
-            <el-input
-              v-model="search"
-              size="mini"
-              placeholder="Buscar"
-            />
+            <el-input v-model="search" size="mini" placeholder="Buscar" />
+          </template>
+          <template slot-scope="scope">
+            <el-button type="danger" size="mini" icon="el-icon-s-comment" plain @click="preview(scope.row.code,scope.row.idTraslado,scope.row.correlativo)"></el-button>  
+            <el-button @click="showDrawer()" type="primary" style="margin-left: 16px"  plain  icon="el-icon-full-screen">
+              <el-drawer
+                title="I am the title"
+                :visible.sync="drawer"
+                :direction="direction"
+                :before-close="handleClose">
+                <span>Hi, there!</span>
+              </el-drawer>
+            </el-button>         
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="Estado"  prop="estado"></el-table-column> -->
+        <!-- <el-table-column label="Operaciones" width="180" header-align="center">
+          <template slot="header" slot-scope="scope">
+            <el-input v-model="search" size="mini" placeholder="Buscar" />
           </template>
           <template slot-scope="scope" class="pl-3">
             <el-button
@@ -92,7 +100,7 @@
               "
             ></el-button>
             <el-button
-              @click="showDrawer(scope.row.code)"
+              @click="showDrawer()"
               type="primary"
               style="margin-left: 16px"
               plain
@@ -106,7 +114,7 @@
               :modal="false"
             >
               <embed
-                :src="src"
+                :src="scope.row.url"
                 type="application/pdf"
                 width="100%"
                 height="100%"
@@ -120,6 +128,8 @@
               >
               </el-alert>
             </el-drawer>
+             </template>
+        </el-table-column> -->
             <!-- v-if="trasladarBtn === scope.row.estado" -->
             <!-- :default-sort = "{prop: 'empresa', order: 'descending'}" -->
             <!-- <el-button
@@ -136,8 +146,7 @@
               plain
               @click="getTraslado(scope.row.code,scope.row.id_dependencia)"
             ></el-button>-->
-          </template>
-        </el-table-column>
+         
       </el-table>
 
       <!-- <div style="text-align: left; margin-top: 30px">
@@ -233,7 +242,7 @@
         </el-row>
       </el-dialog>
     </div>
-    <div v-show="ver">
+    <!-- <div v-show="ver">
       <div v-if="handlerData === false">
         <table class="table" id="reporte" v-show="infoAll">
           <thead>
@@ -246,7 +255,7 @@
           </thead>
           <tbody>
             <tr v-for="(index, x) in list_response.documentos" :key="x">
-              <!-- {{ index }} -->
+        
               <td>{{ index.empresa }}</td>
               <td>{{ index.correlativo }}</td>
               <td>{{ index.descripcion }}</td>
@@ -267,7 +276,7 @@
           </thead>
           <tbody>
             <tr v-for="(index, x) in list_response.listFilter" :key="x">
-              <!-- {{ index }} -->
+    
               <td>{{ index.data.empresa }}</td>
               <td>{{ index.data.correlativo }}</td>
               <td>{{ index.data.descripcion }}</td>
@@ -276,7 +285,7 @@
           </tbody>
         </table>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -302,6 +311,8 @@ import html2pdf from "html2pdf.js";
 export default {
   data() {
     return {
+              drawer: false,
+        direction: 'rtl',
       verError: false,
       drawer: false,
       datacoment: {
@@ -383,21 +394,35 @@ export default {
     };
   },
   mounted() {
+    
     this.getLista();
-    this.selectDireccion();
+    // this.selectDireccion();
   },
-  watch: {
-    query: {
-      handler(query) {
-        mockData(query).then(({ rows, total }) => {
-          this.data = rows;
-          this.total = total;
-        });
-      },
-      deep: true,
-    },
-  },
+  // watch: {
+  //   query: {
+  //     handler(query) {
+  //       mockData(query).then(({ rows, total }) => {
+  //         console.log(" preuba" , rows, " ", total)
+  //         this.data = rows;
+  //         this.total = total;
+  //       });
+  //     },
+  //     deep: true,
+  //   },
+  // },
   methods: {
+          handleClose(done) {
+        this.$confirm('Are you sure you want to close this?')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+      },
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
+      }
+    },
 
     download() {
       const doc = new jsPDF();
@@ -447,24 +472,24 @@ export default {
       axios.get(this.url_list.lista).then((response) => {
         this.list_response.documentos = response.data;
         this.infoAll = true;
-        console.log(response.data)
+        console.log("lista " , response.data);
 
         // this.list_response.listFilter.data.push({
         //   'data': response.data
         // })
         // console.log(this.list_response.listFilter);
-        this.total = response.data.length;
-        for (let index = 0; index < this.total; index++) {
-          this.handlerFilter.empresa.push({
-            text: response.data[index].empresa,
-            value: response.data[index].empresa,
-          });
-          this.handlerFilter.correlativo.push({
-            text: response.data[index].correlativo,
-            value: response.data[index].correlativo,
-          });
+        // this.total = response.data.length;
+        // for (let index = 0; index < this.total; index++) {
+        //   this.handlerFilter.empresa.push({
+        //     text: response.data[index].empresa,
+        //     value: response.data[index].empresa,
+        //   });
+        //   this.handlerFilter.correlativo.push({
+        //     text: response.data[index].correlativo,
+        //     value: response.data[index].correlativo,
+        //   });
+        // }
           // const element = array[index];
-        }
       });
     },
     getTraslado(id, dependencia) {
@@ -474,12 +499,12 @@ export default {
       // console.log(id);
     },
     current_change: function (currentPage) {
-      
       this.currentPage = currentPage;
     },
     selectDireccion() {
       axios.get(this.url_list.dependencias).then((response) => {
         this.list_response.list_dependencia = response.data;
+        console.log("direccion ", response.data)
       });
     },
     documentTransfer(form) {
@@ -533,10 +558,8 @@ export default {
     },
     filterCorrelativo(value, row) {
       return row.correlativo === value;
-
     },
     datos(row) {
-
       if (row.empresa && row.empresa.length > 0) {
         this.list_response.listFilter = [];
         for (let filtro = 0; filtro < row.empresa.length; filtro++) {
@@ -586,37 +609,34 @@ export default {
       }
     },
     getNameFiles(correlativo) {
-        console.log(correlativo)
+      console.log(correlativo);
       this.src = "";
       axios
         .post(this.url_list.getFiles, {
           correlativoD: correlativo,
         })
         .then((response) => {
-
-
           if (response.data.length > 0) {
             this.limitNumber = 2;
             this.numberFiles = response.data.length;
             this.src = "./../files/" + response.data[0].name + ".pdf";
-          }else{
+          } else {
             this.src = "";
             this.verError = true;
           }
-        }).catch(error => {
+        })
+        .catch((error) => {
           this.src = "";
           this.verError = true;
-
-        })
+        });
     },
-    showDrawer(correlativo) {
+    showDrawer() {
       this.drawer = true;
-      this.getNameFiles(correlativo);
+      // this.getNameFiles(correlativo);
 
-        // this.src = "./../files/" + correlativo + ".pdf";
+      // this.src = "./../files/" + correlativo + ".pdf";
 
-        // this.verError = true;
-
+      // this.verError = true;
     },
   },
 };

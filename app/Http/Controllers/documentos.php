@@ -285,13 +285,15 @@ class documentos extends Controller
                     doc.id as code,
                     doc.interesado AS empresa,
                     doc.correlativo_documento AS correlativo,
+                    doc.correlativo_externo AS externo,
                     doc.descripcion as descripcion,
                     est.descripcion AS estado,
                     us.NAME AS usuario,
                     doc.created_at as fecha,
                     tras.id as idTraslado,
                     dep.descripcion AS unidad,
-                    td.descripcion AS tipo
+                    td.descripcion AS tipo,
+                    CONCAT("./../files/",files.`file`) AS url
                     FROM viceministerios vice
                     INNER JOIN dependencias dep
                         ON dep.idVice = vice.id
@@ -309,6 +311,8 @@ class documentos extends Controller
                         ON viceHasDeps.viceministerios = vice.id
                     INNER JOIN type_documents td
                         ON td.id = doc.idTipoDocumento
+                    INNER JOIN upload_files files
+                        ON doc.id = files.evento_id
                     WHERE vice.id = :unidad AND es.estatus = 4
                 ',['unidad' => $departamento->original[0]->viceministerios]);
             }else{
@@ -317,13 +321,15 @@ class documentos extends Controller
                     doc.id as code,
                     doc.interesado AS empresa,
                     doc.correlativo_documento AS correlativo,
+                    doc.correlativo_externo AS externo,
                     doc.descripcion as descripcion,
                     est.descripcion AS estado,
                     us.NAME AS usuario,
                     doc.created_at as fecha,
                     tras.id as idTraslado,
                     dep.descripcion AS unidad,
-                    td.descripcion AS tipo
+                    td.descripcion AS tipo,
+                    CONCAT("./../files/",files.`file`) AS url
                     FROM viceministerios vice
                     INNER JOIN dependencias dep
                         ON dep.idVice = vice.id
@@ -339,38 +345,13 @@ class documentos extends Controller
                         ON est.id = es.estatus
                     INNER JOIN type_documents td
                         ON td.id = doc.idTipoDocumento
+                    INNER JOIN upload_files files
+                        ON doc.id = files.evento_id
                     WHERE dep.id_dependencia = :id AND es.estatus = 4
                     ',['id' => $id->original]);
             }
             
-
-            // $documento = DB::select('SELECT
-            //                             d.id as code,
-            //                             d.interesado AS empresa,
-            //                             d.correlativo_documento AS correlativo,
-            //                             d.descripcion as descripcion,
-            //                             ed.descripcion AS estado,
-            //                             us.NAME AS usuario,
-            //                             d.created_at as fecha,
-            //                             tras.id as idTraslado
-            //                             FROM documentos d
-            //                             INNER JOIN traslados tras
-            //                                 ON d.id = tras.id
-            //                             INNER JOIN estado_documentos ed
-            //                             ON tras.estado = ed.id
-            //                             INNER JOIN users us
-            //                                 ON tras.idUsuarioTramito = us.id
-            //                             INNER JOIN dependencias dep
-   		    //                                 ON  dep.id_dependencia = us.id_unidad
-            //                             INNER JOIN viceministerios vice
-   	        //                                 ON vice.id = dep.idVice
-            //                             WHERE dep.id_dependencia = :id'
-                                       
-            // ,['id' => $id->original]
-            // );
             DB::commit();
-
-            // WHERE us.id = :id'
 
             return response()->json($documento,200);
 
@@ -378,39 +359,6 @@ class documentos extends Controller
             return response()->json($th,200);
             DB::rollBack();
         }
-
-            // $documento = DB::select('SELECT
-            //                                 id as code,
-            //                                 dirigido,
-            //                                 id_dependencia,
-            //                                 direccion as descripcion,
-            //                                 correlativo_documento as correlativo,
-            //                                 created_at as fecha
-            //                                 FROM documentos
-            //                     WHERE id_dependencia = :id AND id NOT IN
-            //                         (SELECT idDocumento AS Documento FROM traslados WHERE estado = \'A\' and idDocumento IN
-            //                         (SELECT id AS code_document FROM documentos WHERE id_dependencia = :idd));
-            // ',['id' => $id->original, 'idd' => $id->original]);
-
-
-
-        // $documento = documento::where('documentos.id_dependencia', $id->original)
-        // ->select('documentos.id as code','documentos.dirigido','documentos.id_dependencia','documentos.direccion as descripcion','documentos.correlativo_documento as correlativo','documentos.created_at as fecha')
-        // ->get();
-
-
-
-
-
-        // $documento = documento::where('documentos.id_dependencia', $id->original)
-        // ->select('documentos.id as code','documentos.dirigido','documentos.id_dependencia','documentos.direccion as descripcion','documentos.correlativo_documento as correlativo',
-        //             'documentos.created_at as fecha',
-        //             DB::raw('(CASE WHEN (traslados.estado = "A") THEN concat("Trasladado a ", dependencias.descripcion)  ELSE "Sin Enviar" END) AS estado'))
-        // ->leftjoin('traslados','traslados.idDocumento','=','documentos.id')
-        // ->leftjoin('dependencias','traslados.idDepartamentoActual','=','dependencias.id_dependencia')
-        // ->where('traslados.estado' , '<>','A')
-        // ->get();
-
 
     }
     public function listDocument(){

@@ -1,20 +1,22 @@
 <template>
   <div class="card">
     <div class="card-header text-white bg-primary">
-      Listado de Documentos Recibidos
+      Listado de Documentos Recibidos 
     </div>
     <div class="card-body">
       <el-table
         :data="
-          list_response.documentos.slice(
-            (currentPage - 1) * pagesize,
-            currentPage * pagesize
-          )
-        "
+          list_response.documentos.filter((data) => !search || 
+          data.empresa.toLowerCase().includes(search.toLowerCase()) ||
+          data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
+          data.formato.toLowerCase().includes(search.toLowerCase())
+          ).slice((currentPage - 1) * pagesize, currentPage * pagesize)"
+        :header-cell-style="tableHeaderColor"
+        border
         style="width: 100%"
       >
         <el-table-column label="No." type="index"></el-table-column>
-        <el-table-column label="Dirigido" prop="empresa"></el-table-column>
+        <el-table-column label="Remitente" prop="empresa"></el-table-column>
         <el-table-column
           label="Correlativo"
           prop="correlativo"
@@ -40,6 +42,9 @@
           </template>
         </el-table-column>
         <el-table-column label="Operaciones" width="280">
+          <template slot="header" slot-scope="scope">
+              <el-input v-model="search" size="mini" placeholder="Buscar" />
+            </template>
           <template slot-scope="scope" class="pl-3">
             <div v-if="scope.row.estado == 2">
               <el-button
@@ -561,6 +566,7 @@ export default {
   props: { csrf: { type: String } },
   data() {
     return {
+      search:"",
       message: {
         title:"",
         visible: false,
@@ -716,6 +722,11 @@ export default {
     this.getUserTransfer();
   },
   methods: {
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
+      }
+    },
     closeDate(){
       this.message.visible = false;
       this.message.dialog.fecha.vModelSeguimiento = "";
