@@ -188,9 +188,10 @@ class modulos extends Controller
            
             
 
-            $data = DB::select("
+            $data = DB::select('
             SELECT 
                 t.id AS idTracing,
+                tr.id as transfer,
                 d.id,
                 d.interesado AS Remitente,
                 d.correlativo_documento AS correlativo,
@@ -198,7 +199,8 @@ class modulos extends Controller
                 t.fechaFinal AS final,
                 TIMESTAMPDIFF(DAY, NOW(), t.fechaFinal) AS Dias,
                 u.NAME AS nombre_traslada,
-                (SELECT MAX(us.name) FROM estado es INNER JOIN users us ON es.UsuarioActual = us.id WHERE es.idTraslado = tr.id AND es.estatus = 4) AS usuarioActual
+                (SELECT MAX(us.name) FROM estado es INNER JOIN users us ON es.UsuarioActual = us.id WHERE es.idTraslado = tr.id AND es.estatus = 4) AS usuarioActual,
+                CONCAT("./../files/",files.`file`) AS url
             FROM tracings t
             INNER JOIN documentos d
                 ON t.idDocumento = d.id
@@ -206,8 +208,10 @@ class modulos extends Controller
                 ON t.idUsuarioTraslada = u.id
             INNER JOIN traslados tr
                 ON t.idDocumento = tr.idDocumento
+            INNER JOIN upload_files files
+		        ON files.evento_id = d.id
             WHERE t.idUsuarioTraslada = :id
-            ",['id' => $usuario->original]);
+            ',['id' => $usuario->original]);
 
             // $encriptado = Crypt::encrypt($data);
             // $desencriptado = Crypt::decrypt($encriptado);

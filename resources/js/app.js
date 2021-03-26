@@ -29,7 +29,6 @@ import { Vue } from 'vue-property-decorator';
 
 
 
-
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
 

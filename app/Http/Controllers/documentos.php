@@ -261,6 +261,92 @@ class documentos extends Controller
         }
     }
 
+    public function listDocumentRemitente(){
+
+
+        try {
+            DB::beginTransaction();
+            $id = $this->getDependenciabyId();
+            $id = json_decode(json_encode($id));
+
+            $user = $this->getUserbyId();
+            $user = json_decode(json_encode($user));
+
+            $departamento = $this->getViceHasDeps($user);
+            $departamento = json_decode(json_encode($departamento));
+
+            $ministro = sizeof($departamento->original);
+
+            
+
+            if($ministro > 0){
+                $documento = DB::select('
+                SELECT distinct
+                    rem.id,
+                    rem.descripcion
+                    FROM viceministerios vice
+                    INNER JOIN dependencias dep
+                        ON dep.idVice = vice.id
+                    INNER JOIN users us
+                        ON dep.id_dependencia = us.id_unidad
+                    INNER JOIN traslados tras
+                        ON tras.idUsuarioTramito = us.id
+                    INNER JOIN documentos doc 
+                        ON tras.idDocumento = doc.id
+                    INNER JOIN estado es
+                        ON es.idTraslado = tras.id
+                    INNER JOIN estado_documentos est
+                        ON est.id = es.estatus
+                    INNER JOIN vice_has_deps viceHasDeps
+                        ON viceHasDeps.viceministerios = vice.id
+                    INNER JOIN type_documents td
+                        ON td.id = doc.idTipoDocumento
+                    INNER JOIN upload_files files
+                        ON doc.id = files.evento_id
+                    INNER JOIN remitentes rem
+                        ON rem.descripcion = doc.interesado
+                    WHERE vice.id = :unidad AND es.estatus = 4
+                    order by rem.id asc
+                ',['unidad' => $departamento->original[0]->viceministerios]);
+            }else{
+                $documento = DB::select('
+                SELECT distinct
+                    rem.id,
+                    rem.descripcion
+                    FROM viceministerios vice
+                    INNER JOIN dependencias dep
+                        ON dep.idVice = vice.id
+                    INNER JOIN users us
+                        ON dep.id_dependencia = us.id_unidad
+                    INNER JOIN traslados tras
+                        ON tras.idUsuarioTramito = us.id
+                    INNER JOIN documentos doc 
+                        ON tras.idDocumento = doc.id
+                    INNER JOIN estado es
+                        ON es.idTraslado = tras.id
+                    INNER JOIN estado_documentos est
+                        ON est.id = es.estatus
+                    INNER JOIN type_documents td
+                        ON td.id = doc.idTipoDocumento
+                    INNER JOIN upload_files files
+                        ON doc.id = files.evento_id
+                    INNER JOIN remitentes rem
+                        ON rem.descripcion = doc.interesado
+                    WHERE dep.id_dependencia = :id AND es.estatus = 4
+                    order by rem.id asc
+                    ',['id' => $id->original]);
+            }
+            
+            DB::commit();
+
+            return response()->json($documento,200);
+
+        } catch (\Throwable $th) {
+            return response()->json($th,200);
+            DB::rollBack();
+        }
+
+    }
     public function listDocumentAll(){
 
 
@@ -314,6 +400,7 @@ class documentos extends Controller
                     INNER JOIN upload_files files
                         ON doc.id = files.evento_id
                     WHERE vice.id = :unidad AND es.estatus = 4
+                    order by doc.created_at desc
                 ',['unidad' => $departamento->original[0]->viceministerios]);
             }else{
                 $documento = DB::select('
@@ -348,6 +435,7 @@ class documentos extends Controller
                     INNER JOIN upload_files files
                         ON doc.id = files.evento_id
                     WHERE dep.id_dependencia = :id AND es.estatus = 4
+                    order by doc.created_at desc
                     ',['id' => $id->original]);
             }
             
@@ -361,6 +449,139 @@ class documentos extends Controller
         }
 
     }
+
+
+    public function listByFilter(Request $request){
+        
+        
+        $html = "";
+
+        if(!is_null($request->sender)){
+            $html .= ' and doc.interesado = "' . $request->sender . '"';
+        }
+        
+        if(!is_null($request->correlative)){
+            $html .= ' and doc.correlativo_documento like "%' . $request->correlative . '%"';
+        }
+        
+        if(!is_null($request->internal)){
+            $html .= ' and doc.correlativo_externo like "%' . $request->internal . '%"';
+        }
+        
+        if(!is_null($request->assigned)){
+            $html .= ' and us.NAME like "%' . $request->assigned . '%"';
+        }
+        
+        if(!is_null($request->type)){
+            $html .= ' and td.id = ' . $request->type;
+        }
+        
+        if(!is_null($request->Idate) && !is_null($request->Fdate)){
+            $html .= ' and CAST(doc.created_at as DATE)  BETWEEN  CAST("' . $request->Idate . '" as DATE) and CAST("' . $request->Fdate . '" as DATE)' ;
+        }
+
+        
+        try {
+            DB::beginTransaction();
+            $id = $this->getDependenciabyId();
+            $id = json_decode(json_encode($id));
+
+            $user = $this->getUserbyId();
+            $user = json_decode(json_encode($user));
+
+            $departamento = $this->getViceHasDeps($user);
+            $departamento = json_decode(json_encode($departamento));
+
+            $ministro = sizeof($departamento->original);
+
+            
+
+            if($ministro > 0){
+                $documento = DB::select('
+                SELECT distinct
+                    doc.id as code,
+                    doc.interesado AS empresa,
+                    doc.correlativo_documento AS correlativo,
+                    doc.correlativo_externo AS externo,
+                    doc.descripcion as descripcion,
+                    est.descripcion AS estado,
+                    us.NAME AS usuario,
+                    doc.created_at as fecha,
+                    tras.id as idTraslado,
+                    dep.descripcion AS unidad,
+                    td.descripcion AS tipo,
+                    CONCAT("./../files/",files.`file`) AS url
+                    FROM viceministerios vice
+                    INNER JOIN dependencias dep
+                        ON dep.idVice = vice.id
+                    INNER JOIN users us
+                        ON dep.id_dependencia = us.id_unidad
+                    INNER JOIN traslados tras
+                        ON tras.idUsuarioTramito = us.id
+                    INNER JOIN documentos doc 
+                        ON tras.idDocumento = doc.id
+                    INNER JOIN estado es
+                        ON es.idTraslado = tras.id
+                    INNER JOIN estado_documentos est
+                        ON est.id = es.estatus
+                    INNER JOIN vice_has_deps viceHasDeps
+                        ON viceHasDeps.viceministerios = vice.id
+                    INNER JOIN type_documents td
+                        ON td.id = doc.idTipoDocumento
+                    INNER JOIN upload_files files
+                        ON doc.id = files.evento_id
+                    WHERE vice.id = :unidad AND es.estatus = 4 
+                ' . $html
+                ,['unidad' => $departamento->original[0]->viceministerios]);
+            }else{
+                $documento = DB::select('
+                SELECT distinct
+                    doc.id as code,
+                    doc.interesado AS empresa,
+                    doc.correlativo_documento AS correlativo,
+                    doc.correlativo_externo AS externo,
+                    doc.descripcion as descripcion,
+                    est.descripcion AS estado,
+                    us.NAME AS usuario,
+                    doc.created_at as fecha,
+                    tras.id as idTraslado,
+                    dep.descripcion AS unidad,
+                    td.descripcion AS tipo,
+                    CONCAT("./../files/",files.`file`) AS url
+                    FROM viceministerios vice
+                    INNER JOIN dependencias dep
+                        ON dep.idVice = vice.id
+                    INNER JOIN users us
+                        ON dep.id_dependencia = us.id_unidad
+                    INNER JOIN traslados tras
+                        ON tras.idUsuarioTramito = us.id
+                    INNER JOIN documentos doc 
+                        ON tras.idDocumento = doc.id
+                    INNER JOIN estado es
+                        ON es.idTraslado = tras.id
+                    INNER JOIN estado_documentos est
+                        ON est.id = es.estatus
+                    INNER JOIN type_documents td
+                        ON td.id = doc.idTipoDocumento
+                    INNER JOIN upload_files files
+                        ON doc.id = files.evento_id
+                    WHERE dep.id_dependencia = :id AND es.estatus = 4 
+                    ' . $html
+                    ,['id' => $id->original]);
+            }
+            
+            DB::commit();
+
+            // dd($documento);
+            return response()->json($documento,200);
+
+        } catch (\Throwable $th) {
+            return response()->json($th,200);
+            DB::rollBack();
+        }
+
+    }
+
     public function listDocument(){
 
 
@@ -1188,6 +1409,7 @@ class documentos extends Controller
             ->join('users','comentarios.idUsuario','=','users.id')
             ->join('traslados','traslados.id','=','comentarios.idTraslado')
             ->where(['comentarios.idTraslado' => $request->code, 'comentarios.iddocumento' => $request->documento ])
+            ->orderBy('comentarios.created_at','desc')
             // ->where('comentarios.iddocumento','=',$request->documento)
             ->get();
 

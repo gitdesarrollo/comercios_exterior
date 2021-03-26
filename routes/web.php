@@ -181,6 +181,10 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('setPermiso','modulos@setPermiso');
   Route::get('remitente','modulos@remitente');
 
+  Route::post('listByFilter','documentos@listByFilter');
+  Route::get('listDocumentRemitente', 'documentos@listDocumentRemitente');
+ 
+
 
 
 
