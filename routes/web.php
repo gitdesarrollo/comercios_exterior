@@ -183,6 +183,8 @@ Route::post('setRoles','catalogo@setRoles');
 
   Route::post('listByFilter','documentos@listByFilter');
   Route::get('listDocumentRemitente', 'documentos@listDocumentRemitente');
+  Route::post('getFileWord','Upload@getFileWord');
+  Route::put('deleteWord','Upload@deleteWord');
  
 
 

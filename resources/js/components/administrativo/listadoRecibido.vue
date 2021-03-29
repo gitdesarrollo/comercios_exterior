@@ -1,16 +1,21 @@
 <template>
   <div class="card">
     <div class="card-header text-white bg-primary">
-      Listado de Documentos Recibidos 
+      Listado de Documentos Recibidos
     </div>
     <div class="card-body">
       <el-table
         :data="
-          list_response.documentos.filter((data) => !search || 
-          data.empresa.toLowerCase().includes(search.toLowerCase()) ||
-          data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
-          data.formato.toLowerCase().includes(search.toLowerCase())
-          ).slice((currentPage - 1) * pagesize, currentPage * pagesize)"
+          list_response.documentos
+            .filter(
+              (data) =>
+                !search ||
+                data.empresa.toLowerCase().includes(search.toLowerCase()) ||
+                data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
+                data.formato.toLowerCase().includes(search.toLowerCase())
+            )
+            .slice((currentPage - 1) * pagesize, currentPage * pagesize)
+        "
         :header-cell-style="tableHeaderColor"
         border
         style="width: 100%"
@@ -43,8 +48,8 @@
         </el-table-column>
         <el-table-column label="Operaciones" width="280">
           <template slot="header" slot-scope="scope">
-              <el-input v-model="search" size="mini" placeholder="Buscar" />
-            </template>
+            <el-input v-model="search" size="mini" placeholder="Buscar" />
+          </template>
           <template slot-scope="scope" class="pl-3">
             <div v-if="scope.row.estado == 2">
               <el-button
@@ -75,7 +80,8 @@
                   preview(
                     scope.row.code,
                     scope.row.idTraslado,
-                    scope.row.formato
+                    scope.row.formato,
+                    scope.row.url
                   )
                 "
               ></el-button>
@@ -92,7 +98,11 @@
                 icon="el-icon-s-check"
                 plain
                 @click="
-                  getTrasladoInterno(scope.row.code, scope.row.idTraslado,scope.row.idTracing)
+                  getTrasladoInterno(
+                    scope.row.code,
+                    scope.row.idTraslado,
+                    scope.row.idTracing
+                  )
                 "
               ></el-button>
               <el-button
@@ -110,35 +120,64 @@
                 type="el-icon-error"
                 icon="el-icon-error"
                 plain
-                @click="cierreDocumento(scope.row.code, scope.row.idTraslado,scope.row.formato)"
+                @click="
+                  cierreDocumento(
+                    scope.row.code,
+                    scope.row.idTraslado,
+                    scope.row.formato
+                  )
+                "
               ></el-button>
-              <el-switch 
-                v-if="(scope.row.flag === 'true' && scope.row.tracing === '1')"
+              <el-switch
+                v-if="scope.row.flag === 'true' && scope.row.tracing === '1'"
                 v-model="scope.row.tracing"
                 active-value="1"
                 inactive-value="0"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="switchControl(scope.row.tracing,scope.row.code,scope.row.idTracing)">
+                @change="
+                  switchControl(
+                    scope.row.tracing,
+                    scope.row.code,
+                    scope.row.idTracing
+                  )
+                "
+              >
               </el-switch>
-              <el-switch 
-                v-else-if="(scope.row.flag === 'false' && scope.row.tracing === '1')"
+              <el-switch
+                v-else-if="
+                  scope.row.flag === 'false' && scope.row.tracing === '1'
+                "
                 v-model="scope.row.tracing"
                 active-value="1"
                 inactive-value="0"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 disabled
-                @change="switchControl(scope.row.tracing,scope.row.code,scope.row.idTracing)">
+                @change="
+                  switchControl(
+                    scope.row.tracing,
+                    scope.row.code,
+                    scope.row.idTracing
+                  )
+                "
+              >
               </el-switch>
-              <el-switch 
+              <el-switch
                 v-else
                 v-model="scope.row.tracing"
                 active-value="1"
                 inactive-value="0"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="switchControl(scope.row.tracing,scope.row.code,scope.row.idTracing)">
+                @change="
+                  switchControl(
+                    scope.row.tracing,
+                    scope.row.code,
+                    scope.row.idTracing
+                  )
+                "
+              >
               </el-switch>
             </div>
           </template>
@@ -157,7 +196,6 @@
         :visible.sync="dialogo"
         width="35%"
         top="3vh"
-        center
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -202,7 +240,6 @@
         :visible.sync="handlerDialog.previewClose.visible"
         :width="handlerDialog.previewClose.width"
         :top="handlerDialog.previewClose.top"
-        center
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -225,49 +262,49 @@
               show-word-limit
             ></el-input>
           </el-form-item>
-          <el-form-item >
-              <el-col :span="3">
-                  <el-form-item v-show="controlButton.buttonPdfClose">
-                    <el-upload
-                            class="upload-demo"
-                            :action="'/upload'"
-                            name="file[]"
-                            :data="{
-                                id_documento: datacoment.idDocumento,
-                                correlativo: datacoment.correlativo,
-                                count: datacoment.numberFiles,
-                                type: datacoment.typePdf,
-                            }"
-                            :headers="{ 'X-CSRF-TOKEN': csrf }"
-                            :on-preview="handlePreview"
-                            :on-remove="handleRemove"
-                            :show-file-list="false"
-                            :on-success="cargaSuccessClose"
-                            :file-list="fileList"
-                            accept=".pdf"
-                    >
-                        <el-button size="medium" type="danger" 
-                            ><i class="fas fa-file-pdf"></i
-                        ></el-button>
-                    </el-upload>
-                  </el-form-item>
-              </el-col>
-              <el-col :span="5">
-                  <el-form-item>
-                    <el-button
-                    v-if="controlButton.buttonClose"
-                    type="primary"
-                    @click="archivarDocument('formClose')"
-                    v-loading.fullscreen.lock="trasladoUsuario"
-                    >Archivar
-                    </el-button>  
-                  </el-form-item>
-              </el-col>
-              <el-col :span="11">
-                  <el-form-item>
-                    <el-button  @click="cierreClose('formClose')">Cancel</el-button>
-                  </el-form-item>
-              </el-col>
+          <el-form-item>
+            <el-col :span="3">
+              <el-form-item v-show="controlButton.buttonPdfClose">
+                <el-upload
+                  class="upload-demo"
+                  :action="'/upload'"
+                  name="file[]"
+                  :data="{
+                    id_documento: datacoment.idDocumento,
+                    correlativo: datacoment.correlativo,
+                    count: datacoment.numberFiles,
+                    type: datacoment.typePdf,
+                  }"
+                  :headers="{ 'X-CSRF-TOKEN': csrf }"
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :show-file-list="false"
+                  :on-success="cargaSuccessClose"
+                  :file-list="fileList"
+                  accept=".pdf"
+                >
+                  <el-button size="medium" type="danger"
+                    ><i class="fas fa-file-pdf"></i
+                  ></el-button>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+            <el-col :span="5">
+              <el-form-item>
+                <el-button
+                  v-if="controlButton.buttonClose"
+                  type="primary"
+                  @click="archivarDocument('formClose')"
+                  v-loading.fullscreen.lock="trasladoUsuario"
+                  >Archivar
+                </el-button>
+              </el-form-item>
+            </el-col>
+            <el-col :span="11">
+              <el-form-item>
+                <el-button @click="cierreClose('formClose')">Cancel</el-button>
+              </el-form-item>
+            </el-col>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -351,15 +388,16 @@
         :top="handlerDialog.preview.top"
         @close="closeEvent()"
         @open="openEvent()"
-        center
         destroy-on-close
       >
         <el-row :gutter="10">
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
+          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
             <el-table
               :data="list_response.listComentarios"
+              :header-cell-style="tableComment"
               :row-class-name="tableRowClassName"
               height="450"
+              border
             >
               <el-table-column label="No." type="index"></el-table-column>
               <el-table-column
@@ -372,130 +410,130 @@
                 prop="comentario"
               ></el-table-column>
             </el-table>
-          </el-col>
-          <!-- <embed :src="src" type="application/pdf" width="90%" height="600px" /> -->
-          <!-- <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="9">
-                    </el-col>-->
-        </el-row>
-        <el-row :gutter="10">
-          <el-form
-            :model="ruleForm"
-            :rules="rules"
-            ref="ruleForm"
-            class="formComentario"
-          >
-            <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
-              <el-form-item label="Comentario:" prop="comentario">
+            <el-form
+              :model="ruleForm"
+              
+              ref="ruleForm"
+              label-width="120px"
+              label-position="top"
+            >
+              <el-form-item label="Comentario:" prop="comentario" :rules="formRule.comentario">
                 <el-input
                   type="textarea"
-                  v-model="ruleForm.comentario"
+                  v-model.trim="ruleForm.comentario"
                   maxlength="1000"
                   show-word-limit
+                  
                 ></el-input>
               </el-form-item>
-            </el-col>
-            <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="8">
               <el-form-item>
-                <el-button type="primary" @click="submitComent('ruleForm')"
+                <el-button type="primary" @click="submitComent('ruleForm')" :loading="handlerLoading.addComent"
                   >Guardar
                 </el-button>
               </el-form-item>
+            </el-form>
+            <el-col :xs="4" :sm="4" :md="2" :lg="2" :xl="2">
+              <el-upload
+                class="upload-demo"
+                :action="'/upload'"
+                name="file[]"
+                :data="{
+                  id_documento: datacoment.idDocumento,
+                  correlativo: datacoment.correlativo,
+                  count: datacoment.numberFiles,
+                  type: datacoment.typePdf,
+                }"
+                :headers="{ 'X-CSRF-TOKEN': csrf }"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :show-file-list="false"
+                :on-success="cargaSuccess"
+                :file-list="fileList"
+                accept=".pdf"
+              >
+                <el-link :underline="false">
+                  <i class="pdf fas fa-file-pdf"></i
+                ></el-link>
+              </el-upload>
             </el-col>
-          </el-form>
-        </el-row>
-        <el-row :gutter="20" class="mt-2">
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="2">
-            <el-upload
-              class="upload-demo"
-              :action="'/upload'"
-              name="file[]"
-              :data="{
-                id_documento: datacoment.idDocumento,
-                correlativo: datacoment.correlativo,
-                count: datacoment.numberFiles,
-                type: datacoment.typePdf,
-              }"
-              :headers="{ 'X-CSRF-TOKEN': csrf }"
-              :on-preview="handlePreview"
-              :on-remove="handleRemove"
-              :show-file-list="false"
-              :on-success="cargaSuccess"
-              :file-list="fileList"
-              accept=".pdf"
-            >
-              <el-button size="medium" type="danger"
-                ><i class="fas fa-file-pdf"></i
-              ></el-button>
-            </el-upload>
-          </el-col>
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="2">
-            <el-upload
-              class="upload-demo"
-              :action="'/uploadWord'"
-              name="file[]"
-              :data="{
-                id_documento: datacoment.idDocumento,
-                correlativo: datacoment.correlativo,
-                count: datacoment.numberFiles,
-                type: datacoment.typeWord,
-              }"
-              :headers="{ 'X-CSRF-TOKEN': csrf }"
-              :on-preview="handlePreview"
-              :on-remove="handleRemove"
-              :show-file-list="false"
-              :on-success="cargaSuccess"
-              multiple
-              :limit="limitNumber"
-              :on-exceed="handleExceed"
-              :file-list="fileList"
-              accept=".docx,.doc"
-            >
-              <el-button size="medium" type="primary"
-                ><i class="fas fa-file-word"></i
-              ></el-button>
-            </el-upload>
-          </el-col>
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12">
-            <el-divider direction="vertical"></el-divider>
+            <el-col :xs="4" :sm="4" :md="2" :lg="2" :xl="2">
+              <el-upload
+                class="upload-demo"
+                :action="'/uploadWord'"
+                name="file[]"
+                :data="{
+                  id_documento: datacoment.idDocumento,
+                  correlativo: datacoment.correlativo,
+                  count: datacoment.numberFiles,
+                  type: datacoment.typeWord,
+                }"
+                :headers="{ 'X-CSRF-TOKEN': csrf }"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :show-file-list="false"
+                :on-success="cargaSuccess"
+                :on-exceed="handleExceed"
+                :file-list="fileList"
+                accept=".docx,.doc"
+              >
+                <el-link :underline="false">
+                  <i class="word fas fa-file-word"></i
+                ></el-link>
+              </el-upload>
+            </el-col>
             <el-button
-              @click="verDocumento(true, 'pdf')"
-              v-if="controlButton.buttonPdf"
-              type="danger"
-              :icon="controlButton.icon"
-              :disabled="controlButton.disabled"
-              style="margin-left: 16px"
-            >
-              Visualizar Documento
-            </el-button>
-            <el-drawer
-              title="Documento"
-              :visible.sync="drawer"
-              :with-header="false"
-              :modal="false"
-            >
-              <embed
-                :src="src"
-                type="application/pdf"
-                width="100%"
-                height="100%"
-              />
-            </el-drawer>
-            <el-divider direction="vertical"></el-divider>
-
-            <el-link
-              :href="documentWord.url"
-              :underline="false"
               v-if="controlButton.buttonWord"
+              type="primary"
+              @click="filesWord()"
+              >Archivos Word</el-button
             >
-              <el-button type="primary" icon="el-icon-download"> </el-button>
-            </el-link>
+          </el-col>
+          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+            <embed
+              :src="url"
+              type="application/pdf"
+              width="100%"
+              height="600"
+            />
           </el-col>
         </el-row>
-        <el-row :gutter="20" class="mt-2">
-          <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
-            <div>Solo archivos PDF y WORD con un tamaño menor de 500kb</div>
-          </el-col>
-        </el-row>
+        <el-dialog
+          :width="handlerDialog.inner.width"
+          :title="handlerDialog.inner.title"
+          :visible.sync="handlerDialog.inner.innerVisible"
+          append-to-body
+        >
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+              <el-table
+                :data="list_response.getFileWord"
+                :header-cell-style="tableComment"
+                height="450"
+                border
+              >
+                <el-table-column label="No." type="index"></el-table-column>
+                <el-table-column label="Archivo" prop="file"></el-table-column>
+                <el-table-column
+                  label="Fecha"
+                  prop="fecha"
+                  width="150"
+                ></el-table-column>
+                <el-table-column label="Operaciones" width="100" align="center">
+                  <template slot-scope="scope">
+
+                      <el-link :href="scope.row.url" :underline="false"
+                        ><i class="donwloadFile fas fa-download"></i
+                      ></el-link>
+
+                      <!-- <el-link :href="scope.row.file" :underline="false"
+                        ><i class="deleteFile fas fa-trash-alt"></i
+                      ></el-link> -->
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+          </el-row>
+        </el-dialog>
       </el-dialog>
     </div>
     <el-dialog
@@ -506,8 +544,8 @@
       destroy-on-close
       :close-on-click-modal="message.closeModal"
       :close-on-press-escape="message.closeModal"
-      @close="closeDate">
-
+      @close="closeDate"
+    >
       <div class="block">
         <b><span class="textBlock">Fecha Limite para Seguimiento:</span></b>
         <el-date-picker
@@ -516,15 +554,21 @@
           type="datetime"
           :placeholder="message.dialog.fecha.PlaceHolder"
           default-time="12:00:00"
-          format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" 
-          @change="confirm()">
+          format="yyyy-MM-dd HH:mm:ss"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          @change="confirm()"
+        >
         </el-date-picker>
       </div>
-      
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeDate">Cancelar</el-button>
-        <el-button type="primary" @click="setActiveMonitoring" :disabled="message.button">Activar</el-button>
+        <el-button
+          type="primary"
+          @click="setActiveMonitoring"
+          :disabled="message.button"
+          >Activar</el-button
+        >
       </span>
     </el-dialog>
   </div>
@@ -548,16 +592,26 @@
   width: 100%;
 }
 
-.block{
- padding: 30px 0;
- text-align: left;
- flex: 1; 
+.block {
+  padding: 30px 0;
+  text-align: left;
+  flex: 1;
 }
 
-.textBlock{
+.textBlock {
   display: block;
   font-size: 14px;
   margin-bottom: 20px;
+}
+
+.donwloadFile {
+  font-size: 1.5em;
+}
+
+.deleteFile {
+  font-size: 1.5em;
+  color: red;
+  margin-left: 5px;
 }
 </style>
 <!--this.src = './../files/' + response.data[0].name + '.pdf';-->
@@ -566,24 +620,24 @@ export default {
   props: { csrf: { type: String } },
   data() {
     return {
-      search:"",
+      search: "",
       message: {
-        title:"",
+        title: "",
         visible: false,
         width: "",
         bodyText: "",
         closeModal: false,
-        button:true,
+        button: true,
         dialog: {
           fecha: {
-            vModelSeguimiento: '',
+            vModelSeguimiento: "",
             type: "datatime",
             PlaceHolder: "Ingrese fecha de seguimiento",
             defaultTime: "12:00:00",
-            file:"",
-            tracing:""
-          }
-        }
+            file: "",
+            tracing: "",
+          },
+        },
       },
       switchFalse: false,
       drawer: false,
@@ -596,7 +650,7 @@ export default {
         buttonWord: false,
         buttonPdf: false,
         buttonClose: true,
-        buttonPdfClose:true,
+        buttonPdfClose: true,
       },
       fileList: [],
       datacoment: {
@@ -629,8 +683,10 @@ export default {
         getFiles: "getNameFiles",
         url: "url",
         exists: "exists",
-        tracing:"tracingsFiles",
-        inactiveTracingFile:"inactiveTracingFile"
+        tracing: "tracingsFiles",
+        inactiveTracingFile: "inactiveTracingFile",
+        getFileWord: "getFileWord",
+        deleteWord: "deleteWord",
       },
       list_response: {
         documentos: [],
@@ -638,6 +694,7 @@ export default {
         list_user: [],
         listcomentarios: [],
         listUrl: [],
+        getFileWord: [],
       },
       total: 0,
       currentPage: 1,
@@ -664,7 +721,7 @@ export default {
       formClose: {
         comentarioCierre: "",
       },
-      rules: {
+      formRule: {
         comentario: [
           {
             require: true,
@@ -672,6 +729,8 @@ export default {
             trigger: "blur",
           },
         ],
+        },
+      rules: {
         departamentoId: [
           {
             require: true,
@@ -698,11 +757,17 @@ export default {
       },
       handlerDialog: {
         preview: {
-          title: "Visualizar Documento",
+          title: "",
           visible: false,
-          width: "50%",
+          width: "85%",
           top: "2vh",
           ver: false,
+        },
+        inner: {
+          title: "Listado de Archivos",
+          innerVisible: false,
+          width: "50%",
+          codeSearch: "",
         },
         previewClose: {
           title: "Cierre del Documento",
@@ -713,7 +778,11 @@ export default {
         },
       },
       src: "",
+      url: "",
       Accept: 2,
+      handlerLoading:{
+        addComent: false
+      }
     };
   },
   mounted() {
@@ -722,56 +791,94 @@ export default {
     this.getUserTransfer();
   },
   methods: {
+    deleteWord(name, id) {
+      console.log(name, id);
+      axios
+        .put(this.url_list.deleteWord, {
+          files: name,
+          id: id,
+        })
+        .then((response) => {
+          console.log(response);
+          this.getWord();
+        });
+    },
+    filesWord() {
+      this.handlerDialog.inner.innerVisible = true;
+      this.getWord();
+    },
+    getWord() {
+      axios
+        .post(this.url_list.getFileWord, {
+          documento: this.handlerDialog.inner.codeSearch,
+        })
+        .then((response) => {
+          console.log(response);
+          this.list_response.getFileWord = response.data;
+        });
+    },
+    tableComment({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "background-color: #2c3c5c;color: #fff;font-weight: 500;text-align: center;";
+      }
+    },
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
         return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
       }
     },
-    closeDate(){
+    closeDate() {
       this.message.visible = false;
       this.message.dialog.fecha.vModelSeguimiento = "";
       this.getLista();
     },
-    setActiveMonitoring(){
-        axios.post(this.url_list.tracing,{
+    setActiveMonitoring() {
+      axios
+        .post(this.url_list.tracing, {
           documento: this.message.dialog.fecha.file,
           tracing: this.message.dialog.fecha.tracing,
-          fechaF: this.message.dialog.fecha.vModelSeguimiento
-        }).then(response => {
+          fechaF: this.message.dialog.fecha.vModelSeguimiento,
+        })
+        .then((response) => {
           this.closeDate();
           // this.getLista();
-        })
+        });
     },
-    confirm(){
+    confirm() {
       this.message.button = false;
     },
-    switchControl(flag,file,tracing) {
+    switchControl(flag, file, tracing) {
       const h = this.$createElement;
-      
-      
-      if(flag == "1"){
 
-        this.message.title = 'Seguimiento de Expediente';
+      if (flag == "1") {
+        this.message.title = "Seguimiento de Expediente";
         this.message.visible = true;
-        this.message.width = '30%';
+        this.message.width = "30%";
         this.message.dialog.fecha.file = file;
         this.message.dialog.fecha.tracing = tracing;
-
-      }else{
-        this.$confirm('¿Desea inactivar el seguimiento de expediente?','Seguimiento',{
-          confirmButtonText: 'Inactivar',
-          cancelButtonText: 'Cancelar',
-          type: 'Warning'
-        }).then(() => {
-          axios.post(this.url_list.inactiveTracingFile,{
-            documento: file,
-            tracing: tracing
-          }).then(response => {
-            this.getLista();
+      } else {
+        this.$confirm(
+          "¿Desea inactivar el seguimiento de expediente?",
+          "Seguimiento",
+          {
+            confirmButtonText: "Inactivar",
+            cancelButtonText: "Cancelar",
+            type: "Warning",
+          }
+        )
+          .then(() => {
+            axios
+              .post(this.url_list.inactiveTracingFile, {
+                documento: file,
+                tracing: tracing,
+              })
+              .then((response) => {
+                this.getLista();
+              });
           })
-        }).catch(() => {
-          this.getLista();
-        })
+          .catch(() => {
+            this.getLista();
+          });
       }
     },
     verDocumento(flag, type) {
@@ -795,10 +902,11 @@ export default {
 
       // })
     },
-    submitComent(form) {
+    submitComent(ruleForm) {
       const h = this.$createElement;
-      this.$refs[form].validate((valid) => {
-        if (valid) {
+      // console.log(this.$refs[ruleForm].$el[0].onfocus());
+        if (this.ruleForm.comentario != "") {
+          this.handlerLoading.addComent = true;
           this.ComentLoading = true;
           axios
             .post(this.url_list.setComentario, {
@@ -809,6 +917,7 @@ export default {
             .then((response) => {
               const status = JSON.parse(response.status);
               if (status == "200" && response.data != false) {
+                this.handlerLoading.addComent = false;
                 this.$message({
                   message: h("p", null, [
                     h("i", { style: "color: teal" }, "Agregado!"),
@@ -816,7 +925,7 @@ export default {
                   type: "success",
                 });
                 this.ComentLoading = false;
-                this.$refs[form].resetFields();
+                this.ruleForm.comentario = ""
                 // this.handlerDialog.preview.visible = false;
 
                 this.getComentario(
@@ -825,8 +934,14 @@ export default {
                 );
               }
             });
+        }else{
+          this.$notify.error({
+            title: "Error",
+            message: "Complete el campo de comentario",
+          });
+          this.$refs[ruleForm].$el[0].focus();
         }
-      });
+      // });
     },
     archivarDocument(form) {
       const h = this.$createElement;
@@ -893,8 +1008,6 @@ export default {
         this.list_response.documentos = response.data;
         this.total = response.data.length;
         console.log("lista", response.data);
-
-
       });
       // axios.get(this.url_list.lista).then((response) => {
       //   this.total = response.data.length;
@@ -908,7 +1021,7 @@ export default {
       console.log(id);
       // console.log(id);
     },
-    getTrasladoInterno(id, traslado,tracing) {
+    getTrasladoInterno(id, traslado, tracing) {
       this.interno = true;
       this.idDocumento = id;
       this.depActual = traslado;
@@ -921,7 +1034,7 @@ export default {
       this.depActual = traslado;
       this.getComentario(traslado, id);
     },
-    cierreDocumento(id, traslado,formato) {
+    cierreDocumento(id, traslado, formato) {
       this.handlerDialog.previewClose.visible = true;
       this.idDocumento = id;
       this.depActual = traslado;
@@ -1029,23 +1142,36 @@ export default {
       }
       return "";
     },
-    preview(code, traslado, correlativo) {
-      // console.log("code: ", code, " traslado: ", traslado, " correlativo: " , correlativo);
-      console.log(code);
+    preview(code, traslado, correlativo, url) {
+      console.log(
+        "code: ",
+        code,
+        " traslado: ",
+        traslado,
+        " correlativo: ",
+        correlativo
+      );
+      // console.log(code);
+
+      this.handlerDialog.preview.title = "Expediente No. " + correlativo;
 
       this.getComentario(traslado, code);
       this.handlerDialog.preview.visible = true;
       this.datacoment.idDocumento = code;
       this.datacoment.idTraslado = traslado;
       this.datacoment.correlativo = correlativo;
+      this.url = url;
+      this.handlerDialog.inner.codeSearch = code;
 
-      this.getNameFiles(code);
+      // this.getNameFiles(code);
     },
     closeEvent() {
       this.controlButton.buttonWord = false;
       this.controlButton.buttonPdf = false;
       this.src = "";
       this.documentWord.url = "";
+      this.ruleForm.comentario = "";
+      this.url = "";
     },
     openEvent() {
       axios
@@ -1056,7 +1182,7 @@ export default {
         .then((response) => {
           const result = response.data;
           if (result != false) {
-            this.documentWord.url = "./../files/" + response.data[0].file;
+            // this.documentWord.url = "./../files/" + response.data[0].file;
             this.controlButton.buttonWord = true;
           } else {
             this.controlButton.buttonWord = false;
@@ -1106,11 +1232,13 @@ export default {
       );
     },
     cargaSuccess(res, file, fileList) {
+      console.log("resultados ", res, " files ", file, " lista ", fileList);
       const _this = this;
-      if (res.success === false) {
-        _this.$message({
-          message: res.desc,
-          type: "warning",
+
+      if (res == false) {
+        _this.$notify.error({
+          title: "Error",
+          message: "Solo se permiten archivos en formato WORD",
         });
       } else {
         this.$notify.success({
@@ -1128,8 +1256,8 @@ export default {
         }
       }
     },
-    cargaSuccessClose(res,file,filters){
-        const _this = this;
+    cargaSuccessClose(res, file, filters) {
+      const _this = this;
       if (res.success === false) {
         _this.$message({
           message: res.desc,

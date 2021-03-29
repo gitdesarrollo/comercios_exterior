@@ -978,6 +978,8 @@ class documentos extends Controller
         $idUsuario = $this->getUserbyId();
         $idUsuario = json_decode(json_encode($idUsuario));
 
+        
+
         $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
 
 
@@ -1003,7 +1005,8 @@ class documentos extends Controller
 				WHEN idUsuarioTraslada = :local THEN 'true'
 				ELSE 'false'
 				END) AS flag 
-                FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS flag
+                FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS flag,
+            concat('./../files/',files.`file`) AS url
             FROM documentos d
             INNER JOIN traslados tras
                 ON d.id = tras.id
@@ -1013,7 +1016,9 @@ class documentos extends Controller
                 ON tras.idUsuarioTramito = us.id
             INNER JOIN user_has_roles rol
                 ON us.id = rol.idUser
-            WHERE us.id = :id  AND d.id_status != 7
+            INNER JOIN upload_files files
+   		        ON files.evento_id = d.id
+            WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
             ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
 
             
@@ -1065,6 +1070,8 @@ class documentos extends Controller
 
         // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
     }
+
+
 
     public function getUrlDocument(Request $request){
         $url = uploadFile::select('file')->where(['evento_id' => $request->id, 'formato' => $request->formato])->get();

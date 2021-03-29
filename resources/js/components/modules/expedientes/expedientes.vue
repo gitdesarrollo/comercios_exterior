@@ -198,6 +198,12 @@
   color: #fa2416;
 }
 
+.word{
+  font-size: 3em;
+  margin-left: 0px;
+  color:#123c7d;
+}
+
 .text-table{
   font-size: 0.7em;
 }

@@ -7,6 +7,7 @@ use App\Model\uploadFile;
 use iio\libmergepdf\Merger;
 use iio\libmergepdf\Driver\TcpdiDriver;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Upload extends Controller
 {
@@ -92,31 +93,35 @@ class Upload extends Controller
 
     public function storeWord(Request $request)
     {
+
+            $random = Str::random(7);
             $uploadId = array();
-            if ( $files =  $request->file('file')) {
-
+            if ($files = $request->file('file')) {
+                
+                // dd($files->getClientOriginalExtension() == 'docx');
                 foreach ($request->file('file') as $key => $file) {
-                    $name = $request->correlativo . '.'. $file->getClientOriginalExtension();
-                    $nameFile = $file->getClientOriginalName();
-                    $filename = $file->move('files', $name);
-
-                    $upload = new uploadFile;
-                    $upload->file = $name;
-                    $upload->evento_id = $request->id_documento;
-                    $upload->file_name = $request->correlativo;
-                    $upload->formato = $request->type;
-                    $upload->save();
-                    // $id = $upload->file;
-                    // $bandera = $id;
-                    $file = $upload->file;
-                    $format = $upload->formato;
-
-                    array_push($uploadId, [
-                        [
-                            "file"      =>      $file,
-                            "format"    =>      $format
-                        ]
-                    ]);
+                    if(($file->getClientOriginalExtension() == 'doc') || ($file->getClientOriginalExtension() == 'docx')){
+                        $name = $request->correlativo . '-' . $random . '.'. $file->getClientOriginalExtension();
+                        $nameFile = $file->getClientOriginalName();
+                        $filename = $file->move('files', $name);
+                        $upload = new uploadFile;
+                        $upload->file = $name;
+                        $upload->evento_id = $request->id_documento;
+                        $upload->file_name = $request->correlativo . '-' . $random;
+                        $upload->formato = $request->type;
+                        $upload->save();
+                        $file = $upload->file;
+                        $format = $upload->formato;
+    
+                        array_push($uploadId, [
+                            [
+                                "file"      =>      $file,
+                                "format"    =>      $format
+                            ]
+                        ]);
+                    }else{
+                        return response()->json(false, 200);
+                    }
                 }
             }
             return response()->json($uploadId, 200);
@@ -162,6 +167,19 @@ class Upload extends Controller
 
 
 
+    }
+
+    public function deleteWord(Request $request){
+        // $file2 = public_path() . '/files/' . $name;
+        // $path = public_path() . '/files/' . $request->files;
+        dd($request->files);
+        if (file_exists($path)) {
+            unlink($$request->files);
+            uploadFile::where(['id' => $request->id])->update(['estatus' => 5]);
+            return response()->json(true,200);
+        }else{
+            return response()->json(false,200);
+        }
     }
 
     public function update(Request $request, Upload $upload)
@@ -232,6 +250,20 @@ class Upload extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
         }
+    }
+
+    public function getFileWord(Request $request){
+       
+        try {
+            DB::beginTransaction();
+                $data = uploadFile::where(['evento_id' => $request->documento,'formato' => 'word'])->selectRaw('id,file as file, concat("./../files/",file) as url,created_at as fecha')->get();
+            DB::commit();
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            return response()->json(false,200);
+            DB::rollBack();
+        }
+
     }
 
 }
