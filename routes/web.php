@@ -149,7 +149,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('storeDocumento','recepcionController@storeRecepcion')->name('Almacenar');
   Route::get('listDocumentAll','documentos@listDocumentAll');
 
-  Route::post('upload','Upload@store');
+  Route::post('upload','Upload@uploadFilesByExist');
+  // Route::post('upload','Upload@store');
   Route::post('uploadWord','Upload@storeWord');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');

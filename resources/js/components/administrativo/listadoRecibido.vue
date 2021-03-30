@@ -494,7 +494,9 @@
               type="application/pdf"
               width="100%"
               height="600"
+              ref="viewPDf"
             />
+            <!-- <div>{{ handlerDialog.preview.html }}</div> -->
           </el-col>
         </el-row>
         <el-dialog
@@ -762,6 +764,7 @@ export default {
           width: "85%",
           top: "2vh",
           ver: false,
+          html:""
         },
         inner: {
           title: "Listado de Archivos",
@@ -791,6 +794,17 @@ export default {
     this.getUserTransfer();
   },
   methods: {
+      viewFile(valor) {
+      console.log(valor);
+      
+      this.handlerDialog.preview.html =
+        '<body style="margin:0px;"><object data="' +
+          this.url +
+          '" type="application/pdf" width="100%" height="600"><iframe src="' +
+          this.url +
+          '" scrolling="no" width="100%" height="100%" frameborder="0" ></iframe></object></body>'
+    },
+
     deleteWord(name, id) {
       console.log(name, id);
       axios
@@ -1162,7 +1176,7 @@ export default {
       this.datacoment.correlativo = correlativo;
       this.url = url;
       this.handlerDialog.inner.codeSearch = code;
-
+      // this.viewFile("primero");
       // this.getNameFiles(code);
     },
     closeEvent() {
@@ -1238,7 +1252,7 @@ export default {
       if (res == false) {
         _this.$notify.error({
           title: "Error",
-          message: "Solo se permiten archivos en formato WORD",
+          message: "Documento no permitido/documento corrupto",
         });
       } else {
         this.$notify.success({
@@ -1246,10 +1260,15 @@ export default {
           message: "Documento cargado!",
           showClose: false,
         });
-        console.log(res[0][0].file);
-        if (res[0][0].format == "pdf") {
-          this.src = "./../files/" + res[0][0].file;
-          this.controlButton.buttonPdf = true;
+        // console.log(res[0][0].file);
+        // console.log(this.$refs.viewPDf)
+          // this.viewFile("segundo");
+        
+        if (res[0][0].formato == "pdf") {
+          this.url = "./../files/" + res[0][0].file;
+          this.$refs.viewPDf.src = "";
+          this.$refs.viewPDf.src = this.url;
+          // this.controlButton.buttonPdf = true;
         } else {
           this.controlButton.buttonWord = true;
           this.documentWord.url = "./../files/" + res[0][0].file;
@@ -1257,8 +1276,9 @@ export default {
       }
     },
     cargaSuccessClose(res, file, filters) {
+      console.log("res ", res, " file ", file , " filters ", filters)
       const _this = this;
-      if (res.success === false) {
+      if (res == false) {
         _this.$message({
           message: res.desc,
           type: "warning",

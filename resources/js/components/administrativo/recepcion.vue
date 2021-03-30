@@ -311,10 +311,10 @@ export default {
         },
         async cargaSuccess(res, file, fileList) {
             const _this = this;
-            if (res.success === false) {
-                _this.$message({
-                    message: res.desc,
-                    type: "warning",
+            if (res == false) {
+                _this.$notify.error({
+                    title: "Error",
+                    message: "Solo se permiten archivos en formato PDF",
                 });
             } else {
                 await this.sleep(1000);
