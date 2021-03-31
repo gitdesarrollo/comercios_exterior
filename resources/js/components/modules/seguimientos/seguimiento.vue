@@ -68,12 +68,65 @@
                   plain
                   @click="send(scope.row.idTracing,scope.row.correlativo_interno,scope.row.nombre_traslada,scope.row.usuarioActual,2)"
                 ></el-button>
+                  <el-button
+                    type="danger"
+                    
+                    icon="el-icon-s-comment"
+                    plain
+                    @click="
+                      preview(
+                        scope.row.id,
+                        scope.row.transfer,
+                        scope.row.correlativo,
+                        scope.row.correlativo_interno,
+                        scope.row.url
+                      )
+                    "
+                  ></el-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </div>
+    <el-dialog
+      :title="dialog.preview.title"
+      :visible.sync="dialog.preview.visible"
+      :width="dialog.preview.width"
+      @close="handleClose"
+      :top="dialog.preview.top"
+      :destroy-on-close="dialog.preview.destroy"
+    >
+      <el-row :gutter="10">
+        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="14">
+          <el-table
+            :data="endPoint.response.comments"
+            height="600"
+            :header-cell-style="tableComment"
+            border
+          >
+            <el-table-column type="index" label="#"></el-table-column>
+            <el-table-column
+              prop="usuario"
+              label="Usuario"
+              width="200"
+            ></el-table-column>
+            <el-table-column
+              prop="comentario"
+              label="Mensaje"
+            ></el-table-column>
+            <el-table-column
+              prop="fecha"
+              label="Fecha"
+              width="170"
+            ></el-table-column>
+          </el-table>
+        </el-col>
+        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
+          <embed :src="url" type="application/pdf" width="100%" height="700" />
+        </el-col>
+      </el-row>
+    </el-dialog>
     <el-dialog
       :title="endPoint.dialogs.message.title"
       :visible.sync="endPoint.dialogs.message.active"
@@ -118,6 +171,15 @@
 export default {
   data() {
     return {
+      dialog: {
+        preview: {
+          title: "",
+          visible: false,
+          width: "85%",
+          top: "2vh",
+          destroy: true,
+        },
+      },
       endPoint: {
         forms: {
           formMessage: {
@@ -148,10 +210,12 @@ export default {
           files: "getFilesByName",
           send: "sendTracingMail",
           message: "getMessagesTracking",
+          comments: "getComentario",
         },
         response: {
           listfiles: [],
           listMessage: [],
+          comments: [],
         },
         dialogs: {
           message: {
@@ -185,15 +249,44 @@ export default {
         },
       },
       search: "",
+      url: "",
     };
   },
   mounted() {
     this.getListFiles();
   },
   methods: {
+    tableComment({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "background-color: #2c3c5c;color: #fff;font-weight: 500;text-align: center;";
+      }
+    },
+    comments(document, transfer) {
+      axios
+        .post(this.endPoint.post.comments, {
+          code: transfer,
+          documento: document,
+        })
+        .then((response) => {
+          this.endPoint.response.comments = response.data;
+          console.log(response.data);
+        });
+    },
+    handleClose() {
+      this.url = "";
+      this.endPoint.response.comments = [];
+    },
+    preview(code, transfer, correlative, externalId,url) {
+      console.log(code, transfer, correlative, externalId);
+      this.dialog.preview.title = "Expediente " + externalId;
+      this.dialog.preview.visible = true;
+      this.comments(code, transfer);
+      this.url = url;
+    },
     getListFiles() {
       axios.get(this.endPoint.get.files).then((response) => {
         this.endPoint.response.listfiles = response.data;
+        console.log(response.data)
         
       });
     },

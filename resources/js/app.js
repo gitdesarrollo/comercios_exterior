@@ -23,7 +23,7 @@ import VueBarcodeScanner from 'vue-barcode-scanner';
 import CKEditor from 'ckeditor4-vue';
 // import Datatable from 'vue2-datatable-component'
 import { SimpleTimelinePlugin } from 'simple-vue-timeline';
-
+import { Vue } from 'vue-property-decorator';
 
 
 
@@ -91,6 +91,7 @@ Vue.component('delegados-component', require('./components/modules/delegado/dele
 Vue.component('seguimiento-component', require('./components/modules/seguimientos/seguimiento.vue').default);
 Vue.component('views-component', require('./components/admin/views.vue').default);
 Vue.component('permits-component', require('./components/admin/permits.vue').default);
+Vue.component('expedientes', require('./components/modules/expedientes/expedientes.vue').default)
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
