@@ -41,11 +41,19 @@ class NotificationMail extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        $usuario_to = $this->usuarioTo;
-        $empresa_to = $this->empresa_to;
-        $numero_to = $this->numero_to;
-        $asunto_to = $this->asunto_to;
+        // $usuario_to = $this->usuarioTo;
+        // $empresa_to = $this->empresa_to;
+        // $numero_to = $this->numero_to;
+        // $asunto_to = $this->asunto_to;
         $subject_to = $this->subject;
-        return $this->view('Mail.correo', compact("usuario_to",'empresa_to','numero_to','asunto_to','interno'))->subject($subject_to);
+        // return $this->view('Mail.correo', compact("usuario_to",'empresa_to','numero_to','asunto_to','interno'))->subject($subject_to);
+       
+        return $this->markdown('Mail.correo',[
+            'usuario_to' => $this->usuarioTo,
+            'empresa_to' => $this->empresa_to,
+            'numero_to' => $this->numero_to,
+            'asunto_to' => $this->asunto_to,
+            'interno' => $this->subject
+        ])->subject($subject_to);
     }
 }

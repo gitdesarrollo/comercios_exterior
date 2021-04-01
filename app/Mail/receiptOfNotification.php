@@ -50,6 +50,7 @@ class receiptOfNotification extends Mailable implements ShouldQueue
         $typeDocument = $this->typeDocument;
         $subject_to = "Recepción de Documento";
 
-        return $this->view('Mail.notificationMailer', compact($usuarioTo,$internalCorrelative,$externalCorrelative,$receivingUser,$typeDocument))->subject($subject_to);
+        return $this->markdown('Mail.notificationMailer', compact($usuarioTo,$internalCorrelative,$externalCorrelative,$receivingUser,$typeDocument))->subject($subject_to);
+        
     }
 }

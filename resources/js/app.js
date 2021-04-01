@@ -91,7 +91,8 @@ Vue.component('delegados-component', require('./components/modules/delegado/dele
 Vue.component('seguimiento-component', require('./components/modules/seguimientos/seguimiento.vue').default);
 Vue.component('views-component', require('./components/admin/views.vue').default);
 Vue.component('permits-component', require('./components/admin/permits.vue').default);
-Vue.component('expedientes', require('./components/modules/expedientes/expedientes.vue').default)
+Vue.component('expedientes', require('./components/modules/expedientes/expedientes.vue').default);
+Vue.component('remitente', require('./components/modules/remitente/remitente.vue').default)
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

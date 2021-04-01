@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendTracingMailModel;
+use App\Mail\sendMessagePrivate;
 
 class modulos extends Controller
 {
@@ -29,6 +30,18 @@ class modulos extends Controller
             return view('modules.index');
         }elseif($permiso->original[0]['permit']){
             return view('modules.index');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+    public function getRemitente(){
+        $permiso = $this->getPermissionById(8);
+        if($permiso->original[0]['admin']){
+            return view('modules.remitente');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.remitente');
         }else{
             // return view('admin.home');
             return header( "refresh:0.1;url=/" );
@@ -254,8 +267,9 @@ class modulos extends Controller
             $to_traslada =$request->traslada;
             $to_actual = $request->actual;
             $to_correlativo = $request->correlativo;
-            Mail::to($to_email)->send(new SendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
-
+            Mail::to($to_email)->send(new sendMessagePrivate($to_message,$to_actual,$to_traslada,$to_correlativo));
+            // Mail::to($to_email)->send(new SendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
+            
             // DB::commit();
 
             return response()->json($send,200);
@@ -368,9 +382,63 @@ class modulos extends Controller
     }
 
     public function remitente(){
-        $data = remitente::all();
+        $data = remitente::where(['estatus' => 4])->selectRaw('id, UPPER(descripcion) as descripcion')->get();
 
         return response()->json($data,200);
+    }
+
+    public function setSender(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $sender = new remitente;
+
+            $sender->descripcion = $request->sender;
+            $sender->save();
+
+            DB::commit();
+            return response()->json($sender,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json($th,100);
+        }
+    }
+
+    public function getSender(){
+        try {
+            DB::beginTransaction();
+
+            $dSender = remitente::where(['estatus' => 4])->selectRaw('id,UPPER(descripcion) as descripcion')->orderBy('id','desc')->get();
+
+            DB::commit();
+
+            return response()->json($dSender,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
+
+    public function deleteSender(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $dSender = remitente::where(['id' => $request->id])->update(['estatus' => 5]);
+
+            DB::commit();
+
+            return response()->json($dSender,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
+
+    public function email(){
+        return view('emails.send-private');
     }
 
 }

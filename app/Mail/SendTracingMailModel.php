@@ -41,6 +41,6 @@ class SendTracingMailModel extends Mailable implements ShouldQueue
         $traslada = $this->traslada; 
         $correlativo = $this->correlativo; 
         $subject_to = 'Seguimiento de Expediente';
-        return $this->view('Mail.tracingMail', compact($message_to,$actual,$traslada,$correlativo))->subject($subject_to);
+        return $this->markdown('Mail.tracingMail', compact($message_to,$actual,$traslada,$correlativo))->subject($subject_to);
     }
 }
