@@ -1,4 +1,4 @@
-<!doctype html>
+{{-- <!doctype html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -15,4 +15,20 @@
 <p>Saludos.</p>
 
 </body>
-</html>
+</html> --}}
+
+@component('mail::message')
+# Estimado/a {{ $usuarioTo }}
+
+
+<p>El documento de tipo {{ $typeDocument }} con número de correlativo interno {{ $internalCorrelative  }} y número de correlativo externo {{ $externalCorrelative }}</p>
+<p>ha sido aceptado por {{ $receivingUser }}</p>
+
+
+<a href="http://documentos.mineco.gob.gt">https://documentos.mineco.gob.gt</a>
+
+
+
+Saludos,<br>
+{{ config('app.name') }}
+@endcomponent

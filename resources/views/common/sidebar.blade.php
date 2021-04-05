@@ -50,6 +50,12 @@
                                     <a class="nav-link" href="{{ route('Seguimientos') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Mis Seguimientos</a>
                                 </li>       
+                        
+                        @elseif($permisos->vista == 8)
+                                <li class="nav-item ml-3">
+                                    <a class="nav-link" href="{{ route('Remitente') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Remitentes</a>
+                                </li>       
                         @endif
                     @endforeach
                 </ul>

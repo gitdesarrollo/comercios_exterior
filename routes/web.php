@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Model\userHasRoles;
+use App\Mail\sendTest;
 
 
 
@@ -186,6 +187,18 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('listDocumentRemitente', 'documentos@listDocumentRemitente');
   Route::post('getFileWord','Upload@getFileWord');
   Route::put('deleteWord','Upload@deleteWord');
+
+  /***********Remitentes ********** */
+
+  Route::get('remitentes','modulos@getRemitente')->name('Remitente');
+  Route::post('setSender','modulos@setSender');
+  Route::get('getSender','modulos@getSender')->name('getSender');
+  Route::put('deleteSender','modulos@deleteSender');
+  
+
+  Route::get('/email', function() {
+    return new sendTest();
+  });
  
 
 

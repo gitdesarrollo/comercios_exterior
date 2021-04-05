@@ -29,7 +29,7 @@ class AddStatusFile extends Migration
     public function down()
     {
         Schema::table('upload_files', function (Blueprint $table) {
-            $table->dropColumn('idEstado');
+            $table->dropColumn('estatus');
         });
     }
 }
