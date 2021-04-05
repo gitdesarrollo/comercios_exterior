@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Model\userHasRoles;
+use App\Mail\sendTest;
 
 
 
@@ -149,7 +150,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('storeDocumento','recepcionController@storeRecepcion')->name('Almacenar');
   Route::get('listDocumentAll','documentos@listDocumentAll');
 
-  Route::post('upload','Upload@store');
+  Route::post('upload','Upload@uploadFilesByExist');
+  // Route::post('upload','Upload@store');
   Route::post('uploadWord','Upload@storeWord');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');
@@ -180,6 +182,24 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getPermisoUsuario','modulos@getPermisoUsuario');
   Route::post('setPermiso','modulos@setPermiso');
   Route::get('remitente','modulos@remitente');
+
+  Route::post('listByFilter','documentos@listByFilter');
+  Route::get('listDocumentRemitente', 'documentos@listDocumentRemitente');
+  Route::post('getFileWord','Upload@getFileWord');
+  Route::put('deleteWord','Upload@deleteWord');
+
+  /***********Remitentes ********** */
+
+  Route::get('remitentes','modulos@getRemitente')->name('Remitente');
+  Route::post('setSender','modulos@setSender');
+  Route::get('getSender','modulos@getSender')->name('getSender');
+  Route::put('deleteSender','modulos@deleteSender');
+  
+
+  Route::get('/email', function() {
+    return new sendTest();
+  });
+ 
 
 
 

@@ -86,3 +86,9 @@ body{
     background-color: #ebebeb !important;
     color: #000 !important;
 }
+
+.divEmail{
+    background-color: #fea;
+
+    margin-left: 100px;
+}

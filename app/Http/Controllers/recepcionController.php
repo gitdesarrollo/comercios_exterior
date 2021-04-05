@@ -145,8 +145,8 @@ class recepcionController extends Controller
     public function storeRecepcion(Request $request){
 
 
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
 
@@ -224,12 +224,12 @@ class recepcionController extends Controller
             }
 
 
-            DB::commit();
+            // DB::commit();
 
             return response()->json($documento,200);
-        } catch (\Throwable $th) {
-            return response()->json(false,200);
-            DB::rollBack();
-        }
+        // } catch (\Throwable $th) {
+        //     return response()->json(false,200);
+        //     DB::rollBack();
+        // }
     }
 }
