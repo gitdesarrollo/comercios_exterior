@@ -223,7 +223,7 @@ class modulos extends Controller
                 ON t.idDocumento = tr.idDocumento
             INNER JOIN upload_files files
 		        ON files.evento_id = d.id
-            WHERE t.idUsuarioTraslada = :id
+            WHERE t.idUsuarioTraslada = :id AND files.formato = "pdf"
             ',['id' => $usuario->original]);
 
             // $encriptado = Crypt::encrypt($data);
