@@ -420,7 +420,7 @@
               <el-form-item label="Comentario:" prop="comentario" :rules="formRule.comentario">
                 <el-input
                   type="textarea"
-                  v-model.trim="ruleForm.comentario"
+                  v-model="ruleForm.comentario"
                   maxlength="1000"
                   show-word-limit
                   

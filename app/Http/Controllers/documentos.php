@@ -399,7 +399,7 @@ class documentos extends Controller
                         ON td.id = doc.idTipoDocumento
                     INNER JOIN upload_files files
                         ON doc.id = files.evento_id
-                    WHERE vice.id = :unidad AND es.estatus = 4
+                    WHERE vice.id = :unidad AND es.estatus = 4 and files.formato = "pdf"
                     order by doc.created_at desc
                 ',['unidad' => $departamento->original[0]->viceministerios]);
             }else{
@@ -434,7 +434,7 @@ class documentos extends Controller
                         ON td.id = doc.idTipoDocumento
                     INNER JOIN upload_files files
                         ON doc.id = files.evento_id
-                    WHERE dep.id_dependencia = :id AND es.estatus = 4
+                    WHERE dep.id_dependencia = :id AND es.estatus = 4 and files.formato = "pdf"
                     order by doc.created_at desc
                     ',['id' => $id->original]);
             }
