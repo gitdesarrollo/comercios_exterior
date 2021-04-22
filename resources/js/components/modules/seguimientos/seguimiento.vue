@@ -8,15 +8,16 @@
             endPoint.response.listfiles.filter(
               (data) =>
                 !search ||
-                data.interesado.toLowerCase().includes(search.toLowerCase()) ||
+                data.Remitente.toLowerCase().includes(search.toLowerCase()) ||
                 data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
-                data.correlativo_externo
+                data.correlativo_interno
                   .toLowerCase()
                   .includes(search.toLowerCase()) ||
-                data.fecha_ingreso
+                data.final
                   .toLowerCase()
                   .includes(search.toLowerCase()) ||
-                data.usuario.toLowerCase().includes(search.toLowerCase())
+                data.nombre_traslada.toLowerCase().includes(search.toLowerCase()) ||
+                data.usuarioActual.toLowerCase().includes(search.toLowerCase()) 
             )
           "
           :header-cell-style="tableHeaderColor"
