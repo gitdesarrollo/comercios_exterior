@@ -118,6 +118,7 @@ export default {
       axios.get(this.endPoint.get.files)
       .then(response => {
         this.endPoint.response.listfiles = response.data;
+        console.log(response.data)
       })
     },
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
