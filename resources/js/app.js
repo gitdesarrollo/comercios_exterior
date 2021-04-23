@@ -29,12 +29,12 @@ import { Vue } from 'vue-property-decorator';
 
 
 
+
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
 
 Vue.use( CKEditor );
 Vue.use(SimpleTimelinePlugin);
-
 
 
 // Vue.use(Datatable);
@@ -92,7 +92,8 @@ Vue.component('seguimiento-component', require('./components/modules/seguimiento
 Vue.component('views-component', require('./components/admin/views.vue').default);
 Vue.component('permits-component', require('./components/admin/permits.vue').default);
 Vue.component('expedientes', require('./components/modules/expedientes/expedientes.vue').default);
-Vue.component('remitente', require('./components/modules/remitente/remitente.vue').default)
+Vue.component('remitente', require('./components/modules/remitente/remitente.vue').default);
+Vue.component('visualizador-pdf', require('./components/modules/visualizadorPdf/visualizador.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

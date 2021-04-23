@@ -194,6 +194,13 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('setSender','modulos@setSender');
   Route::get('getSender','modulos@getSender')->name('getSender');
   Route::put('deleteSender','modulos@deleteSender');
+
+  /***********VISUALIZADOR PDF***********/
+
+  Route::get('archivos','modulos@visualizador')->name('archivos');
+  Route::get('listaArchivo','modulos@getListUpload');
+  Route::get('listaVice','modulos@getViceministerio');
+  Route::post('listaFiltro','modulos@getFileByFilter');
   
 
   Route::get('/email', function() {
