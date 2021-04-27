@@ -25,6 +25,11 @@ import CKEditor from 'ckeditor4-vue';
 import { SimpleTimelinePlugin } from 'simple-vue-timeline';
 import { Vue } from 'vue-property-decorator';
 import { BootstrapVue, IconsPlugin  } from 'bootstrap-vue'
+import VueSweetalert2 from 'vue-sweetalert2';
+
+// If you don't need the styles, do not connect
+import 'sweetalert2/dist/sweetalert2.min.css';
+
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
@@ -33,6 +38,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 
 Vue.use(ElementUI,{locale});
+Vue.use(VueSweetalert2);
 Vue.use(VueBarcodeScanner);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);

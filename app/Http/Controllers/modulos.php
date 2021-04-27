@@ -484,37 +484,38 @@ class modulos extends Controller
                 ON dep.idVice = vices.id
             WHERE u.formato = 'pdf'
                 ORDER BY u.id asc
-        limit 1;
+        limit 10;
         ");
 
         return response()->json($upload,200);
     }
 
-    public function getFileByFilter(Resquest $request){
+    public function getFileByFilter(Request $request){
         $where = '';
+
         
-        if(!is_null($request->direction)){
-            $where .= ' and dep.id_dependencia IN(' . $request->direction . ')';
+        if(count($request->direction) > 0){
+            $where .= ' and dep.id_dependencia IN(' . implode(',',$request->direction) . ')';
         }
         
-        if(!is_null($request->vice)){
-            $where .= ' and vices.id IN(' . $request->vice . ')';
+        if(count($request->vice) > 0){
+            $where .= ' and vices.id IN(' . implode(',',$request->vice) . ')';
         }
         
         if(!is_null($request->internal)){
-            $where .= ' and d.correlativo_externo = "' . $request->internal . '"';
+            $where .= ' and d.correlativo_externo like "%' . $request->internal . '%"';
         }
 
 
         $where .= ' ORDER BY u.id desc';
-        
+       
 
-        // try {
-        //     DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
             $sql = DB::select("
             SELECT 
-                u.id code_upload, 
+                u.id CODE_UPLOAD, 
                 u.file NOMBRE_ARCHIVO, 
                 u.file_name NOMBRE, 
                 u.formato  FORMATO, 
@@ -540,22 +541,13 @@ class modulos extends Controller
                 WHERE u.formato = 'pdf'". $where);
 
 
-            // DB::commit();
+            DB::commit();
 
-            $json = [
-                'data'      =>  $sql,
-                'status'    => 200
-            ];
-
-            return response()->json($json,200);
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     $json = [
-        //         'data'      => 'error',
-        //         'status'    => 100
-        //     ];
-        //     return response()->json($json);
-        // }
+            return response()->json($sql,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
     }
 
     public function getViceministerio(){

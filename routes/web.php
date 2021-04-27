@@ -203,6 +203,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('listaFiltro','modulos@getFileByFilter');
   Route::post('getDetalleFile','Upload@detalleFile');
   Route::post('changeFileByCode','Upload@changeFileByCode');
+  Route::post('downloadFiles','Upload@donwloadFile');
   
 
   Route::get('/email', function() {

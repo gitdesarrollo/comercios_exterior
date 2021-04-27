@@ -60,13 +60,18 @@
               <el-button type="primary" plain @click="getListByFilter"
                 >Buscar</el-button
               >
-              <el-button type="info" plain @click="resetForm('form')"
+              <el-button type="info" plain @click="resetForm()"
                 >Limpiar</el-button
               >
             </el-form-item>
           </el-form>
         </el-card>
-        <div class="card-columns">
+        <b-card v-show="skeletor.search">
+          <b-skeleton animation="throb" width="85%"></b-skeleton>
+          <b-skeleton animation="throb" width="55%"></b-skeleton>
+          <b-skeleton animation="throb" width="70%"></b-skeleton>
+        </b-card>
+        <div v-show="skeletor.result" class="card-columns">
           <div
             class="card mb-3"
             v-for="(index, i) in Response.get.lista"
@@ -146,21 +151,21 @@
           no-close-on-backdrop
           centered
           :title="modal.detalle.title"
-          @ok="cambios"
         >
-          <b-container fluid>
+          <b-container>
             <el-upload
-              class="upload-demo"
+              class="upload-demo mx-auto"
               drag
               action="/changeFileByCode"
               name="file[]"
               :headers="{ 'X-CSRF-TOKEN': csrf }"
               :on-preview="handlePreview"
               :on-remove="handleRemove"
+              :on-success="cargaSuccess"
               :file-list="modal.change.fileList"
               :data="{
                 name_file: modal.change.name,
-                code_upload: modal.change.code
+                code_upload: modal.change.code,
               }"
             >
               <i class="el-icon-upload"></i>
@@ -168,18 +173,6 @@
                 Suelta tu archivo aquí o <em>haz clic para cargar</em>
               </div>
             </el-upload>
-            <!-- <b-form-file
-              accept=".pdf"
-              v-model="modal.change.file"
-              browse-text="Buscar"
-              :state="Boolean(modal.change.file)"
-              placeholder="Elija un archivo o suéltelo aquí..."
-              drop-placeholder="Suelta el archivo aquí..."
-            ></b-form-file>
-            <div class="mt-3">
-              Archivo seleccionado:
-              {{ modal.change.file ? modal.change.file.name : "" }}
-            </div> -->
           </b-container>
         </b-modal>
       </div>
@@ -189,6 +182,7 @@
 
 <script>
 import pdf from "vue-pdf";
+
 var loadingTask = pdf.createLoadingTask("./files/MINECO-DACE-3-2021.pdf");
 export default {
   components: {
@@ -198,19 +192,18 @@ export default {
   data() {
     return {
       form: {
-        internal: "modal-1",
+        internal: "",
         direction: [],
         vice: [],
-
-        assigned: "",
-        type: "",
-        Idate: "",
-        Fdate: "",
       },
       numPages: undefined,
       search: "",
       pageCount: 0,
       url: loadingTask,
+      skeletor: {
+        search: false,
+        result: true,
+      },
       modal: {
         detalle: {
           show: "",
@@ -222,7 +215,7 @@ export default {
           file: [],
           fileList: [],
           code: "",
-          name: ""
+          name: "",
         },
       },
       images: {
@@ -238,6 +231,7 @@ export default {
           getFileByFilter: "listaFiltro",
           getDetalleFile: "getDetalleFile",
           changeFileByCode: "changeFileByCode",
+          download: "downloadFiles",
         },
       },
       Response: {
@@ -252,9 +246,12 @@ export default {
   },
   methods: {
     getListUpload() {
+      this.showSkeletor(true);
+
       axios.get(this.API.get.lista).then((response) => {
         this.Response.get.lista = response.data;
-        console.log(response.data);
+        this.showSkeletor(!true);
+        // console.log(response.data);
       });
     },
     getListAddresses() {
@@ -272,7 +269,19 @@ export default {
         return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
       }
     },
-    getListByFilter() {
+    showSkeletor(flag) {
+      if (flag) {
+        this.skeletor.search = true;
+        this.skeletor.result = false;
+      } else {
+        this.skeletor.search = false;
+        this.skeletor.result = true;
+      }
+    },
+    async getListByFilter() {
+      this.showSkeletor(true);
+      await this.sleep(1000);
+      this.Response.get.lista = [];
       axios
         .post(this.API.post.getFileByFilter, {
           direction: this.form.direction,
@@ -281,16 +290,27 @@ export default {
         })
         .then((response) => {
           console.log(response.data);
+          this.Response.get.lista = response.data;
+          this.showSkeletor(!true);
         });
     },
-    resetForm() {},
+    sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    },
+    resetForm() {
+      this.form.internal = "";
+      this.form.direction = [];
+      this.form.vice = [];
+      this.getListUpload();
+    },
     detalle(code) {
+      console.log(code);
       axios
         .post(this.API.post.getDetalleFile, {
           code: code,
         })
         .then((response) => {
-          console.log(response.data);
+         
           this.$refs["modal-1"].show();
           this.modal.detalle.title = response.data[0]["name_file"];
           this.modal.detalle.name = response.data[0]["name"];
@@ -303,29 +323,103 @@ export default {
       this.modal.detalle.title = "Cambiar Archivo";
       this.modal.change.code = code;
       this.modal.change.name = nombre;
-      console.log("Change ", code, "-", nombre);
+      // console.log("Change ", code, "-", nombre);
     },
-    downloadFile(nombre) {
-      console.log("download ", nombre);
+    downloadFile(file) {
+      axios
+        .post(this.API.post.download, {
+          file: file,
+        })
+        .then((response) => {
+         
+          if(response.data['error']){
+          this.$swal({
+            position: "top-end",
+            icon: "error",
+            title: "No existe el archivo en el servidor",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+          }else{
+            let fileName = response.headers["content-disposition"].split(
+              "filename="
+            )[1];
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+              // IE variant
+              window.navigator.msSaveOrOpenBlob(
+                new Blob([response.data], {
+                  type:
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                }),
+                fileName
+              );
+            } else {
+              const url = window.URL.createObjectURL(
+                new Blob([response.data], {
+                  type:
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                })
+              );
+              const link = document.createElement("a");
+              link.href = url;
+              link.setAttribute(
+                "download",
+                response.headers["content-disposition"].split("filename=")[1]
+              );
+              document.body.appendChild(link);
+              link.click();
+            }
+          }
+          
+        });
     },
     handleRemove(file) {
-      console.log(file);
+      // console.log(file);
     },
     handlePreview(file) {
-      console.log("files", file);
+      // console.log("files", file);
     },
-    cambios(bvModalEvt) {
-      
-      // axios
-      //   .post(this.API.post.changeFileByCode, {
-      //     file: this.modal.change.file,
-      //   })
-      //   .then((response) => {
-      //     console.log(response.data);
-      //   });
-      // console.log("acepta el formulario", this.modal.change.file);
+    async cargaSuccess(res, file, fileList) {
+      const _this = this;
+
+      if (res["error"]) {
+        if (res["reason"] == "unlink") {
+          this.$swal({
+            position: "top-end",
+            icon: "error",
+            title: "El documento se encuentra abierto",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        } else if (res["reason"] == "noFile") {
+          this.$swal({
+            position: "top-end",
+            icon: "error",
+            title: "Documento no compatible",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        } else if (res["reason"] == "doesNotExist") {
+          this.$swal({
+            position: "top-end",
+            icon: "error",
+            title: "No existe el archivo en el servidor",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      } else {
+        this.$swal({
+          position: "top-end",
+          icon: "success",
+          title: "Documento Cargado",
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      }
     },
   },
+
   beforeMount() {
     this.getListUpload();
     this.getListAddresses();
@@ -340,10 +434,9 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style>
 .delete {
   font-size: 1em;
-  // margin-left: 10px;
   color: #ff1a1a;
 }
 
@@ -353,7 +446,6 @@ export default {
 
 .el-dropdown-link {
   cursor: pointer;
-  // color: #409EFF;
 }
 
 .el-dropdown {
@@ -364,6 +456,10 @@ export default {
 }
 .el-icon-arrow-down {
   font-size: 12px;
+}
+
+.el-upload-dragger {
+  width: 420px !important;
 }
 
 @media (min-width: 576px) {

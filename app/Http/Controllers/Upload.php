@@ -367,20 +367,42 @@ class Upload extends Controller
     }
 
     public function changeFileByCode(Request $request){
+            $path_file_store = public_path() . '/files/';
+            $path_file = public_path() . '/files/' . $request->name_file;
+            if (file_exists($path_file)) {
+                try {
+                    unlink($path_file);
+                } catch (\Throwable $th) {
+                    return response()->json(['error'    =>  true, 'reason'    => 'unlink'],200);
+                }
+                if ( $files =  $request->file('file')) {
+                    foreach ($request->file('file') as $key => $file) {
+                        if($file->getClientOriginalExtension() == 'pdf'){
+                            $filename = $request->name_file;
+                            $file->move($path_file_store, $filename);
+                            return response()->json($file,200);
+                        }else{
+                            return response()->json(false, 200);
+                        }
+                    }
+                }
+                else{
+                    return response()->json(['error'    =>  true, 'reason'    => 'noFile'], 200);
+                }
+            }else{
+                return response()->json(['error'    =>  true, 'reason'    => 'doesNotExist'], 200);
+            }
+    }
 
-        
-
-        foreach ($request->file('file') as $key => $file) {
-            $extension =  $file->getClientOriginalExtension();
-        }
-        $path_file = public_path() . '/files/' . $request->name_file;
-        if (file_exists($path_file)) {
-            dd("dentro");
-            // unlink($file2);
-            // uploadFile::where('file', $name)->delete();
-        }else{
-            dd("fuera");
-
+    public function donwloadFile(Request $request){
+        try {
+            $path_file = public_path() . '/files/' . $request->file;
+            $headers= array(
+                'Content-Type: application/pdf',
+            );
+            return response()->download($path_file, $request->file, $headers);
+        } catch (\Throwable $th) {
+            return response()->json(['error'    =>  true, 'reason'    => 'unlink'],200);
         }
     }
 
