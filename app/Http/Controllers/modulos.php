@@ -483,8 +483,8 @@ class modulos extends Controller
             INNER JOIN viceministerios vices
                 ON dep.idVice = vices.id
             WHERE u.formato = 'pdf'
-                ORDER BY u.id desc
-        limit 50;
+                ORDER BY u.id asc
+        limit 1;
         ");
 
         return response()->json($upload,200);

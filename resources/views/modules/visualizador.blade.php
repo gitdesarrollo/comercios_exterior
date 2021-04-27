@@ -3,7 +3,7 @@
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <visualizador-pdf></visualizador-pdf>
+                <visualizador-pdf csrf="{{ csrf_token() }}"></visualizador-pdf>
             </div>
         </div>
     </div>

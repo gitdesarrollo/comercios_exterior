@@ -149,7 +149,26 @@
           @ok="cambios"
         >
           <b-container fluid>
-            <b-form-file
+            <el-upload
+              class="upload-demo"
+              drag
+              action="/changeFileByCode"
+              name="file[]"
+              :headers="{ 'X-CSRF-TOKEN': csrf }"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :file-list="modal.change.fileList"
+              :data="{
+                name_file: modal.change.name,
+                code_upload: modal.change.code
+              }"
+            >
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">
+                Suelta tu archivo aquí o <em>haz clic para cargar</em>
+              </div>
+            </el-upload>
+            <!-- <b-form-file
               accept=".pdf"
               v-model="modal.change.file"
               browse-text="Buscar"
@@ -160,7 +179,7 @@
             <div class="mt-3">
               Archivo seleccionado:
               {{ modal.change.file ? modal.change.file.name : "" }}
-            </div>
+            </div> -->
           </b-container>
         </b-modal>
       </div>
@@ -175,6 +194,7 @@ export default {
   components: {
     pdf,
   },
+  props: { csrf: { type: String } },
   data() {
     return {
       form: {
@@ -199,7 +219,10 @@ export default {
           status: "",
         },
         change: {
-          file: null,
+          file: [],
+          fileList: [],
+          code: "",
+          name: ""
         },
       },
       images: {
@@ -278,18 +301,21 @@ export default {
       this.modal.change.file = [];
       this.$refs["change"].show();
       this.modal.detalle.title = "Cambiar Archivo";
+      this.modal.change.code = code;
+      this.modal.change.name = nombre;
       console.log("Change ", code, "-", nombre);
     },
     downloadFile(nombre) {
       console.log("download ", nombre);
     },
+    handleRemove(file) {
+      console.log(file);
+    },
+    handlePreview(file) {
+      console.log("files", file);
+    },
     cambios(bvModalEvt) {
-      console.log(bvModalEvt);
-      const fd = new FormData();
-      // fd.append('file', this.modal.change.file, this.modal.change.file.name);
-
-      // console.log(fd)
-
+      
       // axios
       //   .post(this.API.post.changeFileByCode, {
       //     file: this.modal.change.file,

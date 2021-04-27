@@ -368,15 +368,20 @@ class Upload extends Controller
 
     public function changeFileByCode(Request $request){
 
-        // foreach ($request->file('file') as $key => $file) {
-        //     $extension =  $file->getClientOriginalExtension();
-        // }
+        
 
-        return $request;
-        // if (file_exists($file2)) {
-        //     unlink($file2);
-        //     // uploadFile::where('file', $name)->delete();
-        // }
+        foreach ($request->file('file') as $key => $file) {
+            $extension =  $file->getClientOriginalExtension();
+        }
+        $path_file = public_path() . '/files/' . $request->name_file;
+        if (file_exists($path_file)) {
+            dd("dentro");
+            // unlink($file2);
+            // uploadFile::where('file', $name)->delete();
+        }else{
+            dd("fuera");
+
+        }
     }
 
 }
