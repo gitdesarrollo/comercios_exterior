@@ -7,7 +7,7 @@
           <div slot="header" class="clearfix">
             <span>Búsqueda</span>
           </div>
-          <el-form  :model="form" ref="form">
+          <el-form :model="form" ref="form">
             <el-row :gutter="20">
               <el-col :xs="25" :sm="6" :md="8" :lg="8" :xl="8">
                 <el-form-item label="Interno:">
@@ -36,7 +36,7 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :xs="25" :sm="6" :md="8" :lg="8" :xl="8">            
+              <el-col :xs="25" :sm="6" :md="8" :lg="8" :xl="8">
                 <el-form-item label="Viceministerio:">
                   <el-select
                     v-model="form.vice"
@@ -67,22 +67,102 @@
           </el-form>
         </el-card>
         <div class="card-columns">
-          <div class="card" v-for="(index, i) in Response.get.lista" :key="i">
-            <pdf
-              :src="index.URL"
-              :page="1"
-              class="rounded mx-auto d-block"
-            ></pdf>
-            <div class="card-body">
-              <h6 class="card-title font-weight-bold">
-                {{ index.NOMBRE_ARCHIVO }}
-              </h6>
-              <!-- <p class="card-text font-weight-normal">
-                {{ index.REMITENTE}}
-              </p> -->
+          <div
+            class="card mb-3"
+            v-for="(index, i) in Response.get.lista"
+            :key="i"
+          >
+            <div class="row no-gutters">
+              <div class="col-md-4">
+                <img :src="images.logo" class="card-img-top" />
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h6 class="card-title font-weight-bold">
+                    {{ index.NOMBRE_ARCHIVO }}
+                  </h6>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-right">
+              <el-dropdown>
+                <span class="el-dropdown-link">
+                  <i class="el-icon-more"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>
+                    <el-link
+                      type="primary"
+                      :underline="false"
+                      @click="detalle(index.CODE_UPLOAD)"
+                    >
+                      <i class="el-icon-warning-outline"></i>Ver detalles
+                    </el-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <el-link
+                      type="primary"
+                      :underline="false"
+                      @click="
+                        changeFile(index.CODE_UPLOAD, index.NOMBRE_ARCHIVO)
+                      "
+                      ><i class="el-icon-edit"></i>Cambiar archivo
+                    </el-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <el-link
+                      type="primary"
+                      :underline="false"
+                      @click="downloadFile(index.NOMBRE_ARCHIVO)"
+                      ><i class="el-icon-download"></i>Descargar
+                    </el-link>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
           </div>
         </div>
+        <b-modal
+          ref="modal-1"
+          id="modal-1"
+          no-close-on-backdrop
+          centered
+          :title="modal.detalle.title"
+        >
+          <b-container fluid>
+            <b-row class="mb-1">
+              <span><b>Correlativo:</b></span>
+              {{ modal.detalle.name }}
+            </b-row>
+            <b-row class="mb-1">
+              <span><b>Estado:</b></span>
+              {{ modal.detalle.status }}
+            </b-row>
+          </b-container>
+        </b-modal>
+        <b-modal
+          ref="change"
+          id="change"
+          no-close-on-backdrop
+          centered
+          :title="modal.detalle.title"
+          @ok="cambios"
+        >
+          <b-container fluid>
+            <b-form-file
+              accept=".pdf"
+              v-model="modal.change.file"
+              browse-text="Buscar"
+              :state="Boolean(modal.change.file)"
+              placeholder="Elija un archivo o suéltelo aquí..."
+              drop-placeholder="Suelta el archivo aquí..."
+            ></b-form-file>
+            <div class="mt-3">
+              Archivo seleccionado:
+              {{ modal.change.file ? modal.change.file.name : "" }}
+            </div>
+          </b-container>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -98,7 +178,7 @@ export default {
   data() {
     return {
       form: {
-        internal: "",
+        internal: "modal-1",
         direction: [],
         vice: [],
 
@@ -111,6 +191,20 @@ export default {
       search: "",
       pageCount: 0,
       url: loadingTask,
+      modal: {
+        detalle: {
+          show: "",
+          title: "",
+          name: "",
+          status: "",
+        },
+        change: {
+          file: null,
+        },
+      },
+      images: {
+        logo: "./img/logo_pdf.png",
+      },
       API: {
         get: {
           lista: "listaArchivo",
@@ -118,7 +212,9 @@ export default {
           viceministerio: "listaVice",
         },
         post: {
-          getFileByFilter: "listaFiltro"
+          getFileByFilter: "listaFiltro",
+          getDetalleFile: "getDetalleFile",
+          changeFileByCode: "changeFileByCode",
         },
       },
       Response: {
@@ -138,34 +234,71 @@ export default {
         console.log(response.data);
       });
     },
-    getListAddresses(){
-      axios.get(this.API.get.direcciones)
-        .then(response => {
-          this.Response.get.direcciones = response.data
-        })
+    getListAddresses() {
+      axios.get(this.API.get.direcciones).then((response) => {
+        this.Response.get.direcciones = response.data;
+      });
     },
-    getListVice(){
-      axios.get(this.API.get.viceministerio)
-        .then(response => {
-          this.Response.get.viceministerio = response.data;
-        })
+    getListVice() {
+      axios.get(this.API.get.viceministerio).then((response) => {
+        this.Response.get.viceministerio = response.data;
+      });
     },
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
         return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
       }
     },
-    getListByFilter(){
-      axios.post(this.API.post.getFileByFilter,{
-        direction: this.form.direction,
-        vice: this.form.vice,
-        internal:this.form.internal
-      })
-        .then(response => {
-          console.log(response.data)
+    getListByFilter() {
+      axios
+        .post(this.API.post.getFileByFilter, {
+          direction: this.form.direction,
+          vice: this.form.vice,
+          internal: this.form.internal,
         })
+        .then((response) => {
+          console.log(response.data);
+        });
     },
-    resetForm(){},
+    resetForm() {},
+    detalle(code) {
+      axios
+        .post(this.API.post.getDetalleFile, {
+          code: code,
+        })
+        .then((response) => {
+          console.log(response.data);
+          this.$refs["modal-1"].show();
+          this.modal.detalle.title = response.data[0]["name_file"];
+          this.modal.detalle.name = response.data[0]["name"];
+          this.modal.detalle.status = response.data[0]["estado"];
+        });
+    },
+    changeFile(code, nombre) {
+      this.modal.change.file = [];
+      this.$refs["change"].show();
+      this.modal.detalle.title = "Cambiar Archivo";
+      console.log("Change ", code, "-", nombre);
+    },
+    downloadFile(nombre) {
+      console.log("download ", nombre);
+    },
+    cambios(bvModalEvt) {
+      console.log(bvModalEvt);
+      const fd = new FormData();
+      // fd.append('file', this.modal.change.file, this.modal.change.file.name);
+
+      // console.log(fd)
+
+      // axios
+      //   .post(this.API.post.changeFileByCode, {
+      //     file: this.modal.change.file,
+      //   })
+      //   .then((response) => {
+      //     console.log(response.data);
+      //   });
+      // console.log("acepta el formulario", this.modal.change.file);
+    },
   },
   beforeMount() {
     this.getListUpload();
@@ -186,6 +319,25 @@ export default {
   font-size: 1em;
   // margin-left: 10px;
   color: #ff1a1a;
+}
+
+.font-weight-bold {
+  font-size: 1em;
+}
+
+.el-dropdown-link {
+  cursor: pointer;
+  // color: #409EFF;
+}
+
+.el-dropdown {
+  vertical-align: top;
+}
+.el-dropdown + .el-dropdown {
+  margin-left: 15px;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
 }
 
 @media (min-width: 576px) {

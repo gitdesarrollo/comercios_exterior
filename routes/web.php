@@ -201,6 +201,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('listaArchivo','modulos@getListUpload');
   Route::get('listaVice','modulos@getViceministerio');
   Route::post('listaFiltro','modulos@getFileByFilter');
+  Route::post('getDetalleFile','Upload@detalleFile');
+  Route::post('changeFileByCode','Upload@changeFileByCode');
   
 
   Route::get('/email', function() {

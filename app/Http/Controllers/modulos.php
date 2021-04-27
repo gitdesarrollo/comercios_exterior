@@ -564,4 +564,6 @@ class modulos extends Controller
         return response()->json($vice,200);
     }
 
+
+
 }

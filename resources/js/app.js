@@ -24,7 +24,9 @@ import CKEditor from 'ckeditor4-vue';
 // import Datatable from 'vue2-datatable-component'
 import { SimpleTimelinePlugin } from 'simple-vue-timeline';
 import { Vue } from 'vue-property-decorator';
+import { BootstrapVue, IconsPlugin  } from 'bootstrap-vue'
 
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 
 
@@ -32,7 +34,8 @@ import { Vue } from 'vue-property-decorator';
 
 Vue.use(ElementUI,{locale});
 Vue.use(VueBarcodeScanner);
-
+Vue.use(BootstrapVue);
+Vue.use(IconsPlugin);
 Vue.use( CKEditor );
 Vue.use(SimpleTimelinePlugin);
 

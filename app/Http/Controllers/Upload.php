@@ -348,4 +348,35 @@ class Upload extends Controller
 
     }
 
+    public function detalleFile(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $file = uploadFile::select('upload_files.file as name', 'upload_files.file_name as name_file', 'upload_files.created_at', 'estado_documentos.descripcion as estado')
+                ->join('estado_documentos','upload_files.estatus','=','estado_documentos.id')
+                ->where(['upload_files.id' => $request->code])
+                ->get();
+
+            DB::commit();
+
+            return response()->json($file,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function changeFileByCode(Request $request){
+
+        // foreach ($request->file('file') as $key => $file) {
+        //     $extension =  $file->getClientOriginalExtension();
+        // }
+
+        return $request;
+        // if (file_exists($file2)) {
+        //     unlink($file2);
+        //     // uploadFile::where('file', $name)->delete();
+        // }
+    }
+
 }
