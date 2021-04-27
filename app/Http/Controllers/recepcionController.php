@@ -39,6 +39,7 @@ class recepcionController extends Controller
         }
     }
 
+
     public function getUserbyId(){
         $usuario = Auth::user()->id;
         return response()->json($usuario,200);

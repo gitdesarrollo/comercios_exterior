@@ -348,4 +348,62 @@ class Upload extends Controller
 
     }
 
+    public function detalleFile(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $file = uploadFile::select('upload_files.file as name', 'upload_files.file_name as name_file', 'upload_files.created_at', 'estado_documentos.descripcion as estado')
+                ->join('estado_documentos','upload_files.estatus','=','estado_documentos.id')
+                ->where(['upload_files.id' => $request->code])
+                ->get();
+
+            DB::commit();
+
+            return response()->json($file,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function changeFileByCode(Request $request){
+            $path_file_store = public_path() . '/files/';
+            $path_file = public_path() . '/files/' . $request->name_file;
+            if (file_exists($path_file)) {
+                try {
+                    unlink($path_file);
+                } catch (\Throwable $th) {
+                    return response()->json(['error'    =>  true, 'reason'    => 'unlink'],200);
+                }
+                if ( $files =  $request->file('file')) {
+                    foreach ($request->file('file') as $key => $file) {
+                        if($file->getClientOriginalExtension() == 'pdf'){
+                            $filename = $request->name_file;
+                            $file->move($path_file_store, $filename);
+                            return response()->json($file,200);
+                        }else{
+                            return response()->json(false, 200);
+                        }
+                    }
+                }
+                else{
+                    return response()->json(['error'    =>  true, 'reason'    => 'noFile'], 200);
+                }
+            }else{
+                return response()->json(['error'    =>  true, 'reason'    => 'doesNotExist'], 200);
+            }
+    }
+
+    public function donwloadFile(Request $request){
+        try {
+            $path_file = public_path() . '/files/' . $request->file;
+            $headers= array(
+                'Content-Type: application/pdf',
+            );
+            return response()->download($path_file, $request->file, $headers);
+        } catch (\Throwable $th) {
+            return response()->json(['error'    =>  true, 'reason'    => 'unlink'],200);
+        }
+    }
+
 }

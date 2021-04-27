@@ -36,6 +36,21 @@ class modulos extends Controller
         }
         
     }
+
+    public function visualizador(){
+
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('modules.visualizador');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.visualizador');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+    }
+
+
     public function getRemitente(){
         $permiso = $this->getPermissionById(8);
         if($permiso->original[0]['admin']){
@@ -440,5 +455,107 @@ class modulos extends Controller
     public function email(){
         return view('emails.send-private');
     }
+
+    public function getListUpload(){
+        $upload = DB::select("
+        SELECT 
+            u.id CODE_UPLOAD, 
+            u.file NOMBRE_ARCHIVO, 
+            u.file_name NOMBRE, 
+            u.formato AS FORMATO, 
+            d.interesado REMITENTE, 
+            d.correlativo_documento CORRELATIVO, 
+            d.correlativo_externo CORRELATIVO_MINECO,
+            CONCAT('./files/',u.file) URL,
+            dep.id_dependencia CODE_DIRECCION,
+            dep.descripcion DIRECCION,
+            vices.id CODE_VICEMINISTERIO,
+            vices.descripcion VICEMINISTERIO
+        FROM upload_files u
+            INNER JOIN 	documentos d
+                ON u.evento_id = d.id
+            INNER JOIN traslados tr
+                ON tr.idDocumento = d.id
+            INNER JOIN users us
+                ON tr.idUsuarioTramito = us.id
+            INNER JOIN dependencias dep
+                ON us.id_unidad = dep.id_dependencia
+            INNER JOIN viceministerios vices
+                ON dep.idVice = vices.id
+            WHERE u.formato = 'pdf'
+                ORDER BY u.id asc
+        limit 10;
+        ");
+
+        return response()->json($upload,200);
+    }
+
+    public function getFileByFilter(Request $request){
+        $where = '';
+
+        
+        if(count($request->direction) > 0){
+            $where .= ' and dep.id_dependencia IN(' . implode(',',$request->direction) . ')';
+        }
+        
+        if(count($request->vice) > 0){
+            $where .= ' and vices.id IN(' . implode(',',$request->vice) . ')';
+        }
+        
+        if(!is_null($request->internal)){
+            $where .= ' and d.correlativo_externo like "%' . $request->internal . '%"';
+        }
+
+
+        $where .= ' ORDER BY u.id desc';
+       
+
+        try {
+            DB::beginTransaction();
+
+            $sql = DB::select("
+            SELECT 
+                u.id CODE_UPLOAD, 
+                u.file NOMBRE_ARCHIVO, 
+                u.file_name NOMBRE, 
+                u.formato  FORMATO, 
+                d.interesado REMITENTE, 
+                d.correlativo_documento CORRELATIVO, 
+                d.correlativo_externo CORRELATIVO_MINECO,
+                CONCAT('./files/',u.file) URL,
+                dep.id_dependencia CODE_DIRECCION,
+                dep.descripcion DIRECCION,
+                vices.id CODE_VICEMINISTERIO,
+                vices.descripcion VICEMINISTERIO
+            FROM upload_files u
+                    INNER JOIN 	documentos d
+                    ON u.evento_id = d.id
+                    INNER JOIN traslados tr
+                    ON tr.idDocumento = d.id
+                    INNER JOIN users us
+                    ON tr.idUsuarioTramito = us.id
+                    INNER JOIN dependencias dep
+                    ON us.id_unidad = dep.id_dependencia
+                    INNER JOIN viceministerios vices
+                    ON dep.idVice = vices.id
+                WHERE u.formato = 'pdf'". $where);
+
+
+            DB::commit();
+
+            return response()->json($sql,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function getViceministerio(){
+        $vice = DB::select('SELECT * FROM viceministerios');
+
+        return response()->json($vice,200);
+    }
+
+
 
 }

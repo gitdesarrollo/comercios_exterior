@@ -104,6 +104,10 @@
                     <a class="nav-link" href="{{ route('delegado')}}">
                         <i class="nav-icon fas fa-users"></i> Delegados</a>
                 </li>                
+                <li class="nav-item ml-3">
+                    <a class="nav-link" href="{{ route('archivos')}}">
+                        <i class="nav-icon fab fa-red-river"></i> Drive</a>
+                </li>                
             </ul>
         </li>
         @else
