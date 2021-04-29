@@ -287,6 +287,7 @@ export default {
           direction: this.form.direction,
           vice: this.form.vice,
           internal: this.form.internal,
+          multiple:true
         })
         .then((response) => {
           console.log(response.data);

@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Model\uploadFile;
+use App\Model\backups;
 use iio\libmergepdf\Merger;
 use iio\libmergepdf\Driver\TcpdiDriver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Zipper;
 
 class Upload extends Controller
 {
@@ -404,6 +407,83 @@ class Upload extends Controller
         } catch (\Throwable $th) {
             return response()->json(['error'    =>  true, 'reason'    => 'unlink'],200);
         }
+    }
+
+    public function donwloadFolder(Request $request){
+        try {
+            $path_file = public_path() . '/files/respaldos/' . $request->file;
+            $headers= array(
+                'Content-Type: application/pdf',
+            );
+            return response()->download($path_file, $request->file, $headers);
+        } catch (\Throwable $th) {
+            return response()->json(['error'    =>  true, 'reason'    => 'unlink'],200);
+        }
+    }
+
+    public function backupFile(Request $request){
+        try {
+            $name_folder = str_replace(' ', '_',$request->data[0]['DIRECCION']);
+            $random = $name_folder .Str::random(7);
+            $path_folder = public_path() . '/files/' .$random . '/';
+            mkdir($path_folder, 0777 , true);
+            $path_file = public_path() . '/files/';
+            $path_file_zip = $path_file . 'respaldos/' . $random . '.zip';
+            $user_id = Auth::user()->id;
+            try {
+                foreach ($request->data as $files => $value) {
+                    copy($path_file . $value['NOMBRE_ARCHIVO'],$path_folder . $value['DIRECCION'] . '-' . $value['NOMBRE_ARCHIVO']);
+                };
+                $directory = glob($path_folder . '*');
+                Zipper::make($path_file_zip)->add($directory)->close();
+                $backups = new backups;
+                $backups->name = $random . '.zip';
+                $backups->folder = $path_file_zip;
+                $backups->user_id = $user_id;
+                $backups->save();
+                $this->rmDir_rf($path_folder);
+                return response()->json(['error'    =>  false, 'reason'    => 'success'],200);
+            } catch (\Throwable $th) {
+                $directory = glob($path_folder . '*');
+                Zipper::make($path_file_zip)->add($directory)->close();
+                $backups = new backups;
+                $backups->name = $random . '.zip';
+                $backups->folder = $path_file_zip;
+                $backups->user_id = $user_id;
+                $backups->save();
+                $this->rmDir_rf($path_folder);
+                return response()->json(['error'    =>  true, 'reason'    => 'failedToOpenStream'],200);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['error'    =>  true, 'reason'    => 'undefinedOffset'],200);
+        }
+    }
+
+    public function rmDir_rf($carpeta){
+        foreach(glob($carpeta . "/*") as $archivos_carpeta){             
+            if (is_dir($archivos_carpeta)){
+              rmDir_rf($archivos_carpeta);
+            } else {
+            unlink($archivos_carpeta);
+            }
+          }
+          rmdir($carpeta);
+    }
+
+    public function getBackupFolder(){
+        $is_admin = Auth::user()->admin;
+        $user_id = Auth::user()->id;
+
+        if($is_admin === 1){
+            $folder = backups::select('id as code','name','folder','created_at')
+                ->get();
+            }else{
+                $folder = backups::select('id as code','name','folder','created_at')
+                    ->where(['user_id' => $user_id])
+                    ->get();
+        }
+
+        return response()->json($folder,200);
     }
 
 }
