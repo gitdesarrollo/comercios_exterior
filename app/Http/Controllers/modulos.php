@@ -50,6 +50,19 @@ class modulos extends Controller
         }
     }
 
+    public function backup(){
+
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('modules.backup');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.backup');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+    }
+
 
     public function getRemitente(){
         $permiso = $this->getPermissionById(8);
@@ -57,6 +70,19 @@ class modulos extends Controller
             return view('modules.remitente');
         }elseif($permiso->original[0]['permit']){
             return view('modules.remitente');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+
+    public function getInbox(){
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('modules.inbox');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.inbox');
         }else{
             // return view('admin.home');
             return header( "refresh:0.1;url=/" );
@@ -226,6 +252,12 @@ class modulos extends Controller
                 d.correlativo_externo AS correlativo_interno,
                 t.fechaFinal AS final,
                 TIMESTAMPDIFF(DAY, NOW(), t.fechaFinal) AS Dias,
+                (
+                    CASE 
+                        WHEN (TIMESTAMPDIFF(DAY, NOW(), t.fechaFinal)) >= 0 THEN 1
+                        WHEN (TIMESTAMPDIFF(DAY, NOW(), t.fechaFinal)) < 0 THEN 0
+                    END
+                ) AS retardo,
                 u.NAME AS nombre_traslada,
                 (SELECT MAX(us.name) FROM estado es INNER JOIN users us ON es.UsuarioActual = us.id WHERE es.idTraslado = tr.id AND es.estatus = 4) AS usuarioActual,
                 CONCAT("./../files/",files.`file`) AS url
@@ -239,6 +271,7 @@ class modulos extends Controller
             INNER JOIN upload_files files
 		        ON files.evento_id = d.id
             WHERE t.idUsuarioTraslada = :id AND files.formato = "pdf" AND d.id_status != 7
+            ORDER BY retardo desc
             ',['id' => $usuario->original]);
 
             // $encriptado = Crypt::encrypt($data);
@@ -483,7 +516,7 @@ class modulos extends Controller
             INNER JOIN viceministerios vices
                 ON dep.idVice = vices.id
             WHERE u.formato = 'pdf'
-                ORDER BY u.id asc
+                ORDER BY u.id desc
         limit 10;
         ");
 
@@ -493,17 +526,30 @@ class modulos extends Controller
     public function getFileByFilter(Request $request){
         $where = '';
 
-        
-        if(count($request->direction) > 0){
-            $where .= ' and dep.id_dependencia IN(' . implode(',',$request->direction) . ')';
-        }
-        
-        if(count($request->vice) > 0){
-            $where .= ' and vices.id IN(' . implode(',',$request->vice) . ')';
-        }
-        
-        if(!is_null($request->internal)){
-            $where .= ' and d.correlativo_externo like "%' . $request->internal . '%"';
+        if($request->multiple){
+            if(count($request->direction) > 0){
+                $where .= ' and dep.id_dependencia IN(' . implode(',',$request->direction) . ')';
+            }
+            
+            if(count($request->vice) > 0){
+                $where .= ' and vices.id IN(' . implode(',',$request->vice) . ')';
+            }
+            
+            if(!is_null($request->internal)){
+                $where .= ' and d.correlativo_externo like "%' . $request->internal . '%"';
+            }
+        }else{
+            if(!is_null($request->direction)){
+                $where .= ' and dep.id_dependencia IN(' . $request->direction. ')';
+            }
+            
+            if(!is_null($request->vice)){
+                $where .= ' and vices.id IN(' . $request->vice . ')';
+            }
+            
+            if(!is_null($request->internal)){
+                $where .= ' and d.correlativo_externo like "%' . $request->internal . '%"';
+            }
         }
 
 

@@ -204,6 +204,17 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('getDetalleFile','Upload@detalleFile');
   Route::post('changeFileByCode','Upload@changeFileByCode');
   Route::post('downloadFiles','Upload@donwloadFile');
+  Route::post('downloadFolder','Upload@donwloadFolder');
+  Route::get('notificaciones','documentos@getRecepcionMesssage');
+
+
+  /**********INBOX **********************/
+  Route::get('bandeja','modulos@getInbox')->name('inbox');
+
+  /********** BACKUP ********************/
+  Route::get('backup','modulos@backup')->name('respaldo');
+  Route::post('backup','Upload@backupFile');
+  Route::get('backupList','Upload@getBackupFolder');
   
 
   Route::get('/email', function() {

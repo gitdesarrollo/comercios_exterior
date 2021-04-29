@@ -27,6 +27,8 @@ import { Vue } from 'vue-property-decorator';
 import { BootstrapVue, IconsPlugin  } from 'bootstrap-vue'
 import VueSweetalert2 from 'vue-sweetalert2';
 
+
+
 // If you don't need the styles, do not connect
 import 'sweetalert2/dist/sweetalert2.min.css';
 
@@ -103,6 +105,9 @@ Vue.component('permits-component', require('./components/admin/permits.vue').def
 Vue.component('expedientes', require('./components/modules/expedientes/expedientes.vue').default);
 Vue.component('remitente', require('./components/modules/remitente/remitente.vue').default);
 Vue.component('visualizador-pdf', require('./components/modules/visualizadorPdf/visualizador.vue').default);
+Vue.component('inbox-message', require('./components/modules/inbox/inbox.vue').default);
+Vue.component('respaldo-archivos', require('./components/modules/respaldo/respaldo.vue').default);
+// Vue.component('chat-test', require('./components/modules/chat/chat.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

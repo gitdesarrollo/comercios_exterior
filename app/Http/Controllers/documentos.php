@@ -969,6 +969,107 @@ class documentos extends Controller
         return response()->json(true,200);
     }
 
+    public function getRecepcionMesssage(){
+
+
+        $usuario = $this->getdepartamentobyId();
+        $usuario = json_decode(json_encode($usuario));
+
+        $idUsuario = $this->getUserbyId();
+        $idUsuario = json_decode(json_encode($idUsuario));
+
+        
+
+        $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
+
+
+        if($trasladoU > 0){
+            
+            $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
+            $idTranfer = $trasladoUs[0]->id;
+            $documento = DB::select("SELECT
+            d.id as code,
+            d.interesado AS empresa,
+            d.correlativo_documento AS correlativo,
+            d.descripcion as descripcion,
+            ed.id AS estado,
+            us.NAME AS usuario,
+            d.created_at as fecha,
+            tras.id as idTraslado,
+            rol.idRoles as rol,
+            d.correlativo_externo as formato,
+            d.tracing,
+            (SELECT id FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS idTracing,
+            (SELECT 
+			(CASE 
+				WHEN idUsuarioTraslada = :local THEN 'true'
+				ELSE 'false'
+				END) AS flag 
+                FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS flag,
+            concat('./../files/',files.`file`) AS url
+            FROM documentos d
+            INNER JOIN traslados tras
+                ON d.id = tras.id
+            INNER JOIN estado_documentos ed
+            ON tras.estado = ed.id
+            INNER JOIN users us
+                ON tras.idUsuarioTramito = us.id
+            INNER JOIN user_has_roles rol
+                ON us.id = rol.idUser
+            INNER JOIN upload_files files
+   		        ON files.evento_id = d.id
+            WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf' AND ed.id = 2
+            ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
+
+            
+
+            return response()->json($documento,200);
+        }
+                         // $mensaje = estado::select(
+                         //     'estado.id as code',
+                         //     'documentos.dirigido',
+                         //     'documentos.direccion',
+                         //     'documentos.correlativo_documento',
+                         //     'documentos.created_at',
+                         //     'estado.estado',
+                         //     'traslados.id as traslado',
+                         //     'documentos.id as documento')
+                         // ->join('traslados','estado.idTraslado','=','traslados.id')
+                         // ->join('documentos','traslados.idDocumento','=','documentos.id')
+                         // ->where('traslados.id',$idTranfer)
+                         // ->where('traslados.estado',6)
+                         // ->where('estado.estado','I')
+        // }else{
+        //     $documento = DB::select('SELECT
+        //                                 d.id as code,
+        //                                 d.interesado AS empresa,
+        //                                 d.correlativo_documento AS correlativo,
+        //                                 d.descripcion as descripcion,
+        //                                 ed.id AS estado,
+        //                                 us.NAME AS usuario,
+        //                                 d.created_at as fecha,
+        //                                 tras.id as idTraslado
+        //                                 FROM documentos d
+        //                                 INNER JOIN traslados tras
+        //                                     ON d.id = tras.id
+        //                                 INNER JOIN estado_documentos ed
+        //                                 ON tras.estado = ed.id
+        //                                 INNER JOIN users us
+        //                                     ON tras.idUsuarioTramito = us.id
+        //                                 WHERE us.id = :id
+        //     ',['id' => $idUsuario->original]);
+        //     // $mensaje = estado::select('estado.id as code','documentos.dirigido','documentos.direccion','documentos.correlativo_documento','documentos.created_at','estado.estado','traslados.id as traslado','documentos.id as documento')
+        //     // ->join('traslados','estado.idTraslado','=','traslados.id')
+        //     // ->join('documentos','traslados.idDocumento','=','documentos.id')
+        //     // ->where('idDepartamento',$usuario->original)
+        //     // ->where('traslados.estado',2)
+        //     // // ->where('estado.estado','I')
+        //     // ->get();
+        //     return response()->json($documento,200);
+        // }
+
+        // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
+    }
     public function getRecepcion(){
 
 
