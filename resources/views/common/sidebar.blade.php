@@ -56,6 +56,11 @@
                                     <a class="nav-link" href="{{ route('Remitente') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Remitentes</a>
                                 </li>       
+
+                                <li class="nav-item ml-3">
+                                    <a class="nav-link" href="{{ route('inbox') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Notificaciones</a>
+                                </li>       
                         @endif
                     @endforeach
                 </ul>
@@ -107,6 +112,10 @@
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="{{ route('archivos')}}">
                         <i class="nav-icon fab fa-red-river"></i> Drive</a>
+                </li>                
+                <li class="nav-item ml-3">
+                    <a class="nav-link" href="{{ route('respaldo')}}">
+                        <i class="nav-icon fas fa-download"></i> Respaldo</a>
                 </li>                
             </ul>
         </li>

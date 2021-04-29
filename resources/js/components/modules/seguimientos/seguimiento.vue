@@ -21,9 +21,12 @@
             )
           "
           :header-cell-style="tableHeaderColor"
+          
+          :cell-class-name="celdas"
           border
           empty-text="Sin Datos"
         >
+        <!-- :cell-style="celdas" -->
           <el-table-column
             label="#"
             type="index"
@@ -287,7 +290,7 @@ export default {
     getListFiles() {
       axios.get(this.endPoint.get.files).then((response) => {
         this.endPoint.response.listfiles = response.data;
-        console.log(response.data)
+        // console.log(response.data)
         
       });
     },
@@ -295,6 +298,14 @@ export default {
       if (rowIndex === 0) {
         return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
       }
+    },
+    celdas({row, column, rowIndex, columnIndex}){
+      if(columnIndex === 5){
+        if(row.retardo === 0){
+          return 'bg-danger text-white animacion';
+        }
+      }
+      
     },
     getMessages(id){
       axios.post(this.endPoint.post.message,{
