@@ -3,11 +3,7 @@
         $idusuarioCount = \Illuminate\Support\Facades\Auth::user()->id; 
         $trasladoU = \App\Model\traslados::where('idUsuarioTramito',$idusuario)->select('id')->count();
 
-
-        if($trasladoU > 0){
-            
-            $trasladoUs = \App\Model\traslados::where('idUsuarioTramito',$idusuario)->select('id')->get();
-            $idTranfer = $trasladoUs[0]->id;
+        
             $documento = \Illuminate\Support\Facades\DB::select("SELECT
                     d.id as code,
                     d.interesado AS empresa,
@@ -58,7 +54,9 @@
                     WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf' AND ed.id = 2
                     ",['id' => $idusuarioCount]);
 
-        }
+
+
+
 
   @endphp
 
