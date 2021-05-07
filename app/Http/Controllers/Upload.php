@@ -244,11 +244,11 @@ class Upload extends Controller
                         // uploadFile::where('file', $name)->delete();
                     }
     
-                    dd($bytes);
+                    
                 return response()->json($bytes,200);
             }
         } catch (\Throwable $th) {
-            dd($th);
+            
             return response()->json(false,200);
         }
 
