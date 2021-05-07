@@ -47,8 +47,8 @@ class Upload extends Controller
                         $merge = json_decode(json_encode($merge));
                         $format = $request->type;
 
-                       dd($merge);
-                        if($merge->original == false){
+                       
+                        if($merge->original != false){
                             array_push($uploadId, 
                             [
                                 [
@@ -60,7 +60,7 @@ class Upload extends Controller
                           
                             return response()->json($uploadId,200);
                         }else{
-                            return response()->json($merge, 200);
+                            return response()->json(false, 200);
                         }
                         
                     }else{
@@ -244,10 +244,12 @@ class Upload extends Controller
                         // uploadFile::where('file', $name)->delete();
                     }
     
+                    dd($bytes);
                 return response()->json($bytes,200);
             }
         } catch (\Throwable $th) {
-            return response()->json($th,200);
+            dd($th);
+            return response()->json(false,200);
         }
 
 
