@@ -60,7 +60,7 @@ class Upload extends Controller
                           
                             return response()->json($uploadId,200);
                         }else{
-                            return response()->json('23', 200);
+                            return response()->json($merge->original, 200);
                         }
                         
                     }else{
@@ -247,7 +247,7 @@ class Upload extends Controller
                 return response()->json($bytes,200);
             }
         } catch (\Throwable $th) {
-            return response()->json(false,200);
+            return response()->json($th,200);
         }
 
 
