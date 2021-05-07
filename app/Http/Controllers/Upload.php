@@ -47,7 +47,7 @@ class Upload extends Controller
                         $merge = json_decode(json_encode($merge));
                         $format = $request->type;
 
-                       
+                       dd($merge);
                         if($merge->original == false){
                             array_push($uploadId, 
                             [
@@ -60,7 +60,7 @@ class Upload extends Controller
                           
                             return response()->json($uploadId,200);
                         }else{
-                            return response()->json($merge->original, 200);
+                            return response()->json($merge, 200);
                         }
                         
                     }else{
