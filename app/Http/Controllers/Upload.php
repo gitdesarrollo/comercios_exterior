@@ -48,7 +48,7 @@ class Upload extends Controller
                         $format = $request->type;
 
                        
-                        if($merge->original != false){
+                        if($merge->original == false){
                             array_push($uploadId, 
                             [
                                 [
