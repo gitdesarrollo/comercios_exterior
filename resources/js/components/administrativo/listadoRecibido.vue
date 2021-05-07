@@ -1013,6 +1013,7 @@ export default {
           if (status == "200") {
             // console.log("comentarios", response.data)
             this.list_response.listComentarios = response.data;
+            console.log("Comentarios: ", response.data)
             this.total = response.data.length;
           }
         });
