@@ -223,8 +223,8 @@ class Upload extends Controller
 
 
         try {
-            $merger = new Merger();
-            // $merger = new Merger(new TcpdiDriver);
+            //$merger = new Merger();
+            $merger = new Merger(new TcpdiDriver);
             $documento = [$file1, $file2];
             foreach($documento as $documento){
                 $merger->addFile($documento);
