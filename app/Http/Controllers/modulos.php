@@ -77,12 +77,40 @@ class modulos extends Controller
         
     }
 
+    public function social($id){
+        
+        $usuario = Auth::user()->id;
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('modules.social',['usuario' => $usuario, 'code' => $id]);
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.social',['usuario' => $usuario, 'code' => $id]);
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+
     public function getInbox(){
         $permiso = $this->getPermissionById(1);
         if($permiso->original[0]['admin']){
             return view('modules.inbox');
         }elseif($permiso->original[0]['permit']){
             return view('modules.inbox');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+
+    public function inboxChat(){
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('modules.inboxchat');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.inboxchat');
         }else{
             // return view('admin.home');
             return header( "refresh:0.1;url=/" );
@@ -260,6 +288,7 @@ class modulos extends Controller
                 ) AS retardo,
                 u.NAME AS nombre_traslada,
                 (SELECT MAX(us.name) FROM estado es INNER JOIN users us ON es.UsuarioActual = us.id WHERE es.idTraslado = tr.id AND es.estatus = 4) AS usuarioActual,
+                t.idUsuarioActual as usuario_actual,
                 CONCAT("./../files/",files.`file`) AS url
             FROM tracings t
             INNER JOIN documentos d
@@ -270,7 +299,7 @@ class modulos extends Controller
                 ON t.idDocumento = tr.idDocumento
             INNER JOIN upload_files files
 		        ON files.evento_id = d.id
-            WHERE t.idUsuarioTraslada = :id AND files.formato = "pdf" AND d.id_status != 7
+            WHERE t.idUsuarioTraslada = :id AND files.formato = "pdf" AND d.id_status != 7 AND t.estado = 4
             ORDER BY retardo desc
             ',['id' => $usuario->original]);
 
@@ -288,13 +317,66 @@ class modulos extends Controller
         }
     }
 
-    public function sendTracingMail(Request $request){
+    public function sendMessageChat(Request $request){
         // try {
         //     DB::beginTransaction();
+
+            $usuario = $this->getUserbyId();
+            $usuario = json_decode(json_encode($usuario));
 
             $send = new mailTracking;
             $send->idTracings = $request->tracing;
             $send->message = $request->message;
+            $send->userCreate = $usuario->original;
+            if($request->traslada === $usuario->original){
+                $send->userReceives = $request->actual;
+            }else{
+                $send->userReceives = $request->traslada;
+            }
+
+            $send->save();
+            $data = DB::select('
+                SELECT 
+                        (
+                            CASE
+                                WHEN t.idUsuarioActual IS NULL
+                                THEN (SELECT email FROM users u WHERE u.id = t.idUsuarioTraslada)
+                                ELSE (SELECT email FROM users u WHERE u.id = t.idUsuarioActual)
+                                END
+                        ) AS email
+                FROM tracings t
+                WHERE t.id = :id
+            ',['id' => $request->tracing]);
+            // dd($data[0]->email);
+            // $to_email = 'jjolong@miumg.edu.gt';
+            $to_email = $data[0]->email;
+            $to_message = $request->message;
+            $to_traslada =$request->traslada;
+            $to_actual = $request->actual;
+            $to_correlativo = $request->correlativo;
+            Mail::to($to_email)->send(new sendMessagePrivate($to_message,$to_actual,$to_traslada,$to_correlativo));
+            // Mail::to($to_email)->send(new SendTracingMailModel($to_message,$to_actual,$to_traslada,$to_correlativo));
+            
+            // DB::commit();
+
+            return response()->json($send,200);
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json(false,200);
+        // }
+    }
+    public function sendTracingMail(Request $request){
+        // try {
+        //     DB::beginTransaction();
+
+            $usuario = $this->getUserbyId();
+            $usuario = json_decode(json_encode($usuario));
+
+            $send = new mailTracking;
+            $send->idTracings = $request->tracing;
+            $send->message = $request->message;
+            $send->userCreate = $usuario->original;
+            $send->userReceives = $request->usuario_actual;
             $send->save();
             $data = DB::select('
                 SELECT 
@@ -602,6 +684,75 @@ class modulos extends Controller
         return response()->json($vice,200);
     }
 
+    public function getMessageEmailTracking(Request $request){
+
+        $usuario = $this->getUserbyId();
+        $usuario = json_decode(json_encode($usuario));
+
+        $emails = DB::select("
+        SELECT 
+            mail.message as mensaje,
+            mail.userCreate as idcreate,
+            mail.userReceives as idreceive,
+            us.NAME AS usuarioCreo,
+            uss.NAME AS usuariorecibe,
+            doc.correlativo_externo as externo
+        FROM mail_trackings mail
+            INNER JOIN tracings track
+                ON mail.idTracings = track.id
+            INNER JOIN documentos doc
+                ON track.idDocumento = doc.id
+            INNER JOIN users us
+                ON mail.userCreate = us.id
+            INNER JOIN users uss
+                ON mail.userReceives = uss.id
+            WHERE mail.idTracings = :code
+        ",['code' => $request->codes]);
+
+
+        return response()->json($emails,200);
+    }
+
+
+    public function getMessageInbox(){
+
+        $usuario = $this->getUserbyId();
+        $usuario = json_decode(json_encode($usuario));
+
+        $emails = DB::select("
+                SELECT 
+                    mail.idTracings as code,
+                    mail.message as mensaje,
+                    mail.userCreate as usuariocreo,
+                    mail.userReceives as usuariorecibe,
+                    doc.correlativo_externo as externo,
+                    DATE_FORMAT(mail.created_at, '%d/%m/%Y') as fecha
+                FROM mail_trackings mail
+                    INNER JOIN tracings track
+                        ON mail.idTracings = track.id
+                    INNER JOIN documentos doc
+			            ON track.idDocumento = doc.id
+                WHERE mail.userReceives = :receives
+                ",['receives' => $usuario->original]);
+
+        $messages = DB::select("
+                SELECT 
+                    mail.idTracings as code,
+                    mail.id as codeMail
+                FROM mail_trackings mail
+                    INNER JOIN tracings track
+                        ON mail.idTracings = track.id
+                WHERE mail.userReceives = :receives and mail.estatus = 4
+                ",['receives' => $usuario->original]);
+        
+
+        foreach ($messages as $key){
+            $change = mailTracking::where(['id' => $key->codeMail, 'idTracings' => $key->code])->update(['estatus' => 5]);
+        }
+
+
+        return response()->json($emails,200);
+    }
 
 
 }

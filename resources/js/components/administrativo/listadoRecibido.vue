@@ -17,6 +17,7 @@
             .slice((currentPage - 1) * pagesize, currentPage * pagesize)
         "
         :header-cell-style="tableHeaderColor"
+        :cell-class-name="celdas"
         border
         style="width: 100%"
       >
@@ -35,7 +36,12 @@
           width="500"
           prop="descripcion"
         ></el-table-column>
-        <el-table-column prop="estado" label="Etiqueta" width="100">
+        <el-table-column
+          prop="estado"
+          label="Etiqueta  /  Restante"
+          width="92"
+          align="center"
+        >
           <template slot-scope="scope">
             <div v-if="scope.row.estado === 9">
               <el-tag
@@ -44,6 +50,9 @@
                 >Externo
               </el-tag>
             </div>
+          </template>
+          <template slot-scope="scope" v-if="scope.row.tracing === '1'">
+            {{ scope.row.dias }} dias
           </template>
         </el-table-column>
         <el-table-column label="Operaciones" width="280">
@@ -105,7 +114,7 @@
                   )
                 "
               ></el-button>
-              <el-button
+              <!-- <el-button
                 size="mini"
                 type="warning"
                 icon="el-icon-s-promotion"
@@ -113,7 +122,7 @@
                 @click="
                   getTrasladoExterno(scope.row.code, scope.row.idTraslado)
                 "
-              ></el-button>
+              ></el-button> -->
               <el-button
                 v-if="scope.row.rol == 4"
                 size="mini"
@@ -412,22 +421,27 @@
             </el-table>
             <el-form
               :model="ruleForm"
-              
               ref="ruleForm"
               label-width="120px"
               label-position="top"
             >
-              <el-form-item label="Comentario:" prop="comentario" :rules="formRule.comentario">
+              <el-form-item
+                label="Comentario:"
+                prop="comentario"
+                :rules="formRule.comentario"
+              >
                 <el-input
                   type="textarea"
                   v-model="ruleForm.comentario"
                   maxlength="1000"
                   show-word-limit
-                  
                 ></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="submitComent('ruleForm')" :loading="handlerLoading.addComent"
+                <el-button
+                  type="primary"
+                  @click="submitComent('ruleForm')"
+                  :loading="handlerLoading.addComent"
                   >Guardar
                 </el-button>
               </el-form-item>
@@ -522,12 +536,11 @@
                 ></el-table-column>
                 <el-table-column label="Operaciones" width="100" align="center">
                   <template slot-scope="scope">
+                    <el-link :href="scope.row.url" :underline="false"
+                      ><i class="donwloadFile fas fa-download"></i
+                    ></el-link>
 
-                      <el-link :href="scope.row.url" :underline="false"
-                        ><i class="donwloadFile fas fa-download"></i
-                      ></el-link>
-
-                      <!-- <el-link :href="scope.row.file" :underline="false"
+                    <!-- <el-link :href="scope.row.file" :underline="false"
                         ><i class="deleteFile fas fa-trash-alt"></i
                       ></el-link> -->
                   </template>
@@ -731,7 +744,7 @@ export default {
             trigger: "blur",
           },
         ],
-        },
+      },
       rules: {
         departamentoId: [
           {
@@ -764,7 +777,7 @@ export default {
           width: "85%",
           top: "2vh",
           ver: false,
-          html:""
+          html: "",
         },
         inner: {
           title: "Listado de Archivos",
@@ -783,9 +796,9 @@ export default {
       src: "",
       url: "",
       Accept: 2,
-      handlerLoading:{
-        addComent: false
-      }
+      handlerLoading: {
+        addComent: false,
+      },
     };
   },
   mounted() {
@@ -794,15 +807,27 @@ export default {
     this.getUserTransfer();
   },
   methods: {
-      viewFile(valor) {
+    celdas({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 5) {
+        console.log(row.tracing)
+        if (row.tracing === "1") {
+          if(row.dias > 0){
+            return "bg-success text-white";
+          }else{
+            return "bg-danger text-white";
+          }
+        }
+      }
+    },
+    viewFile(valor) {
       console.log(valor);
-      
+
       this.handlerDialog.preview.html =
         '<body style="margin:0px;"><object data="' +
-          this.url +
-          '" type="application/pdf" width="100%" height="600"><iframe src="' +
-          this.url +
-          '" scrolling="no" width="100%" height="100%" frameborder="0" ></iframe></object></body>'
+        this.url +
+        '" type="application/pdf" width="100%" height="600"><iframe src="' +
+        this.url +
+        '" scrolling="no" width="100%" height="100%" frameborder="0" ></iframe></object></body>';
     },
 
     deleteWord(name, id) {
@@ -919,42 +944,42 @@ export default {
     submitComent(ruleForm) {
       const h = this.$createElement;
       // console.log(this.$refs[ruleForm].$el[0].onfocus());
-        if (this.ruleForm.comentario != "") {
-          this.handlerLoading.addComent = true;
-          this.ComentLoading = true;
-          axios
-            .post(this.url_list.setComentario, {
-              code: this.datacoment.idDocumento,
-              traslado: this.datacoment.idTraslado,
-              comentario: this.ruleForm.comentario,
-            })
-            .then((response) => {
-              const status = JSON.parse(response.status);
-              if (status == "200" && response.data != false) {
-                this.handlerLoading.addComent = false;
-                this.$message({
-                  message: h("p", null, [
-                    h("i", { style: "color: teal" }, "Agregado!"),
-                  ]),
-                  type: "success",
-                });
-                this.ComentLoading = false;
-                this.ruleForm.comentario = ""
-                // this.handlerDialog.preview.visible = false;
+      if (this.ruleForm.comentario != "") {
+        this.handlerLoading.addComent = true;
+        this.ComentLoading = true;
+        axios
+          .post(this.url_list.setComentario, {
+            code: this.datacoment.idDocumento,
+            traslado: this.datacoment.idTraslado,
+            comentario: this.ruleForm.comentario,
+          })
+          .then((response) => {
+            const status = JSON.parse(response.status);
+            if (status == "200" && response.data != false) {
+              this.handlerLoading.addComent = false;
+              this.$message({
+                message: h("p", null, [
+                  h("i", { style: "color: teal" }, "Agregado!"),
+                ]),
+                type: "success",
+              });
+              this.ComentLoading = false;
+              this.ruleForm.comentario = "";
+              // this.handlerDialog.preview.visible = false;
 
-                this.getComentario(
-                  this.datacoment.idTraslado,
-                  this.datacoment.idDocumento
-                );
-              }
-            });
-        }else{
-          this.$notify.error({
-            title: "Error",
-            message: "Complete el campo de comentario",
+              this.getComentario(
+                this.datacoment.idTraslado,
+                this.datacoment.idDocumento
+              );
+            }
           });
-          this.$refs[ruleForm].$el[0].focus();
-        }
+      } else {
+        this.$notify.error({
+          title: "Error",
+          message: "Complete el campo de comentario",
+        });
+        this.$refs[ruleForm].$el[0].focus();
+      }
       // });
     },
     archivarDocument(form) {
@@ -1013,7 +1038,7 @@ export default {
           if (status == "200") {
             // console.log("comentarios", response.data)
             this.list_response.listComentarios = response.data;
-            console.log("Comentarios: ", response.data)
+            console.log("Comentarios: ", response.data);
             this.total = response.data.length;
           }
         });
@@ -1263,8 +1288,8 @@ export default {
         });
         // console.log(res[0][0].file);
         // console.log(this.$refs.viewPDf)
-          // this.viewFile("segundo");
-        
+        // this.viewFile("segundo");
+
         if (res[0][0].formato == "pdf") {
           this.url = "./../files/" + res[0][0].file;
           this.$refs.viewPDf.src = "";
@@ -1277,7 +1302,7 @@ export default {
       }
     },
     cargaSuccessClose(res, file, filters) {
-      console.log("res ", res, " file ", file , " filters ", filters)
+      console.log("res ", res, " file ", file, " filters ", filters);
       const _this = this;
       if (res == false) {
         _this.$message({

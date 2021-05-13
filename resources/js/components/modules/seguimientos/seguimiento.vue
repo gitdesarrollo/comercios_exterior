@@ -48,7 +48,7 @@
               <span>{{ scope.row.final }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="Días Restantes" width="140" prop="Dias" align="center">
+          <el-table-column label="Dias Restantes" width="140" prop="Dias" align="center">
           </el-table-column>
           <el-table-column label="Usuario Seguimiento" prop="nombre_traslada"></el-table-column>
           <el-table-column label="Usuario Asignado" width="190" prop="usuarioActual">
@@ -64,13 +64,13 @@
                   type="success"
                   icon="el-icon-news"
                   plain
-                  @click="send(scope.row.idTracing,scope.row.correlativo_interno,scope.row.nombre_traslada,scope.row.usuarioActual,1)"
+                  @click="send(scope.row.idTracing,scope.row.correlativo_interno,scope.row.nombre_traslada,scope.row.usuarioActual,1,scope.row.usuario_actual)"
                 ></el-button>
                 <el-button
                   type="warning"
                   icon="el-icon-receiving"
                   plain
-                  @click="send(scope.row.idTracing,scope.row.correlativo_interno,scope.row.nombre_traslada,scope.row.usuarioActual,2)"
+                  @click="send(scope.row.idTracing,scope.row.correlativo_interno,scope.row.nombre_traslada,scope.row.usuarioActual,2,scope.row.usuario_actual)"
                 ></el-button>
                   <el-button
                     type="danger"
@@ -192,6 +192,7 @@ export default {
               traslada:"",
               actual:"",
               correlativo:"",
+              usuario_actual:"",
             },
             form: {
               message:""
@@ -290,7 +291,7 @@ export default {
     getListFiles() {
       axios.get(this.endPoint.get.files).then((response) => {
         this.endPoint.response.listfiles = response.data;
-        // console.log(response.data)
+        console.log(response.data)
         
       });
     },
@@ -302,7 +303,9 @@ export default {
     celdas({row, column, rowIndex, columnIndex}){
       if(columnIndex === 5){
         if(row.retardo === 0){
-          return 'bg-danger text-white animacion';
+          return 'bg-danger text-white ';
+        }else{
+          return 'bg-success text-white ';
         }
       }
       
@@ -323,7 +326,8 @@ export default {
               message: this.endPoint.forms.formMessage.form.message,
               traslada:this.endPoint.forms.formMessage.data.traslada,
               actual:this.endPoint.forms.formMessage.data.actual,
-              correlativo:this.endPoint.forms.formMessage.data.correlativo
+              correlativo:this.endPoint.forms.formMessage.data.correlativo,
+              usuario_actual: this.endPoint.forms.formMessage.data.usuario_actual
             }).then(response => {
               const status = JSON.parse(response.status);
               const data = response.data;
@@ -348,7 +352,7 @@ export default {
           }
         });
       },
-    send(files,id,userTraslada,userActual,flag) {
+    send(files,id,userTraslada,userActual,flag, userNow) {
 
       if(flag === 1) {
         this.endPoint.dialogs.message.title = "Expediente No. " + id;
@@ -357,6 +361,7 @@ export default {
         this.endPoint.forms.formMessage.data.traslada = userTraslada;
         this.endPoint.forms.formMessage.data.actual = userActual;
         this.endPoint.forms.formMessage.data.correlativo = id;
+        this.endPoint.forms.formMessage.data.usuario_actual = userNow;
       }else{
         this.endPoint.dialogs.tracing.active = true;
         this.endPoint.dialogs.tracing.title = "Expediente No. " + id;

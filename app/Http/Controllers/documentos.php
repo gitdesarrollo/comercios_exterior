@@ -1101,6 +1101,7 @@ class documentos extends Controller
             d.correlativo_externo as formato,
             d.tracing,
             (SELECT id FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS idTracing,
+            (SELECT TIMESTAMPDIFF(DAY, NOW(), fechaFinal) FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS dias,
             (SELECT 
 			(CASE 
 				WHEN idUsuarioTraslada = :local THEN 'true'

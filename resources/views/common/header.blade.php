@@ -1,6 +1,8 @@
   @php
         $idusuario = \Illuminate\Support\Facades\Auth::user()->id; 
         $idusuarioCount = \Illuminate\Support\Facades\Auth::user()->id; 
+        $usuarioEmail = \Illuminate\Support\Facades\Auth::user()->id; 
+        $usuarioMensaje = \Illuminate\Support\Facades\Auth::user()->id; 
         $trasladoU = \App\Model\traslados::where('idUsuarioTramito',$idusuario)->select('id')->count();
 
         
@@ -53,10 +55,33 @@
                         ON files.evento_id = d.id
                     WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf' AND ed.id = 2
                     ",['id' => $idusuarioCount]);
+	
+            $emails = \Illuminate\Support\Facades\DB::select("
+                SELECT 
+                    mail.idTracings as code,
+                    mail.message as mensaje,
+                    mail.userCreate as usuariocreo,
+                    mail.userReceives as usuariorecibe,
+                    doc.correlativo_externo as externo
+                FROM mail_trackings mail
+                    INNER JOIN tracings track
+                        ON mail.idTracings = track.id
+                    INNER JOIN documentos doc
+			            ON track.idDocumento = doc.id
+                WHERE mail.userReceives = :receives
+                ",['receives' => $usuarioMensaje]);
+               
+            $mensajesCount = \Illuminate\Support\Facades\DB::select("
+                SELECT 
+                    count(mail.message) as code
+                FROM mail_trackings mail
+                    INNER JOIN tracings track
+                        ON mail.idTracings = track.id
+                WHERE mail.userReceives = :receives and mail.estatus = 4
+                ",['receives' => $usuarioEmail]);
 
-
-
-
+                
+               
 
   @endphp
 
@@ -69,14 +94,14 @@
     <a class="navbar-brand" href="./">
         <img
           class="navbar-brand-full"
-          src="imagenes/gobierno.jpg"
+          src="/imagenes/gobierno.jpg"
           width="89"
           height="35"
           alt="Logo"
         />
         <img
           class="navbar-brand-minimized"
-          src="imagenes/gobierno.jpg"
+          src="/imagenes/gobierno.jpg"
           width="30"
           height="30"
           alt="Logo"
@@ -114,6 +139,29 @@
                 @endforeach
             </div>
         </li> -->
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle  pr-2" href="{{ route('inbox-chat') }}" >
+                <!-- <span class="">Notificaciones </span> -->
+                <i class="fas fa-comment-dots "></i> 
+                <span class="badge badge-pill badge-danger mr-3">
+                @foreach ($mensajesCount as $email)
+                    {{ $email->code }}
+                @endforeach
+                </span>  
+            </a>
+            <!-- <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                aria-labelledby="userDropdown">
+                @foreach ($emails as $data)
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item">
+                        <a class="dropdown-item" href="{{ route('social',['code' => $data->code ]) }}">
+                            <i class="fas fa-envelope-open fa-sm fa-fw mr-2 text-gray-400"></i>
+                            {{ $data->externo }}
+                        </a>
+                    </button>
+               @endforeach
+            </div> -->
+        </li>
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle  pr-2" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">

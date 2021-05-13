@@ -146,7 +146,7 @@
 <script>
 import pdf from "vue-pdf";
 
-var loadingTask = pdf.createLoadingTask("./files/MINECO-DACE-3-2021.pdf");
+
 export default {
   components: {
     pdf,
