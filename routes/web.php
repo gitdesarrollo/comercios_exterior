@@ -153,6 +153,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('upload','Upload@uploadFilesByExist');
   // Route::post('upload','Upload@store');
   Route::post('uploadWord','Upload@storeWord');
+  Route::post('uploadExcel','Upload@storeExcel');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');
   
@@ -182,21 +183,21 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getPermisoUsuario','modulos@getPermisoUsuario');
   Route::post('setPermiso','modulos@setPermiso');
   Route::get('remitente','modulos@remitente');
-
+  
   Route::post('listByFilter','documentos@listByFilter');
   Route::get('listDocumentRemitente', 'documentos@listDocumentRemitente');
   Route::post('getFileWord','Upload@getFileWord');
   Route::put('deleteWord','Upload@deleteWord');
-
+  
   /***********Remitentes ********** */
-
+  
   Route::get('remitentes','modulos@getRemitente')->name('Remitente');
   Route::post('setSender','modulos@setSender');
   Route::get('getSender','modulos@getSender')->name('getSender');
   Route::put('deleteSender','modulos@deleteSender');
-
+  
   /***********VISUALIZADOR PDF***********/
-
+  
   Route::get('archivos','modulos@visualizador')->name('archivos');
   Route::get('listaArchivo','modulos@getListUpload');
   Route::get('listaVice','modulos@getViceministerio');
@@ -207,7 +208,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('downloadFolder','Upload@donwloadFolder');
   Route::get('notificaciones','documentos@getRecepcionMesssage');
 
-
+  
   /**********INBOX **********************/
   Route::get('bandeja','modulos@getInbox')->name('inbox');
 
@@ -216,13 +217,21 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('backup','Upload@backupFile');
   Route::get('backupList','Upload@getBackupFolder');
   
-
+  Route::get('social/{id}','modulos@social')->name('social');
+  Route::post('socialMessage','modulos@getMessageEmailTracking');
+  Route::get('inbox-chat','modulos@inboxChat')->name('inbox-chat');
+  Route::get('inbox-message','modulos@getMessageInbox');
+  Route::post('sendMessageChat','modulos@sendMessageChat');
+  Route::get('getDireccionesByUser','documentos@getDireccionesByUser');
+  
+  
   Route::get('/email', function() {
     return new sendTest();
   });
- 
-
-
-
-
+  
+  
+  
+  
+  
   /************************************************ */
+  

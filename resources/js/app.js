@@ -107,6 +107,8 @@ Vue.component('remitente', require('./components/modules/remitente/remitente.vue
 Vue.component('visualizador-pdf', require('./components/modules/visualizadorPdf/visualizador.vue').default);
 Vue.component('inbox-message', require('./components/modules/inbox/inbox.vue').default);
 Vue.component('respaldo-archivos', require('./components/modules/respaldo/respaldo.vue').default);
+Vue.component('social-chat', require('./components/modules/chat/social.vue').default);
+Vue.component('inbox-chat', require('./components/modules/chat/inbox.vue').default);
 // Vue.component('chat-test', require('./components/modules/chat/chat.vue').default);
 
 /**
