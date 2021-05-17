@@ -26,6 +26,11 @@
               <el-option v-for="(index,x) in Result.type" :key="x" :label="index.descripcion" :value="index.id"></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="Direcciones:">
+            <el-select v-model="form.direccion" placeholder="Direcciones" filterable>
+              <el-option v-for="(index,x) in this.Result.getDireccionesByUser" :key="x" :label="index.name" :value="index.code"></el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="Fecha:">
             <el-col :span="10">
               <el-date-picker
@@ -227,13 +232,15 @@ export default {
         comments: "getComentario",
         listByFilter: "listByFilter",
         remitente:"listDocumentRemitente",
-        tipos:"tipos"
+        tipos:"tipos",
+        getDireccionesByUser: "getDireccionesByUser"
       },
       Result: {
         List: [],
         comments: [],
         sender:[],
-        type:[]
+        type:[],
+        getDireccionesByUser: []
       },
       utility: {
         search: "",
@@ -255,11 +262,18 @@ export default {
         type: "",
         Idate: "",
         Fdate: "",
+        direccion:""
       },
     };
   },
 
   methods: {
+    getDireccionesByUser() {
+      axios.get(this.methods.getDireccionesByUser)
+        .then(response => {
+          this.Result.getDireccionesByUser = response.data;
+        })
+    },
     getList() {
       this.loading = true
       axios
@@ -284,7 +298,8 @@ export default {
           assigned: this.form.assigned,
           type: this.form.type,
           Idate: this.form.Idate,
-          Fdate: this.form.Fdate
+          Fdate: this.form.Fdate,
+          direccion: this.form.direccion
         })
         .then((response) => {
           this.Result.List = response.data;
@@ -344,6 +359,7 @@ export default {
       this.form.type = ""
       this.form.Idate = ""
       this.form.Fdate = ""
+      this.form.direccion = ""
       this.getList();
     },
     exportPdf(){
@@ -411,6 +427,7 @@ export default {
     this.getSender();
     this.getList();
     this.getTypes();
+    this.getDireccionesByUser();
   },
 
 };
