@@ -153,6 +153,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('upload','Upload@uploadFilesByExist');
   // Route::post('upload','Upload@store');
   Route::post('uploadWord','Upload@storeWord');
+  Route::post('uploadExcel','Upload@storeExcel');
   Route::post('Uploadfile','Upload@uploadfiles');
   Route::post('getNameFiles','Upload@getNameFiles');
   
@@ -221,6 +222,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('inbox-chat','modulos@inboxChat')->name('inbox-chat');
   Route::get('inbox-message','modulos@getMessageInbox');
   Route::post('sendMessageChat','modulos@sendMessageChat');
+  Route::get('getDireccionesByUser','documentos@getDireccionesByUser');
   
   
   Route::get('/email', function() {

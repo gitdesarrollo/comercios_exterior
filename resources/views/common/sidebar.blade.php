@@ -62,10 +62,10 @@
                                         <i class="nav-icon fas fa-angle-double-right"></i> Notificaciones</a>
                                 </li>       
 
-                                <li class="nav-item ml-3">
+                                <!-- <li class="nav-item ml-3">
                                     <a class="nav-link" href="{{ route('inbox-chat') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Mensajes</a>
-                                </li>       
+                                </li>        -->
                         @endif
                     @endforeach
                 </ul>

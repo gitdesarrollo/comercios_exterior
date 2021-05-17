@@ -115,33 +115,9 @@
 
 
         <div class="topbar-divider d-none d-sm-block"></div>
+        <!-- link para inbox de mensajes -->
         <!-- <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle  pr-2" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="far fa-comment-dots"></i> 
-                <span class="badge badge-pill badge-info mr-3">
-                @foreach ($cantidad as $mensajes)
-                    {{ $mensajes->code }}
-                @endforeach
-                </span>  
-            </a>
-            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="userDropdown">
-                @foreach ($documento as $documentos)
-                   
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item">
-                        <a class="dropdown-item" href="{{ route('inbox') }}">
-                            <i class="fas fa-envelope-open fa-sm fa-fw mr-2 text-gray-400"></i>
-                            {{ $documentos->formato }}
-                        </a>
-                    </button>
-                @endforeach
-            </div>
-        </li> -->
-        <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle  pr-2" href="{{ route('inbox-chat') }}" >
-                <!-- <span class="">Notificaciones </span> -->
                 <i class="fas fa-comment-dots "></i> 
                 <span class="badge badge-pill badge-danger mr-3">
                 @foreach ($mensajesCount as $email)
@@ -149,19 +125,7 @@
                 @endforeach
                 </span>  
             </a>
-            <!-- <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="userDropdown">
-                @foreach ($emails as $data)
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item">
-                        <a class="dropdown-item" href="{{ route('social',['code' => $data->code ]) }}">
-                            <i class="fas fa-envelope-open fa-sm fa-fw mr-2 text-gray-400"></i>
-                            {{ $data->externo }}
-                        </a>
-                    </button>
-               @endforeach
-            </div> -->
-        </li>
+        </li> -->
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle  pr-2" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">

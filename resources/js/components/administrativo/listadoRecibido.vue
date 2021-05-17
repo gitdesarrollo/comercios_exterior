@@ -495,11 +495,36 @@
                 ></el-link>
               </el-upload>
             </el-col>
+            <el-col :xs="4" :sm="4" :md="2" :lg="2" :xl="2">
+              <el-upload
+                class="upload-demo"
+                :action="'/uploadExcel'"
+                name="file[]"
+                :data="{
+                  id_documento: datacoment.idDocumento,
+                  correlativo: datacoment.correlativo,
+                  count: datacoment.numberFiles,
+                  type: datacoment.typeExcel,
+                }"
+                :headers="{ 'X-CSRF-TOKEN': csrf }"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :show-file-list="false"
+                :on-success="cargaSuccess"
+                :on-exceed="handleExceed"
+                :file-list="fileList"
+                accept=".xlsx,.xls"
+              >
+                <el-link :underline="false">
+                  <i class="excel fas fa-file-excel"></i
+                ></el-link>
+              </el-upload>
+            </el-col>
             <el-button
               v-if="controlButton.buttonWord"
               type="primary"
               @click="filesWord()"
-              >Archivos Word</el-button
+              >Archivos</el-button
             >
           </el-col>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
@@ -673,6 +698,7 @@ export default {
         idTraslado: "",
         correlativo: "",
         typePdf: "pdf",
+        typeExcel: "excel",
         typeWord: "word",
         numberFiles: 0,
       },
@@ -702,6 +728,7 @@ export default {
         inactiveTracingFile: "inactiveTracingFile",
         getFileWord: "getFileWord",
         deleteWord: "deleteWord",
+        getDireccionesByUser: "getDireccionesByUser"
       },
       list_response: {
         documentos: [],
@@ -710,6 +737,7 @@ export default {
         listcomentarios: [],
         listUrl: [],
         getFileWord: [],
+        getDireccionesByUser: []
       },
       total: 0,
       currentPage: 1,
@@ -805,6 +833,7 @@ export default {
     this.getLista();
     this.selectDireccion();
     this.getUserTransfer();
+    
   },
   methods: {
     celdas({ row, column, rowIndex, columnIndex }) {
@@ -818,6 +847,12 @@ export default {
           }
         }
       }
+    },
+    getDireccionesByUser() {
+      axios.get(this.url_list.getDireccionesByUser)
+        .then(response => {
+          this.list_response.getDireccionesByUser = response.data;
+        })
     },
     viewFile(valor) {
       console.log(valor);

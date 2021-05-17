@@ -217,6 +217,40 @@ class Upload extends Controller
             return response()->json($uploadId, 200);
     }
 
+    public function storeExcel(Request $request)
+    {
+
+            $random = Str::random(7);
+            $uploadId = array();
+            if ($files = $request->file('file')) {
+                foreach ($request->file('file') as $key => $file) {
+                    if(($file->getClientOriginalExtension() == 'xls') || ($file->getClientOriginalExtension() == 'xlsx')){
+                        $name = $request->correlativo . '-' . $random . '.'. $file->getClientOriginalExtension();
+                        $nameFile = $file->getClientOriginalName();
+                        $filename = $file->move('files', $name);
+                        $upload = new uploadFile;
+                        $upload->file = $name;
+                        $upload->evento_id = $request->id_documento;
+                        $upload->file_name = $request->correlativo . '-' . $random;
+                        $upload->formato = $request->type;
+                        $upload->save();
+                        $file = $upload->file;
+                        $format = $upload->formato;
+    
+                        array_push($uploadId, [
+                            [
+                                "file"      =>      $file,
+                                "format"    =>      $format
+                            ]
+                        ]);
+                    }else{
+                        return response()->json(false, 200);
+                    }
+                }
+            }
+            return response()->json($uploadId, 200);
+    }
+
 
     public function mergePDF($file1,$file2,$correlativo){
     // public function mergePDF($file1,$file2,$correlativo,$name){
@@ -343,7 +377,7 @@ class Upload extends Controller
        
         try {
             DB::beginTransaction();
-                $data = uploadFile::where(['evento_id' => $request->documento,'formato' => 'word'])->selectRaw('id,file as file, concat("./../files/",file) as url,created_at as fecha')->get();
+                $data = uploadFile::where(['evento_id' => $request->documento])->whereIn('formato',['word','excel','pdf'])->selectRaw('id,file as file, concat("./../files/",file) as url,created_at as fecha')->get();
             DB::commit();
             return response()->json($data,200);
         } catch (\Throwable $th) {
