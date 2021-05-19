@@ -8,7 +8,7 @@
 <body>
 <p>Estimado Usuario:  {{ $usuarioTo }}</p>
 <p>El documento de tipo {{ $typeDocument }} con número de correlativo interno {{ $internalCorrelative  }} y número de correlativo externo {{ $externalCorrelative }}</p>
-<p>ha sido aceptado por {{ $receivingUser }}</p>
+<p>ha sido archivado por {{ $receivingUser }}</p>
 
 
 <a href="http://documentos.mineco.gob.gt">https://documentos.mineco.gob.gt</a>
@@ -22,7 +22,7 @@
 
 
 <p>El documento de tipo {{ $typeDocument }} con número de correlativo interno {{ $internalCorrelative  }} y número de correlativo externo {{ $externalCorrelative }}</p>
-<p>ha sido aceptado por {{ $receivingUser }}</p>
+<p>ha sido archivado por {{ $receivingUser }}</p>
 
 
 <a href="http://documentos.mineco.gob.gt">https://documentos.mineco.gob.gt</a>

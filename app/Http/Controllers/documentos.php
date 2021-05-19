@@ -1280,7 +1280,8 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
 
-
+            $usuarioId = $this->getUserbyId();
+            $usuarioId = json_decode(json_encode($usuarioId));
             $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
 
             $traslados = new estado;
@@ -1299,11 +1300,14 @@ class documentos extends Controller
                 ->get();
 
 
+            $usuarioTo = User::where('id',$usuarioId->original)->select('name','email')->get();
             $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
             // send Mail
 //            $to_email = $usuarioTo[0]->email;
-            $to_email = "jjolon@mineco.gob.gt";
-            $to_usuario = 'Juan José Jolón';
+            // $to_email = "jjolon@mineco.gob.gt";
+            // $to_usuario = 'Juan José Jolón';
+            $to_usuario = $usuarioTo[0]->name;
+            $to_email = $usuarioTo[0]->email;
             $to_internalCorrelative = $document[0]->interno;
             $to_externalCorrelative = $document[0]->externo;
             $to_typeDocument = $document[0]->tipo;
@@ -1615,12 +1619,12 @@ class documentos extends Controller
         // try {
         //     DB::beginTransaction();
 
-            $usuario = $this->getUserbyId();
-            $usuario = json_decode(json_encode($usuario));
+            $usuarioId = $this->getUserbyId();
+            $usuarioId = json_decode(json_encode($usuarioId));
 
             $data = new comentarios;
 
-            $data->idUsuario = $usuario->original;
+            $data->idUsuario = $usuarioId->original;
             $data->iddocumento = $request->code;
             $data->idTraslado = $request->traslado;
             $data->comentario = $request->comentario;
@@ -1638,7 +1642,7 @@ class documentos extends Controller
             $traslados->estadoAnterior = $estadoData->estadoActual;
             $traslados->estadoActual = 7;
             $traslados->estatus = 7;
-            $traslados->UsuarioActual = $usuario->original;
+            $traslados->UsuarioActual = $usuarioId->original;
             $traslados->save();
 
             $document = documento::where('documentos.id',$request->code)
@@ -1648,10 +1652,13 @@ class documentos extends Controller
 
             $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
             $usuario = User::where('id',$idTraslado[0]->Usuario)->select('name')->get();
+            $usuarioTo = User::where('id',$usuarioId->original)->select('name','email')->get();
 
-            $to_email = "amorozco@mineco.gob.gt";
+            // $to_email = "amorozco@mineco.gob.gt";
             // $to_email = "jjolong@miumg.edu.gt";
-            $to_usuario = 'Alexandra Orozco';
+            // $to_usuario = 'Alexandra Orozco';
+            $to_usuario = $usuarioTo[0]->name;
+            $to_email = $usuarioTo[0]->email;
             $to_internalCorrelative = $document[0]->interno;
             $to_externalCorrelative = $document[0]->externo;
             $to_typeDocument = $document[0]->tipo;
@@ -1739,6 +1746,18 @@ class documentos extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(false,200);
+        }
+    }
+
+    public function checkNumber(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $flag = documento::where(['correlativo_documento' => $request->number])->exists();
+            DB::commit();
+            return response()->json($flag,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
         }
     }
 

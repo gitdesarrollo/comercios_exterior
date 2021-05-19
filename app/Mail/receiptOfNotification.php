@@ -48,7 +48,7 @@ class receiptOfNotification extends Mailable implements ShouldQueue
         $externalCorrelative = $this->externalCorrelative;
         $receivingUser = $this->receivingUser;
         $typeDocument = $this->typeDocument;
-        $subject_to = "Recepción de Documento";
+        $subject_to = "Documento Archivado";
 
         return $this->markdown('Mail.notificationMailer', compact($usuarioTo,$internalCorrelative,$externalCorrelative,$receivingUser,$typeDocument))->subject($subject_to);
         
