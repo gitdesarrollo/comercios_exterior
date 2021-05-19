@@ -30,7 +30,7 @@
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="8">
                             <el-form-item prop="expediente" label="No. Expediente:" >
-                                <el-input v-model="form.expediente" >
+                                <el-input v-model="form.expediente" @change="checkNumber">
                                     <!-- <template slot="prepend">
                                         <span class="requiredColor mr-1">*</span> No. Expediente:
                                     </template> -->
@@ -281,6 +281,7 @@ export default {
                 storeFile: "upload",
                 types: "tipos",
                 remitente: "remitente",
+                verificacionIngreso:"verificacion-ingreso"
             },
             handler_response: {
                 getUsuarios: [],
@@ -296,6 +297,20 @@ export default {
         this.getRemitente();
     },
     methods: {
+        checkNumber(){
+            axios.post(this.handler_url.verificacionIngreso,{number:this.form.expediente})
+            .then(response => {
+                console.log(response);
+                if(response.data){
+                    this.$swal({
+                    icon: "error",
+                    title: "Ya se encuentra un expediente con ese correlativo",
+                    showConfirmButton: false,
+                    timer: 2500,
+                    });
+                }
+            })
+        },
         getRemitente(){
             axios.get(this.handler_url.remitente)
                 .then(response => {
