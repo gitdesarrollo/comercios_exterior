@@ -223,6 +223,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('inbox-message','modulos@getMessageInbox');
   Route::post('sendMessageChat','modulos@sendMessageChat');
   Route::get('getDireccionesByUser','documentos@getDireccionesByUser');
+  Route::post('verificacion-ingreso','documentos@checkNumber');
   
   
   Route::get('/email', function() {
