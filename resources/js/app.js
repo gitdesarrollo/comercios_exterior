@@ -109,7 +109,7 @@ Vue.component('inbox-message', require('./components/modules/inbox/inbox.vue').d
 Vue.component('respaldo-archivos', require('./components/modules/respaldo/respaldo.vue').default);
 Vue.component('social-chat', require('./components/modules/chat/social.vue').default);
 Vue.component('inbox-chat', require('./components/modules/chat/inbox.vue').default);
-// Vue.component('chat-test', require('./components/modules/chat/chat.vue').default);
+Vue.component('con-copias', require('./components/modules/copias/copias.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

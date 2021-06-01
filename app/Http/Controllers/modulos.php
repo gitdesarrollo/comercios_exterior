@@ -105,6 +105,19 @@ class modulos extends Controller
         
     }
 
+    public function showCopias(){
+        $permiso = $this->getPermissionById(1);
+        if($permiso->original[0]['admin']){
+            return view('modules.copias');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.copias');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+
     public function inboxChat(){
         $permiso = $this->getPermissionById(1);
         if($permiso->original[0]['admin']){
@@ -210,6 +223,8 @@ class modulos extends Controller
 
     public function tracingsFiles(Request $request){
 
+   
+
         try {
             DB::beginTransaction();
 
@@ -218,9 +233,10 @@ class modulos extends Controller
             $usuario = json_decode(json_encode($usuario));
             $date = date("Y/m/d");
 
+            
             $documento = documento::where(['id' => $request->documento])->update(['tracing' => '1']);
             if($request->tracing > 0){
-                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4,'fechafinal' => $request->fechaF]);
+                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4,'fechafinal' => $request->fechaF, 'instruccion' => $request->instruccion]);
             }else{
     
                 $tracing = new tracing;
@@ -231,11 +247,13 @@ class modulos extends Controller
                 $tracing->fechafinal = $request->fechaF;
                 // $tracing->fechafinal = $date;
                 $tracing->estado = 4;
+                $tracing->instruccion =  $request->instruccion;
+                // $tracing->instruccion = "1223";
                 $tracing->save();
+                DB::commit();
+                return response()->json($tracing,200);
             }
-            DB::commit();
 
-            return response()->json($tracing,200);
 
         } catch (\Throwable $th) {
             DB::rollBack();

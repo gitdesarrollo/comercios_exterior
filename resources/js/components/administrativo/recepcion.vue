@@ -5,7 +5,7 @@
             <div class="card-body">
                 <el-form ref="form" :model="form" :rules="rules">
                     <el-row :gutter="10" >
-                        <el-col :xs="24" :sm="24" :md="12" :lg="24" :xl="12">
+                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
                             <el-form-item label="Remitente:" prop="interesado">
                                 <!-- <el-input v-model="form.interesado">
                                     <template slot="prepend">
@@ -18,6 +18,7 @@
                                             clearable
                                             filterable
                                             placeholder="Seleccione Remitente"
+                                            popper-class="item_data"
                                         >
                                             <el-option
                                                 v-for="items in handler_response.getRemitente"
@@ -56,6 +57,7 @@
                                     clearable
                                     filterable
                                     placeholder="Seleccione usuario"
+                                    popper-class="item_data"
                                 >
                                     <el-option
                                         v-for="items in handler_response.getTypesList"
@@ -100,7 +102,7 @@
                         </el-col>
                     </el-row>
                     <el-row :gutter="10" class="mt-2">
-                        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+                        <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
                             <el-form-item prop="persona" label="Destinatario:">
                                 <el-select
                                     v-model="form.persona"
@@ -108,6 +110,27 @@
                                     clearable
                                     filterable
                                     placeholder="Seleccione usuario"
+                                    popper-class="item_data"
+                                >
+                                    <el-option
+                                        v-for="items in handler_response.getUsuarios"
+                                        :key="items.id"
+                                        :label="items.name"
+                                        :value="items.id"
+                                    ></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
+                            <el-form-item  label="Cc:">
+                                <el-select
+                                    v-model="form.cc"
+                                    class="select_width"
+                                    clearable
+                                    filterable
+                                    placeholder="Seleccione usuario"
+                                    popper-class="item_data"
+                                    multiple
                                 >
                                     <el-option
                                         v-for="items in handler_response.getUsuarios"
@@ -195,6 +218,10 @@
 .requiredColor {
     color: red;
 }
+
+.item_data{
+    width: 30%;
+}
 </style>
 
 <script>
@@ -225,6 +252,7 @@ export default {
                 tipo:"",
                 fecha:"",
                 recepcion:"",
+                cc:[]
             },
             rules: {
                 interesado: [
@@ -397,7 +425,8 @@ export default {
                         folio: this.form.folios,
                         type: this.form.tipo,
                         fechaDocumento: this.form.fecha,
-                        fechaRecepcion: this.form.recepcion
+                        fechaRecepcion: this.form.recepcion,
+                        copy: this.form.cc
                     }).then(response => {
                         console.log(response.data);
                         const status = JSON.parse(response.status);
