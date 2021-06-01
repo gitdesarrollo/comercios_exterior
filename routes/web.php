@@ -224,11 +224,14 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('sendMessageChat','modulos@sendMessageChat');
   Route::get('getDireccionesByUser','documentos@getDireccionesByUser');
   Route::post('verificacion-ingreso','documentos@checkNumber');
+  Route::get('copias','modulos@showCopias')->name('copias');
+  Route::get('getWithCopies','documentos@getWithCopies');
+  Route::post('getComentarioCopies','documentos@getComentarioCopies');
+  Route::post('getPdfFiles','documentos@getPdfFiles');
   
-  
-  Route::get('/email', function() {
-    return new sendTest();
-  });
+  // Route::get('/email', function() {
+  //   return new sendTest();
+  // });
   
   
   

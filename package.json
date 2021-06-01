@@ -24,6 +24,7 @@
         "dom-to-image": "^2.6.0",
         "el-table-export": "^1.0.8",
         "element-ui": "^2.15.1",
+        "file-saver": "2.0.1",
         "flag-icon-css": "^3.5.0",
         "font-awesome": "4.7.0",
         "html2canvas": "^1.0.0-rc.7",
@@ -31,6 +32,7 @@
         "jquery": "3.4.0",
         "jspdf": "^1.5.3",
         "jspdf-autotable": "^3.5.14",
+        "jszip": "3.2.1",
         "materialize-css": "^1.0.0-rc.2",
         "pace": "0.0.4",
         "pace-progress": "1.0.2",
@@ -39,12 +41,11 @@
         "simple-vue-timeline": "^2.0.8",
         "tiptap": "^1.32.1",
         "vue-barcode-scanner": "^0.8.1",
+        "vue-loading-spinner": "^1.0.11",
         "vue-pdf": "^4.2.0",
         "vue-sweetalert2": "^4.3.1",
         "vue2-datatable-component": "^2.3.1",
-        "xlsx": "^0.15.6",
-        "file-saver": "2.0.1",
-        "jszip": "3.2.1"
+        "xlsx": "^0.15.6"
     },
     "devDependencies": {
         "@babel/cli": "^7.13.10",

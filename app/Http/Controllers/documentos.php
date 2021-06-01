@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\receiptOfNotification;
+use App\Mail\copiesUser;
 use Illuminate\Http\Request;
 use App\Model\receptor;
 use App\Model\sequences;
@@ -24,6 +25,7 @@ use App\Model\uploadFile;
 use App\Model\setting;
 use App\Model\tracing;
 use App\Model\vice_has_dep;
+use App\Model\withCopy;
 
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
@@ -970,6 +972,35 @@ class documentos extends Controller
                     $estado->UsuarioActual = $request->idUsuario;
                     $estado->save();
 
+                    $id_copia = [];
+                    foreach($request->copy as $item){
+                        $copy = new withCopy;
+                        $copy->document_id = $request->Documento;
+                        $copy->user_id = $item;
+                        $copy->save();
+                        
+                        array_push($id_copia,[
+                            "code"  => $copy->id
+                        ]);
+
+
+                    }
+
+                    $email_copy_info = [];
+                    foreach($id_copia as $row){
+                        $email_copy = withCopy::select('users.email as correo','users.name as user')
+                            ->join('documentos','with_copies.document_id','=','documentos.id')
+                            ->join('users','with_copies.user_id','=','users.id')
+                            ->where(['with_copies.document_id' => $request->Documento, 'with_copies.id' => $row['code']])
+                            ->get();
+                        array_push($email_copy_info,[
+                            "correo"    => $email_copy[0]->correo,
+                            "user"      => $email_copy[0]->user
+                        ]);
+                        
+                    }
+
+                    
                     $usuarioTo = User::where('id',$request->idUsuario)->select('name','email')->get();
 
                     $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion','correlativo_externo')->get();
@@ -997,6 +1028,17 @@ class documentos extends Controller
     
                             $message->from($to_email,'envio');
                         });
+                    }
+
+                    $instrucciones = tracing::select('instruccion','fechaFinal')->where(['idDocumento' => $request->Documento, 'estado' => 4])->get();
+                    
+                    foreach($email_copy_info as $correo){
+                        
+                        if($flag == "true"){
+                            Mail::to($correo['correo'])->send(new copiesUser($correo['user'],$to_empresa,$to_numero,$to_asunto,$subject,$externo,$email_copy_info,$instrucciones[0]->instruccion,$instrucciones[0]->fechaFinal), function ($message){
+                                $message->from($correo['correo'],'envio');
+                            });
+                        }
                     }
 
                     // DB::commit();
@@ -1124,6 +1166,25 @@ class documentos extends Controller
 
         // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
     }
+
+    public function getWithCopies(){
+        $idUsuario = $this->getUserbyId();
+        $idUsuario = json_decode(json_encode($idUsuario));
+
+        $query = DB::select("SELECT 
+                doc.id as code,
+                doc.interesado as empresa,
+                doc.correlativo_documento as correlativo,
+                doc.correlativo_externo as formato,
+                doc.descripcion as descripcion
+            FROM with_copies cop
+                INNER JOIN documentos doc
+                    ON cop.document_id = doc.id 
+            WHERE user_id = :id",['id' => $idUsuario->original]);
+
+            return response()->json($query,200);
+        }
+
     public function getRecepcion(){
 
 
@@ -1569,9 +1630,6 @@ class documentos extends Controller
             DB::beginTransaction();
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
-
-
-
             $data = comentarios::select('comentarios.id as code','users.name as usuario','comentarios.comentario as comentario','comentarios.created_at as fecha')
             ->join('users','comentarios.idUsuario','=','users.id')
             ->join('traslados','traslados.id','=','comentarios.idTraslado')
@@ -1583,6 +1641,43 @@ class documentos extends Controller
             DB::commit();
 
             return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function getComentarioCopies(Request $request){
+
+        // dd($request);
+        try {
+            DB::beginTransaction();
+            $usuario = $this->getUserbyId();
+            $usuario = json_decode(json_encode($usuario));
+            $data = comentarios::select('comentarios.id as code','users.name as usuario','comentarios.comentario as comentario','comentarios.created_at as fecha')
+            ->join('users','comentarios.idUsuario','=','users.id')
+            // ->join('traslados','traslados.id','=','comentarios.idTraslado')
+            ->where(['comentarios.iddocumento' => $request->documento ])
+            ->orderBy('comentarios.created_at','desc')
+            ->get();
+
+            DB::commit();
+
+            return response()->json($data,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function getPdfFiles(Request $request){
+        try {
+            DB::beginTransaction();
+            $files = uploadFile::select('file')->where(['evento_id' => $request->document, 'estatus' => 4])
+                    ->get();
+            DB::commit();
+
+            return response()->json($files,200);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(false,200);
