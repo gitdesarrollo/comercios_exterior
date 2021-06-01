@@ -39,6 +39,7 @@ class copiesUser extends Mailable implements ShouldQueue
         $this->instrucciones = $instrucciones;
         $this->fecha = $fecha;
         $this->file = 'MINECO-DACE-101-2021.pdf';
+        
 
         
         
