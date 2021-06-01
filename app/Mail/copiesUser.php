@@ -39,7 +39,7 @@ class copiesUser extends Mailable implements ShouldQueue
         $this->instrucciones = $instrucciones;
         $this->fecha = $fecha;
         $this->file = 'MINECO-DACE-101-2021.pdf';
-        
+
 
         
         
@@ -64,6 +64,7 @@ class copiesUser extends Mailable implements ShouldQueue
             ['copias' => $this->copias],
             'instrucciones' => $this->instrucciones,
             'fecha' => $this->fecha
-        ])->subject($subject_to)->attach(public_path('files\\'.$this->file));
+        ])->subject($subject_to);
+        // ])->subject($subject_to)->attach(public_path('files\\'.$this->file));
     }
 }
