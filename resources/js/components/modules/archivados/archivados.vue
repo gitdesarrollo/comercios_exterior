@@ -5,11 +5,20 @@
       header-bg-variant="primary"
       header-tag="header"
     >
-    <el-table :data="API.response.archivos"  stripe :header-cell-style="tableHeaderColor">
+    <el-table :data="API.response.archivos.filter(data => !search || data.remitente.toLowerCase().includes(search.toLowerCase())
+      || data.correlativo.toLowerCase().includes(search.toLowerCase())
+      || data.correlativo_interno.toLowerCase().includes(search.toLowerCase())
+      )"  stripe :header-cell-style="tableHeaderColor">
       <el-table-column label="Remitente" prop="remitente" header-align="center"></el-table-column>
       <el-table-column label="Correlativo" prop="correlativo" header-align="center"></el-table-column>
       <el-table-column label="Interno" prop="correlativo_interno" header-align="center"></el-table-column>
       <el-table-column label="Herramienta" header-align="center" width="120">
+        <template slot="header" slot-scope="scope">
+          <el-input
+            v-model="search"
+            size="mini"
+            placeholder="Buscar"/>
+        </template>
         <template slot-scope="scope">
           <div>
             <el-link type="primary" :underline="false" @click="toReturn(scope.row.correlativo_interno)"><i class="fas fa-redo"></i></el-link>
@@ -26,6 +35,7 @@
 export default {
   data(){
     return {
+      search: "",
       API: {
         router: {
           archivos: "getArchivos",
