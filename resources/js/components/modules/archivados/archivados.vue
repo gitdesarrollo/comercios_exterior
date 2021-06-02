@@ -12,7 +12,7 @@
       <el-table-column label="Remitente" prop="remitente" header-align="center"></el-table-column>
       <el-table-column label="Correlativo" prop="correlativo" header-align="center"></el-table-column>
       <el-table-column label="Interno" prop="correlativo_interno" header-align="center"></el-table-column>
-      <el-table-column label="Herramienta" header-align="center" width="120">
+      <el-table-column label="Herramienta" header-align="center" width="180">
         <template slot="header" slot-scope="scope">
           <el-input
             v-model="search"
