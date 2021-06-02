@@ -228,7 +228,9 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getWithCopies','documentos@getWithCopies');
   Route::post('getComentarioCopies','documentos@getComentarioCopies');
   Route::post('getPdfFiles','documentos@getPdfFiles');
-  
+  Route::get('archivados','modulos@showArchivos')->name('Archivados');
+  Route::get('getArchivos','modulos@getArchivos');
+  Route::post('toReturn','modulos@toReturn');
   // Route::get('/email', function() {
   //   return new sendTest();
   // });

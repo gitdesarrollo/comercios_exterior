@@ -26,6 +26,8 @@ import { SimpleTimelinePlugin } from 'simple-vue-timeline';
 import { Vue } from 'vue-property-decorator';
 import { BootstrapVue, IconsPlugin  } from 'bootstrap-vue'
 import VueSweetalert2 from 'vue-sweetalert2';
+// import Buefy from 'buefy'
+// import 'buefy/dist/buefy.css';
 
 
 
@@ -38,7 +40,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 
 
-
+// Vue.use(Buefy)
 Vue.use(ElementUI,{locale});
 Vue.use(VueSweetalert2);
 Vue.use(VueBarcodeScanner);
@@ -110,6 +112,7 @@ Vue.component('respaldo-archivos', require('./components/modules/respaldo/respal
 Vue.component('social-chat', require('./components/modules/chat/social.vue').default);
 Vue.component('inbox-chat', require('./components/modules/chat/inbox.vue').default);
 Vue.component('con-copias', require('./components/modules/copias/copias.vue').default);
+Vue.component('archivados-get', require('./components/modules/archivados/archivados.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
