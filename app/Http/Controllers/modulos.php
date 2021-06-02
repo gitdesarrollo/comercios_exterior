@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Model\traslados;
+use App\Model\estado;
 use App\Model\tracing;
 use App\Model\documento;
 use App\Model\mailTracking;
@@ -70,6 +71,20 @@ class modulos extends Controller
             return view('modules.remitente');
         }elseif($permiso->original[0]['permit']){
             return view('modules.remitente');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+
+
+    public function showArchivos(){
+        $permiso = $this->getPermissionById(9);
+        if($permiso->original[0]['admin']){
+            return view('modules.archivos');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.archivos');
         }else{
             // return view('admin.home');
             return header( "refresh:0.1;url=/" );
@@ -770,6 +785,47 @@ class modulos extends Controller
 
 
         return response()->json($emails,200);
+    }
+
+    public function getArchivos(){
+
+        $usuario = $this->getUserbyId();
+        $usuario = json_decode(json_encode($usuario));
+        
+        $data = DB::select("SELECT 
+                        d.interesado AS remitente,
+                        d.correlativo_documento AS correlativo,
+                        d.correlativo_externo AS correlativo_interno
+                        FROM documentos d
+                            INNER JOIN  traslados t
+                                ON d.id = t.idDocumento
+                            INNER JOIN estado e
+                                ON t.id = e.idTraslado
+                        WHERE d.id_status = 7 AND e.estatus = 7 and e.UsuarioActual = :user
+                    ",['user' => $usuario->original]);
+
+        return response()->json($data,200);
+    }
+
+    public function toReturn(Request $request){
+
+        try {
+            DB::beginTransaction();
+            $document_id = DB::select('SELECT d.id AS code, t.id AS tras FROM documentos d
+                INNER JOIN traslados t
+                    ON d.id = t.idDocumento
+                WHERE d.correlativo_externo = :code',['code' => $request->code]);
+            $update_document = documento::where(['id' => $document_id[0]->code])->update(['id_status' => 4]);
+            $update_traslado = traslados::where(['idDocumento' => $document_id[0]->code])->update(['estado' => 3]);
+    
+            $update_estado = estado::where(['idTraslado' => $document_id[0]->tras, 'estatus' => 7])->update(['estadoActual' => 3, 'estatus' => 4]);
+            DB::commit();
+
+            return response()->json(true,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
     }
 
 

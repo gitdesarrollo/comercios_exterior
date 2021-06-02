@@ -72,6 +72,11 @@
                                     <a class="nav-link" href="{{ route('inbox-chat') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Mensajes</a>
                                 </li>        -->
+                        @elseif($permisos->vista == 9)
+                                <li class="nav-item ml-3">
+                                    <a class="nav-link" href="{{ route('Archivados') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Archivados</a>
+                                </li>       
                         @endif
                     @endforeach
                 </ul>
