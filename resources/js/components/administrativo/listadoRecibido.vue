@@ -124,7 +124,7 @@
                 "
               ></el-button> -->
               <el-button
-                v-if="scope.row.rol == 4"
+                v-if="(scope.row.rol == 4 || scope.row.rol == 1)"
                 size="mini"
                 type="el-icon-error"
                 icon="el-icon-error"
