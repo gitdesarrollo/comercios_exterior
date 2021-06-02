@@ -10,6 +10,7 @@ use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\NotificationMail;
+use App\Mail\NotificationCopies;
 use App\Model\correlativos;
 use App\Model\nombreCorrelativo;
 use App\Model\setting;
@@ -17,6 +18,7 @@ use App\Model\user_has_view;
 use App\Model\userHasRoles;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Model\withCopy;
 
 class recepcionController extends Controller
 {
@@ -146,6 +148,8 @@ class recepcionController extends Controller
     public function storeRecepcion(Request $request){
 
 
+      
+
         // try {
         //     DB::beginTransaction();
             $usuario = $this->getUserbyId();
@@ -201,8 +205,20 @@ class recepcionController extends Controller
             $estado->save();
 
 
+            foreach($request->copy as $item){
+                $copy = new withCopy;
+                $copy->document_id = $id;
+                $copy->user_id = $item;
+                $copy->save();
+            }
 
+            $email_copy = withCopy::select('users.email as correo','users.name as user')
+                ->join('documentos','with_copies.document_id','=','documentos.id')
+                ->join('users','with_copies.user_id','=','users.id')
+                ->where(['with_copies.document_id' => $id])
+                ->get();
 
+            
             $to_name = $usuarioTo[0]->name;
             // $to_email = 'jjolong@miumg.edu.gt';
             $to_email = $usuarioTo[0]->email;
@@ -223,6 +239,18 @@ class recepcionController extends Controller
                     $message->from($to_email,'envio');
                 });
             }
+
+
+            
+            foreach($email_copy as $correo){
+                
+                if($flag == "true"){
+                    Mail::to($correo->correo)->send(new NotificationCopies($correo->user,$to_empresa,$to_numero,$to_asunto,$subject,$correlativo_interno), function ($message){
+                        $message->from($correo->correo,'envio');
+                    });
+                }
+            }
+
 
 
             // DB::commit();

@@ -379,6 +379,24 @@
               ></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="Copia:">
+              <el-select
+                  v-model="form.cc"
+                  class="select_width"
+                  clearable
+                  filterable
+                  placeholder="Seleccione usuario"
+                  popper-class="item_data"
+                  multiple
+              >
+                  <el-option
+                      v-for="items in list_response.list_user"
+                      :key="items.id"
+                      :label="items.name"
+                      :value="items.id"
+                  ></el-option>
+              </el-select>
+          </el-form-item>
           <el-form-item>
             <el-button
               type="primary"
@@ -528,12 +546,22 @@
             >
           </el-col>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+            <div v-show="handlerFile.showLoading">
+              <RotateSquare2></RotateSquare2>
+            </div>
+            <b-alert v-show="handlerFile.showError" show variant="danger">Sin documento Adjunto</b-alert>
+            <div class="reload-div pb-3" v-show="handlerFile.showPdf">
+              <el-link type="primary" :underline="false" @click="reload">
+                <i class="fas fa-sync reload"></i>
+              </el-link>
+            </div>
             <embed
               :src="url"
               type="application/pdf"
               width="100%"
               height="600"
               ref="viewPDf"
+              v-show="handlerFile.showPdf"
             />
             <!-- <div>{{ handlerDialog.preview.html }}</div> -->
           </el-col>
@@ -599,6 +627,12 @@
           @change="confirm()"
         >
         </el-date-picker>
+      <el-form :model="formInstrucciones"  :inline="false" size="normal" class="mt-3">
+        <el-form-item label="Instrucciones:">
+          <el-input v-model="formInstrucciones.instruccion"></el-input>
+        </el-form-item>
+      </el-form>
+      
       </div>
 
       <span slot="footer" class="dialog-footer">
@@ -656,10 +690,23 @@
 </style>
 <!--this.src = './../files/' + response.data[0].name + '.pdf';-->
 <script>
+import { RotateSquare2,RotateSquare5 } from "vue-loading-spinner";
 export default {
+  components: {
+      RotateSquare2,
+      RotateSquare5,
+      
+        
+  },
   props: { csrf: { type: String } },
   data() {
     return {
+      handlerFile:{
+        showPdf: false,
+        showLoading: true,
+        showError: false,
+        code: ""
+      },
       search: "",
       message: {
         title: "",
@@ -705,6 +752,9 @@ export default {
       ruleForm: {
         comentario: "",
       },
+      formInstrucciones: {
+        instruccion: ""
+      },
       documentWord: {
         url: "",
       },
@@ -728,7 +778,8 @@ export default {
         inactiveTracingFile: "inactiveTracingFile",
         getFileWord: "getFileWord",
         deleteWord: "deleteWord",
-        getDireccionesByUser: "getDireccionesByUser"
+        getDireccionesByUser: "getDireccionesByUser",
+        getPdfFiles: "getPdfFiles"
       },
       list_response: {
         documentos: [],
@@ -753,6 +804,7 @@ export default {
       form: {
         departamentoId: "",
         usuario: "",
+        cc: []
       },
       formExterno: {
         lugar: "",
@@ -848,6 +900,12 @@ export default {
         }
       }
     },
+        reload(){
+      this.handlerFile.showLoading = true
+      this.handlerFile.showPdf = false
+      this.getFileCopies(this.handlerFile.code);
+    },
+
     getDireccionesByUser() {
       axios.get(this.url_list.getDireccionesByUser)
         .then(response => {
@@ -912,6 +970,7 @@ export default {
           documento: this.message.dialog.fecha.file,
           tracing: this.message.dialog.fecha.tracing,
           fechaF: this.message.dialog.fecha.vModelSeguimiento,
+          instruccion: this.formInstrucciones.instruccion
         })
         .then((response) => {
           this.closeDate();
@@ -1156,6 +1215,7 @@ export default {
               idUsuario: this.form.usuario,
               externo: false,
               tracing: this.idTracing,
+              copy: this.form.cc
             })
             .then((response) => {
               this.trasladoUsuario = false;
@@ -1237,8 +1297,28 @@ export default {
       this.datacoment.correlativo = correlativo;
       this.url = url;
       this.handlerDialog.inner.codeSearch = code;
+      this.handlerFile.showLoading = false
+      this.handlerFile.showPdf = true
+      this.handlerFile.code = code
       // this.viewFile("primero");
       // this.getNameFiles(code);
+    },
+
+       getFileCopies(code){
+      
+      axios.post(this.url_list.getPdfFiles,{document: code})
+        .then(response => {
+          console.log("file",response.data)
+          if(response.data.length > 0){
+            this.url = './../files/' + response.data[0].file
+            this.handlerFile.showPdf = true
+            this.handlerFile.showLoading = false
+          }else{
+            this.handlerFile.showPdf = false
+            this.handlerFile.showLoading = false
+            this.handlerFile.showError = true
+          }
+        })
     },
     closeEvent() {
       this.controlButton.buttonWord = false;
@@ -1247,6 +1327,9 @@ export default {
       this.documentWord.url = "";
       this.ruleForm.comentario = "";
       this.url = "";
+      this.handlerFile.showPdf = false
+      this.handlerFile.showLoading = true
+      this.handlerFile.showError = false
     },
     openEvent() {
       axios
