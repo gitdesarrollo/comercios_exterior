@@ -15,6 +15,7 @@ class AddColumnTracings extends Migration
     {
         Schema::table('tracings', function (Blueprint $table) {
             $table->String('instruccion')->after('estado');
+            $table->String('instruccion_ministro')->after('instruccion');
 
         });
     }
@@ -28,6 +29,7 @@ class AddColumnTracings extends Migration
     {
         Schema::table('tracings', function (Blueprint $table) {
             $table->dropColumn('instruccion');
+            $table->dropColumn('instruccion_ministro');
         });
     }
 }

@@ -34,151 +34,45 @@
         </div>
       </div>
     </div>
-    <el-row :gutter="10" class="mt-2">
-      <!-- <el-drawer
-        title="Documento"
-        :visible.sync="drawer"
-        :with-header="false"
-        :modal="false"
-      > -->
-        <!-- <div class="block">
-          <el-timeline>
-            <el-timeline-item
-              v-for="(item, index) in list_response.listado_bitacora"
-              :key="index"
-              :icon="activity.icon"
-              :type="activity.type"
-              :color="activity.color"
-              :size="activity.size"
-              :timestamp="item.fecha"
-            >
-              {{
-                    item.usuario +
-                    "  -  " +
-                    item.dependencia +
-                    "  " +
-                    item.fecha
-                  }}
-            </el-timeline-item>
-          </el-timeline>
-        </div> -->
-
-        <!-- <div class="block mt-5">
-          <el-timeline class="overflow-auto scroll">
-            <el-timeline-item
+    <div class="container">
+      <el-card shadow="always" :body-style="{ padding: '20px' }" v-if="traso">
+        <div class="block">
+          <el-timeline :reverse="reverse">
+            <el-timeline-item  
               v-for="item in list_response.listado_bitacora"
               :key="item.id"
+              :title="item.estado"
               :color="item.color"
+              icon="el-icon-more"
               :size="item.size"
-              :timestamp="item.fecha"
-              placement="top"
-            >
-              <el-card>
-                <h4>
-                  {{
-                    item.usuario +
-                    "  -  " +
-                    item.dependencia +
-                    "  " +
-                    item.fecha
-                  }}
-                </h4>
-                <p>Estado: {{ item.estado }}</p>
+              :timestamp="item.fecha" placement="top">
+              <el-card >
+                <h4>{{ item.usuario  }}</h4>
+                <p>{{ item.dependencia  }} - <b>{{ item.estado }}</b></p>
               </el-card>
             </el-timeline-item>
-          </el-timeline> -->
-          <!-- <simple-timeline :items="list_response.listado_bitacora" dateFormat="YY/MM/DD" ></simple-timeline> -->
-        <!-- </div>
-      </el-drawer> -->
+          </el-timeline>
+        </div>
+      </el-card>
+      <div v-if="presente == 0">
+        <el-alert
+          title="No se encontro Expediente"
+          type="error"
+          effect="dark"
+        ></el-alert>
+      </div>
 
-      <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24">
-        <el-steps :active="numeroActivo"  align-center v-if="traso">
-          <el-step
-            v-for="item in list_response.listado_bitacora"
-            :key="item.id"
-            :title="item.estado"
-            :description='item.usuario +"  -  "+item.dependencia + "  " + item.fecha'
-          ></el-step>
-        </el-steps>
-      </el-col>
-    </el-row>
-    <div v-if="presente == 0">
-      <el-alert
-        title="No se encontro Expediente"
-        type="error"
-        effect="dark"
-      ></el-alert>
     </div>
-    <!-- <div v-show="showCard" v-loading="loading" element-loading-text="Loading..."  element-loading-spinner="el-icon-loading"  element-loading-background="rgba(0, 0, 0, 0.8)" >
-            <el-row>
-                <el-col :span="24" >
-                    <el-card :body-style="{ padding: '0px' }">
-                    
-                    <div style="padding: 14px;">
-                        <span class="font-weight-bold text-uppercase">Información del Bien</span>
-                        <div class="bottom clearfix">
-                            <div v-for="(items, i) in listProduct" :key="i">
-                                <el-row :gutter="10" class="mt-3">
-                                    <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="5" class="text-right">
-                                        <span class="font-weight-bold">Código Sicoin:</span>
-                                    </el-col>
-                                    <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="7">
-                                            {{ items.codigo_sicoin}}
-                                    </el-col>
-                                    <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="5" class="text-right">
-                                        <span class="font-weight-bold">Sistema:</span>
-                                    </el-col>
-                                    <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="7">
-                                            {{ items.cantidad}} Unidad
-                                    </el-col>
-                                </el-row>
-
-                                <el-row :gutter="10" class="mt-2">
-                                    <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="12">
-                                        <span class="font-weight-bold">Bien:</span>
-                                    </el-col>
-                                </el-row>
-                                <el-row :gutter="10" class="mt-2 mb-4">
-                                    <el-col :xs="25" :sm="6" :md="8" :lg="20" :xl="24" class="text-justify font-weight-light">
-                                            {{ items.descripcion}}
-                                    </el-col>
-                                </el-row>
-
-                                <el-form   ref="formInventory" :model="formInventory" :rules="rulesinv" label-width="120px"> 
-                                    <el-form-item label="Físico:" prop="fisico">
-                                        <el-input class="font_custom_input" v-model="formInventory.fisico" ref="form_fisico" ></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="Lugar:" prop="lugar">
-                                        <el-input class="font_custom_input" v-model="formInventory.lugar"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="Empleado:" prop="empleado">
-                                        <el-input class="font_custom_input" v-model="formInventory.empleado"></el-input>
-                                    </el-form-item>
-                                    <el-row :gutter="10" v-show="visible">
-                                        <el-col :span="24">
-                                            <el-table :data="dataSatProvider" style="width: 100%">
-                                                <el-table-column label="Nit" prop="nit"></el-table-column>
-                                                <el-table-column label="Nombre" prop="name"></el-table-column>
-                                                <el-table-column label="Dirección" prop="business_address"></el-table-column>
-                                            </el-table>
-                                        </el-col>
-                                    </el-row>
-                                    <el-form-item>
-                                        <el-button type="primary" @click.prevent="updateInventory('formInventory')">Guardar</el-button>
-                                        <el-button @click="reset">Cancel</el-button>
-                                    </el-form-item>
-                                </el-form>
-                            </div>
-                        </div>
-                    </div>
-                    </el-card>
-                </el-col>
-            </el-row>
-    </div>-->
   </div>
 </template>
 
 <style>
+
+  .box-card {
+    width: 480px;
+  }
+
+
 .scroll {
   height: 800px;
 }
@@ -383,9 +277,12 @@
 
 <script>
 import { Control, Item, Status } from "simple-vue-timeline";
+
 export default {
+  
   data() {
     return {
+     reverse: true,
       drawer: false,
       url: {
         listado: "bitacoraDocumento",
@@ -421,6 +318,7 @@ export default {
               id: this.form.correlativo,
             })
             .then((response) => {
+            
               // this.list_response.listado_bitacora = response.data;
 
               for (let index = 0; index < response.data.length; index++) {
