@@ -14,7 +14,7 @@
                 data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
                 data.formato.toLowerCase().includes(search.toLowerCase())
             )
-            .slice((currentPage - 1) * pagesize, currentPage * pagesize)
+            
         "
         :header-cell-style="tableHeaderColor"
         :cell-class-name="celdas"
@@ -35,6 +35,11 @@
           label="Asunto"
           width="500"
           prop="descripcion"
+        ></el-table-column>
+        <el-table-column
+          label="Fecha"
+          width="90"
+          prop="fecha"
         ></el-table-column>
         <el-table-column
           prop="estado"
@@ -80,20 +85,28 @@
               ></el-button>
             </div>
             <div v-else>
-              <el-button
-                type="danger"
-                size="mini"
-                icon="el-icon-s-comment"
-                plain
-                @click="
-                  preview(
-                    scope.row.code,
-                    scope.row.idTraslado,
-                    scope.row.formato,
-                    scope.row.url
-                  )
-                "
-              ></el-button>
+              <el-popover
+                placement="top-start"
+                title="Comentario"
+                width="200"
+                trigger="hover"
+                content="Visualiza el documento y agrega comentarios">
+                <el-button
+                  slot="reference"
+                  type="danger"
+                  size="mini"
+                  icon="el-icon-s-comment"
+                  plain
+                  @click="
+                    preview(
+                      scope.row.code,
+                      scope.row.idTraslado,
+                      scope.row.formato,
+                      scope.row.url
+                    )
+                  "
+                ></el-button>
+              </el-popover>
               <!-- <el-button
                               type="primary"
                               size="mini"
@@ -101,19 +114,27 @@
                               plain
                               @click="getTraslado(scope.row.code)"
                             ></el-button>-->
-              <el-button
-                size="mini"
-                type="primary"
-                icon="el-icon-s-check"
-                plain
-                @click="
-                  getTrasladoInterno(
-                    scope.row.code,
-                    scope.row.idTraslado,
-                    scope.row.idTracing
-                  )
-                "
-              ></el-button>
+              <el-popover
+                placement="bottom-start"
+                title="Traslado"
+                width="250"
+                trigger="hover"
+                content="Traslado a personal interno">
+                <el-button
+                  slot="reference"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-s-check"
+                  plain
+                  @click="
+                    getTrasladoInterno(
+                      scope.row.code,
+                      scope.row.idTraslado,
+                      scope.row.idTracing
+                    )
+                  "
+                ></el-button>
+              </el-popover>
               <!-- <el-button
                 size="mini"
                 type="warning"
@@ -123,20 +144,28 @@
                   getTrasladoExterno(scope.row.code, scope.row.idTraslado)
                 "
               ></el-button> -->
-              <el-button
-                v-if="(scope.row.rol == 4 || scope.row.rol == 1)"
-                size="mini"
-                type="el-icon-error"
-                icon="el-icon-error"
-                plain
-                @click="
-                  cierreDocumento(
-                    scope.row.code,
-                    scope.row.idTraslado,
-                    scope.row.formato
-                  )
-                "
-              ></el-button>
+              <el-popover
+                placement="bottom-start"
+                title="Cierre"
+                width="250"
+                trigger="hover"
+                content="Cierre del Documento">
+                <el-button
+                  slot="reference"
+                  v-if="(scope.row.rol == 4 || scope.row.rol == 1)"
+                  size="mini"
+                  type="el-icon-error"
+                  icon="el-icon-error"
+                  plain
+                  @click="
+                    cierreDocumento(
+                      scope.row.code,
+                      scope.row.idTraslado,
+                      scope.row.formato
+                    )
+                  "
+                ></el-button>
+              </el-popover>
               <el-switch
                 v-if="scope.row.flag === 'true' && scope.row.tracing === '1'"
                 v-model="scope.row.tracing"
@@ -154,9 +183,7 @@
               >
               </el-switch>
               <el-switch
-                v-else-if="
-                  scope.row.flag === 'false' && scope.row.tracing === '1'
-                "
+                v-else-if="scope.row.flag === 'false' && scope.row.tracing === '1'"
                 v-model="scope.row.tracing"
                 active-value="1"
                 inactive-value="0"
@@ -188,18 +215,72 @@
                 "
               >
               </el-switch>
+                                <!-- v-if="(scope.row.rol == 4 || scope.row.rol == 1)" -->
+              <el-popover
+                placement="bottom-start"
+                title="Boleta"
+                width="250"
+                trigger="hover"
+                content="Impresión de Boleta">
+                <el-button
+                  slot="reference"
+                  v-if="scope.row.flag === 'true' && scope.row.tracing === '1'"
+                  size="mini"
+                  type="warning"
+                  icon="el-icon-c-scale-to-original"
+                  plain
+                  @click="
+                    boleta(
+                      scope.row.formato,
+                      scope.row.correlativo,
+                      scope.row.fecha,
+                      scope.row.empresa,
+                      scope.row.descripcion,
+                      scope.row.code
+                    )
+                  "
+                ></el-button>
+              </el-popover>
+              <el-popover
+                placement="bottom-start"
+                title="Boleta"
+                width="250"
+                trigger="hover"
+                content="Impresión de Boleta">
+                <el-button
+                  slot="reference"
+                  v-if="scope.row.flag === 'false' && scope.row.tracing === '1'"
+                  size="mini"
+                  type="warning"
+                  icon="el-icon-c-scale-to-original"
+                  plain
+                  @click="
+                    boleta(
+                      scope.row.formato,
+                      scope.row.correlativo,
+                      scope.row.fecha,
+                      scope.row.empresa,
+                      scope.row.descripcion,
+                      scope.row.code
+                    )
+                  "
+                ></el-button>
+              </el-popover>
+
+              
+
             </div>
           </template>
         </el-table-column>
       </el-table>
-      <div style="text-align: left; margin-top: 30px">
+      <!-- <div style="text-align: left; margin-top: 30px">
         <el-pagination
           background
           layout="total,prev, pager, next"
           :total="total"
           @current-change="current_change"
         ></el-pagination>
-      </div>
+      </div> -->
       <el-dialog
         title="Trasladar Documento"
         :visible.sync="dialogo"
@@ -253,7 +334,8 @@
         :close-on-press-escape="false"
         :show-close="false"
         destroy-on-close
-      >
+        @close="formCloseDialog()"
+        >
         <el-form
           :inline="false"
           :model="formClose"
@@ -318,6 +400,94 @@
         </el-form>
       </el-dialog>
       <el-dialog
+        :title="handlerDialog.boleta.title"
+        :visible.sync="handlerDialog.boleta.visible"
+        :width="handlerDialog.boleta.width"
+        :top="handlerDialog.boleta.top"
+        :close-on-click-modal="true"
+        :close-on-press-escape="false"
+        :show-close="false"
+        destroy-on-close
+        >
+        
+          <div class="constancia" id="printTable">
+            <table >
+              <tbody>
+                <tr>
+                  <td>
+                    <img :src="handlerDialog.boleta.img" class="constancia-img" height="120px" width="5%">
+                  </td>
+                  <td colspan="3" class="titulo_1">
+                    DELEGACIÓN DE CORRESPONDENCIA DESPACHO SUPERIOR
+                  </td>
+                </tr>
+                <tr>
+                  <td class="titulo">No. Documento:</td>
+                  <td >{{ handlerDialog.boleta.correlativo }}</td>
+                  <td class="titulo">Correlativo Mineco:</td>
+                  <td>{{ handlerDialog.boleta.formato }}</td>
+                </tr>
+                <tr>
+                  <td class="titulo">Fecha de Recepción:</td>
+                  <td >{{ handlerDialog.boleta.fecha }}</td>
+                  <td class="titulo">Fecha de Impresión:</td>
+                  <td>{{ event_at }}</td>
+                </tr>
+                <tr>
+                  <td class="titulo">Delegado:</td>
+                  <td colspan="3">
+                    VICEMINISTERIO ADMINISTRATIVO Y FINANCIERO
+                  </td>
+                </tr>
+                <tr>
+                  <td class="titulo">Cc:</td>
+                  <td colspan="3">
+
+                  </td>
+                </tr>
+                <tr>
+                  <td class="titulo">Fecha de entrega a Despacho:</td>
+                  <td>{{ handlerDialog.boleta.fechafin }}</td>
+                  <td class="titulo">Fecha Limite Envío:</td>
+                  <td>{{ handlerDialog.boleta.fechafin }}</td>
+                </tr>
+                <tr>
+                  <td class="titulo">Remitente Organizacional:</td>
+                  <td>{{ handlerDialog.boleta.empresa }}</td>
+                  <td class="titulo">No. Oficio:</td>
+                  <td>{{ handlerDialog.boleta.correlativo }}</td>
+                </tr>
+                <tr>
+                  <td class="titulo">Tema:</td>
+                  <td colspan="3">
+                    {{ handlerDialog.boleta.descripcion }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="titulo">Instruccion Sr. Ministro:</td>
+                  <td colspan="3">
+                    {{ handlerDialog.boleta.instrucciones_ministro }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="titulo">Seguimiento:</td>
+                  <td colspan="3">
+                    {{ handlerDialog.boleta.instrucciones_generales }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+          </div>
+         
+            <el-row :gutter="20" class="mt-5">
+              <el-col :span="12" :offset="0">
+                <el-button type="warning" size="default" @click="imprimir" >Imprimir</el-button>
+                
+              </el-col>
+            </el-row>
+      </el-dialog>
+      <el-dialog
         title="Traslado Externo"
         :visible.sync="externo"
         width="35%"
@@ -361,6 +531,7 @@
         :close-on-press-escape="false"
         :show-close="false"
         destroy-on-close
+        @close="closeTrasladoInterno"
       >
         <el-form :inline="false" :model="form" ref="form" label-width="150px">
           <el-form-item label="Usuario:" prop="usuario">
@@ -631,6 +802,9 @@
         <el-form-item label="Instrucciones:">
           <el-input v-model="formInstrucciones.instruccion"></el-input>
         </el-form-item>
+        <el-form-item label="Instrucciones Ministro:">
+          <el-input v-model="formInstrucciones.ministro"></el-input>
+        </el-form-item>
       </el-form>
       
       </div>
@@ -691,6 +865,8 @@
 <!--this.src = './../files/' + response.data[0].name + '.pdf';-->
 <script>
 import { RotateSquare2,RotateSquare5 } from "vue-loading-spinner";
+import JQuery from 'jquery'
+import moment from "moment";
 export default {
   components: {
       RotateSquare2,
@@ -701,6 +877,8 @@ export default {
   props: { csrf: { type: String } },
   data() {
     return {
+      publicPath:  __dirname,
+      event_at: "",
       handlerFile:{
         showPdf: false,
         showLoading: true,
@@ -753,7 +931,8 @@ export default {
         comentario: "",
       },
       formInstrucciones: {
-        instruccion: ""
+        instruccion: "",
+        ministro: ""
       },
       documentWord: {
         url: "",
@@ -779,7 +958,9 @@ export default {
         getFileWord: "getFileWord",
         deleteWord: "deleteWord",
         getDireccionesByUser: "getDireccionesByUser",
-        getPdfFiles: "getPdfFiles"
+        getPdfFiles: "getPdfFiles",
+        getSeguimientoDocumento: "getSeguimientoDocumento",
+        makeBoleta: "makeBoleta"
       },
       list_response: {
         documentos: [],
@@ -872,6 +1053,25 @@ export default {
           top: "3vh",
           ver: false,
         },
+        boleta: {
+          // title: "Boleta de delegación",
+          visible: false,
+          width: "75%",
+          top: "3vh",
+          ver: false,
+          img: './imagenes/gobierno.jpg',
+          img2: '/imagenes/gobierno.jpg',
+          formato: "",
+          correlativo: "",
+          fecha: "",
+          empresa: "",
+          descripcion: "",
+          code:"",
+          instrucciones_generales: "",
+          instrucciones_ministro: "",
+          fechaInicio: "",
+          fechafin:""
+        },
       },
       src: "",
       url: "",
@@ -885,11 +1085,37 @@ export default {
     this.getLista();
     this.selectDireccion();
     this.getUserTransfer();
+    this.event_at = moment(new Date()).format('D/MM/YYYY');
+    
     
   },
   methods: {
+    imprimir() {
+
+      axios.post(this.url_list.makeBoleta,{
+        img: this.handlerDialog.boleta.img2,
+        correlativo: this.handlerDialog.boleta.correlativo,
+        mineco: this.handlerDialog.boleta.formato,
+        fecha: this.handlerDialog.boleta.fecha,
+        fechaFin: this.handlerDialog.boleta.fechafin,
+        descripcion: this.handlerDialog.boleta.descripcion,
+        empresa: this.handlerDialog.boleta.empresa,
+        ministro: this.handlerDialog.boleta.instrucciones_ministro,
+        general: this.handlerDialog.boleta.instrucciones_generales
+      },{responseType: 'blob'})
+      .then(response => {
+        var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+        console.log(fileURL);
+        var fileLink = document.createElement('a');
+        fileLink.href = fileURL;
+        fileLink.setAttribute('download', 'file.pdf');
+        document.body.appendChild(fileLink);
+        fileLink.click();
+      } )
+       
+    },
     celdas({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex === 5) {
+      if (columnIndex === 6) {
         console.log(row.tracing)
         if (row.tracing === "1") {
           if(row.dias > 0){
@@ -970,7 +1196,8 @@ export default {
           documento: this.message.dialog.fecha.file,
           tracing: this.message.dialog.fecha.tracing,
           fechaF: this.message.dialog.fecha.vModelSeguimiento,
-          instruccion: this.formInstrucciones.instruccion
+          instruccion: this.formInstrucciones.instruccion,
+          ministro: this.formInstrucciones.ministro
         })
         .then((response) => {
           this.closeDate();
@@ -1177,6 +1404,26 @@ export default {
       this.datacoment.correlativo = formato;
       this.getNameFiles(id);
     },
+    boleta(formato, correlativo, fecha, empresa, descripcion,code) {
+      this.handlerDialog.boleta.visible = true;
+      this.handlerDialog.boleta.formato = formato;
+      this.handlerDialog.boleta.correlativo = correlativo;
+      this.handlerDialog.boleta.fecha = fecha;
+      this.handlerDialog.boleta.empresa = empresa;
+      this.handlerDialog.boleta.descripcion = descripcion;
+      this.handlerDialog.boleta.code = code;
+
+      axios.post(this.url_list.getSeguimientoDocumento,{code:code})
+        .then(response => {
+          console.log( response.data)
+          this.handlerDialog.boleta.instrucciones_generales = response.data[0]['instruccion'];
+          this.handlerDialog.boleta.instrucciones_ministro = response.data[0]['instruccion_ministro'];
+          this.handlerDialog.boleta.fechaInicio = response.data[0]['fechaInicial'];
+          this.handlerDialog.boleta.fechafin = response.data[0]['fechaFinal'];
+        })
+      
+      
+    },
     current_change: function (currentPage) {
       this.currentPage = currentPage;
     },
@@ -1330,6 +1577,16 @@ export default {
       this.handlerFile.showPdf = false
       this.handlerFile.showLoading = true
       this.handlerFile.showError = false
+    },
+    formCloseDialog() {
+      this.formClose.comentarioCierre = ""
+      this.controlButton.buttonPdfClose = true
+      this.datacoment.idDocumento = ""
+      this.datacoment.correlativo = ""
+    },
+    closeTrasladoInterno() {
+      this.form.usuario = ""
+      this.form.cc = []
     },
     openEvent() {
       axios

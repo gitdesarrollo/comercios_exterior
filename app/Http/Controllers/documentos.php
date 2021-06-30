@@ -29,6 +29,7 @@ use App\Model\withCopy;
 
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
+use PDF;
 
 class documentos extends Controller
 {
@@ -1210,7 +1211,7 @@ class documentos extends Controller
             d.descripcion as descripcion,
             ed.id AS estado,
             us.NAME AS usuario,
-            d.created_at as fecha,
+            DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
             tras.id as idTraslado,
             rol.idRoles as rol,
             d.correlativo_externo as formato,
@@ -1286,6 +1287,149 @@ class documentos extends Controller
         // }
 
         // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
+    }
+
+    public function getSeguimientoDocumento(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $seguimiento = tracing::where(['idDocumento' => $request->code, 'estado' => 4])->select('instruccion','instruccion_ministro','fechaInicial','fechaFinal')->get();
+
+            DB::commit();
+
+            return response()->json($seguimiento,200);
+            
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'error' => $th,
+                'status'    => false
+            ],200);
+        }
+    }
+
+    public function makeBoleta(Request $request){
+        $path_img = public_path() . $request->img;
+        $fecha_actual = date("d") . "/" . date("m") . "/" . date("Y");
+        $html = '
+        <style>     
+            
+                       
+
+            .constancia{
+                width: 100% !important;
+                border: 1px solid #000;
+            }
+            
+            .constancia-img {
+                width: 100% !important;
+                vertical-align: top !important;
+            }
+
+            // .constancia > table{
+
+            //     height: 600px !important;
+            // }
+
+            .constancia > table td{
+                height: 30px;
+                width: 20% !important;
+                vertical-align: top !important;
+               
+            }
+
+            .titulo{
+                font-weight: bolder !important;
+                font-size:0.9rem !important;
+                text-align: right;
+                padding-right: 10px;
+            }
+
+            .titulo_1{
+                vertical-align: top !important;
+                font-size: 1.3rem;
+            }
+
+            .subTitulo{
+                font-size:0.9rem !important;
+            }
+
+        </style>
+        <div class="constancia" >
+        <table >
+          <tbody>
+            <tr>
+              <td>
+                <img src="'.$path_img.'"  height="90px" width="150px">
+              </td>
+              <td colspan="3" class="titulo_1">
+                DELEGACIÓN DE CORRESPONDENCIA DESPACHO SUPERIOR
+              </td>
+            </tr>
+            <tr>
+              <td class="titulo">No. Documento:</td>
+              <td class="subTitulo">'.$request->correlativo.'</td>
+              <td class="titulo">Correlativo Mineco:</td>
+              <td class="subTitulo">'.$request->mineco.'</td>
+            </tr>
+            <tr>
+              <td class="titulo">Fecha de Recepción:</td>
+              <td >'.$request->fecha.'</td>
+              <td class="titulo">Fecha de Impresión:</td>
+              <td>'.$fecha_actual.'</td>
+            </tr>
+            <tr>
+              <td class="titulo">Delegado:</td>
+              <td colspan="3">
+                VICEMINISTERIO ADMINISTRATIVO Y FINANCIERO
+              </td>
+            </tr>
+            <tr>
+              <td class="titulo">Cc:</td>
+              <td colspan="3">
+
+              </td>
+            </tr>
+            <tr>
+              <td class="titulo">Fecha de entrega a Despacho:</td>
+              <td>'.$request->fechaFin.'</td>
+              <td class="titulo">Fecha Limite Envío:</td>
+              <td>'.$request->fechaFin.'</td>
+            </tr>
+            <tr>
+              <td class="titulo">Remitente Organizacional:</td>
+              <td>'.$request->empresa.'</td>
+              <td class="titulo">No. Oficio:</td>
+              <td>'.$request->correlativo.'</td>
+            </tr>
+            <tr>
+              <td class="titulo">Tema:</td>
+              <td colspan="3">
+              '.$request->descripcion.'
+              </td>
+            </tr>
+            <tr>
+              <td class="titulo">Instruccion Sr. Ministro:</td>
+              <td colspan="3">
+              '.$request->ministro.'
+              </td>
+            </tr>
+            <tr>
+              <td class="titulo">Seguimiento:</td>
+              <td colspan="3">
+              '.$request->general.'
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </div>';
+
+
+        $pdf = PDF::loadHTML($html);
+        $pdf->setPaper('a4', 'postrait');
+        return $pdf->download('prueba.pdf');
+
     }
 
 
