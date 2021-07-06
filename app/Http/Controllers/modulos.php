@@ -245,18 +245,20 @@ class modulos extends Controller
 
    
 
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
 
 
             $usuario = $this->getUserbyId();
             $usuario = json_decode(json_encode($usuario));
             $date = date("Y/m/d");
 
-            
+  
             $documento = documento::where(['id' => $request->documento])->update(['tracing' => '1']);
             if($request->tracing > 0){
-                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4,'fechafinal' => $request->fechaF, 'instruccion' => $request->instruccion]);
+                $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4,'fechafinal' => $request->fechaF, 'instruccion' => $request->instruccion, 'instruccion_ministro' => $request->ministro,
+                'id_vice' => $request->viceministerio]);
+                return response()->json($tracingUpdate,200);
             }else{
     
                 $tracing = new tracing;
@@ -275,12 +277,13 @@ class modulos extends Controller
                 DB::commit();
                 return response()->json($tracing,200);
             }
+            
 
 
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(false,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json('error',200);
+        // }
     }
 
     public function inactiveTracingFile(Request $request){

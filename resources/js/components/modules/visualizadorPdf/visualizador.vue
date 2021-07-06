@@ -290,7 +290,7 @@ export default {
           multiple:true
         })
         .then((response) => {
-          console.log(response.data);
+          console.log("activo",response.data);
           this.Response.get.lista = response.data;
           this.showSkeletor(!true);
         });
