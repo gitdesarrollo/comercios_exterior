@@ -16,6 +16,9 @@ class AddColumnTracings extends Migration
         Schema::table('tracings', function (Blueprint $table) {
             $table->String('instruccion')->after('estado');
             $table->String('instruccion_ministro')->after('instruccion');
+            $table->String('id_vice')->after('instruccion_ministro');
+
+            $table->foreign('id_vice')->references('id')->on('viceministerios');
 
         });
     }
@@ -30,6 +33,7 @@ class AddColumnTracings extends Migration
         Schema::table('tracings', function (Blueprint $table) {
             $table->dropColumn('instruccion');
             $table->dropColumn('instruccion_ministro');
+            $table->dropColumn('id_vice');
         });
     }
 }

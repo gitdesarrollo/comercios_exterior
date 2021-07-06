@@ -1293,7 +1293,9 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
 
-            $seguimiento = tracing::where(['idDocumento' => $request->code, 'estado' => 4])->select('instruccion','instruccion_ministro','fechaInicial','fechaFinal')->get();
+            $seguimiento = tracing::where(['idDocumento' => $request->code, 'estado' => 4])
+            ->select('tracings.instruccion','tracings.instruccion_ministro','tracings.fechaInicial','tracings.fechaFinal','viceministerios.descripcion as viceministerio')
+            ->join('viceministerios','tracings.id_vice','=','viceministerios.id')->get();
 
             DB::commit();
 
@@ -1381,7 +1383,7 @@ class documentos extends Controller
             <tr>
               <td class="titulo">Delegado:</td>
               <td colspan="3">
-                VICEMINISTERIO ADMINISTRATIVO Y FINANCIERO
+                '.$request->viceministerio.'
               </td>
             </tr>
             <tr>
@@ -1409,7 +1411,7 @@ class documentos extends Controller
               </td>
             </tr>
             <tr>
-              <td class="titulo">Instruccion Sr. Ministro:</td>
+              <td class="titulo">Instruccion Ministro:</td>
               <td colspan="3">
               '.$request->ministro.'
               </td>
