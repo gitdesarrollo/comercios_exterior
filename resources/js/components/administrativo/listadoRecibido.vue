@@ -911,6 +911,9 @@ export default {
             file: "",
             tracing: "",
           },
+          ministro: "",
+          viceministerio: "",
+          instruccion: ""
         },
       },
       switchFalse: false,
@@ -1208,9 +1211,9 @@ export default {
     closeDate() {
       this.message.visible = false;
       this.message.dialog.fecha.vModelSeguimiento = "";
-      this.message.dialog.instruccion = "";
-      this.message.dialog.ministro = "";
-      this.message.dialog.viceministerio = "";
+      // this.message.dialog.instruccion = "";
+      // this.message.dialog.ministro = "";
+      // this.message.dialog.viceministerio = "";
       this.getLista();
     },
     setActiveMonitoring() {
@@ -1224,6 +1227,7 @@ export default {
           viceministerio: this.formInstrucciones.viceministerio
         })
         .then((response) => {
+          console.log("respuesta" , response)
           this.closeDate();
           // this.getLista();
         });
