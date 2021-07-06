@@ -234,6 +234,10 @@ Route::post('setRoles','catalogo@setRoles');
   // Route::get('/email', function() {
   //   return new sendTest();
   // });
+
+
+  Route::post('getSeguimientoDocumento','documentos@getSeguimientoDocumento');
+  Route::post('makeBoleta','documentos@makeBoleta');
   
   
   

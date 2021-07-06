@@ -26,6 +26,10 @@ import { SimpleTimelinePlugin } from 'simple-vue-timeline';
 import { Vue } from 'vue-property-decorator';
 import { BootstrapVue, IconsPlugin  } from 'bootstrap-vue'
 import VueSweetalert2 from 'vue-sweetalert2';
+import VueHtmlToPaper from 'vue-html-to-paper';
+import VueMoment from 'vue-moment'
+import 'timeline-vuejs/dist/timeline-vuejs.css'
+
 // import Buefy from 'buefy'
 // import 'buefy/dist/buefy.css';
 
@@ -37,7 +41,20 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-
+const options = {
+    name: '_blank',
+    specs: [
+      'fullscreen=no',
+      'titlebar=yes',
+      'scrollbars=yes'
+    ],
+    styles: [
+      './css/custom.css'
+    ],
+    timeout: 1000, // default timeout before the print window appears
+    autoClose: true, // if false, the window will not close after printing
+    windowTitle: window.document.title, // override the window title
+  }
 
 
 // Vue.use(Buefy)
@@ -48,6 +65,8 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use( CKEditor );
 Vue.use(SimpleTimelinePlugin);
+Vue.use(VueHtmlToPaper, options);
+Vue.use(VueMoment)
 
 
 // Vue.use(Datatable);

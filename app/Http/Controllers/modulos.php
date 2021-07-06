@@ -25,6 +25,11 @@ class modulos extends Controller
         ini_set('max_execution_time', 3500);
     }
     
+
+    public function formato(){
+        return view('modules.formatodelegado');
+    }
+
     public function ingresosShow(){
         $permiso = $this->getPermissionById(5);
         if($permiso->original[0]['admin']){
@@ -263,6 +268,7 @@ class modulos extends Controller
                 // $tracing->fechafinal = $date;
                 $tracing->estado = 4;
                 $tracing->instruccion =  $request->instruccion;
+                $tracing->instruccion_ministro =  $request->ministro;
                 // $tracing->instruccion = "1223";
                 $tracing->save();
                 DB::commit();
