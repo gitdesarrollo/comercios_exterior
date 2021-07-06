@@ -436,7 +436,7 @@
                 <tr>
                   <td class="titulo">Delegado:</td>
                   <td colspan="3">
-                    VICEMINISTERIO ADMINISTRATIVO Y FINANCIERO
+                    {{ handlerDialog.boleta.viceministerio }}
                   </td>
                 </tr>
                 <tr>
@@ -464,7 +464,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="titulo">Instruccion Sr. Ministro:</td>
+                  <td class="titulo">Instruccion Ministro:</td>
                   <td colspan="3">
                     {{ handlerDialog.boleta.instrucciones_ministro }}
                   </td>
@@ -805,6 +805,15 @@
         <el-form-item label="Instrucciones Ministro:">
           <el-input v-model="formInstrucciones.ministro"></el-input>
         </el-form-item>
+        <el-form-item label="Viceministerio:">
+          <el-select v-model="formInstrucciones.viceministerio" placeholder="Seleccione" clearable filterable class="select_width">
+            <el-option v-for="item in list_response.listaVice"
+              :key="item.id"
+              :label="item.descripcion"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       
       </div>
@@ -932,7 +941,8 @@ export default {
       },
       formInstrucciones: {
         instruccion: "",
-        ministro: ""
+        ministro: "",
+        viceministerio: ""
       },
       documentWord: {
         url: "",
@@ -960,7 +970,8 @@ export default {
         getDireccionesByUser: "getDireccionesByUser",
         getPdfFiles: "getPdfFiles",
         getSeguimientoDocumento: "getSeguimientoDocumento",
-        makeBoleta: "makeBoleta"
+        makeBoleta: "makeBoleta",
+        listaVice: "listaVice"
       },
       list_response: {
         documentos: [],
@@ -969,7 +980,8 @@ export default {
         listcomentarios: [],
         listUrl: [],
         getFileWord: [],
-        getDireccionesByUser: []
+        getDireccionesByUser: [],
+        listaVice: []
       },
       total: 0,
       currentPage: 1,
@@ -1070,7 +1082,8 @@ export default {
           instrucciones_generales: "",
           instrucciones_ministro: "",
           fechaInicio: "",
-          fechafin:""
+          fechafin:"",
+          viceministerio: ""
         },
       },
       src: "",
@@ -1086,12 +1099,18 @@ export default {
     this.selectDireccion();
     this.getUserTransfer();
     this.event_at = moment(new Date()).format('D/MM/YYYY');
+    this.getListaVice();
     
     
   },
   methods: {
+    getListaVice() {
+      axios.get(this.url_list.listaVice)
+        .then(response => {
+          this.list_response.listaVice = response.data
+        })
+    },
     imprimir() {
-
       axios.post(this.url_list.makeBoleta,{
         img: this.handlerDialog.boleta.img2,
         correlativo: this.handlerDialog.boleta.correlativo,
@@ -1101,7 +1120,8 @@ export default {
         descripcion: this.handlerDialog.boleta.descripcion,
         empresa: this.handlerDialog.boleta.empresa,
         ministro: this.handlerDialog.boleta.instrucciones_ministro,
-        general: this.handlerDialog.boleta.instrucciones_generales
+        general: this.handlerDialog.boleta.instrucciones_generales,
+        viceministerio: this.handlerDialog.boleta.viceministerio
       },{responseType: 'blob'})
       .then(response => {
         var fileURL = window.URL.createObjectURL(new Blob([response.data]));
@@ -1188,6 +1208,9 @@ export default {
     closeDate() {
       this.message.visible = false;
       this.message.dialog.fecha.vModelSeguimiento = "";
+      this.message.dialog.instruccion = "";
+      this.message.dialog.ministro = "";
+      this.message.dialog.viceministerio = "";
       this.getLista();
     },
     setActiveMonitoring() {
@@ -1197,7 +1220,8 @@ export default {
           tracing: this.message.dialog.fecha.tracing,
           fechaF: this.message.dialog.fecha.vModelSeguimiento,
           instruccion: this.formInstrucciones.instruccion,
-          ministro: this.formInstrucciones.ministro
+          ministro: this.formInstrucciones.ministro,
+          viceministerio: this.formInstrucciones.viceministerio
         })
         .then((response) => {
           this.closeDate();
@@ -1420,6 +1444,7 @@ export default {
           this.handlerDialog.boleta.instrucciones_ministro = response.data[0]['instruccion_ministro'];
           this.handlerDialog.boleta.fechaInicio = response.data[0]['fechaInicial'];
           this.handlerDialog.boleta.fechafin = response.data[0]['fechaFinal'];
+          this.handlerDialog.boleta.viceministerio = response.data[0]['viceministerio'];
         })
       
       

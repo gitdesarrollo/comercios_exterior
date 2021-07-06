@@ -365,6 +365,7 @@ export default {
       }else{
         this.endPoint.dialogs.tracing.active = true;
         this.endPoint.dialogs.tracing.title = "Expediente No. " + id;
+        console.log(files)
         this.getMessages(files);
       }
     },
