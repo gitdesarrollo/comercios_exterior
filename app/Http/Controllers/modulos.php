@@ -269,6 +269,7 @@ class modulos extends Controller
                 $tracing->estado = 4;
                 $tracing->instruccion =  $request->instruccion;
                 $tracing->instruccion_ministro =  $request->ministro;
+                $tracing->id_vice =  $request->viceministerio;
                 // $tracing->instruccion = "1223";
                 $tracing->save();
                 DB::commit();
