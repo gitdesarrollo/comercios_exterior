@@ -1497,7 +1497,11 @@ export default {
               this.trasladoUsuario = false;
               this.interno = false;
               this.getLista();
-            });
+              console.log("transfer true",response.data)
+            })
+            .catch(error => {
+              console.log("errror true",error);
+            })
         }
       });
     },
