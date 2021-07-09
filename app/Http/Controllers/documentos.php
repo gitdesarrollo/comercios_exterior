@@ -860,8 +860,8 @@ class documentos extends Controller
     public function setTransferInt(Request $request){
 
 
-        // try {
-        //     DB::beginTransaction();
+        try {
+            DB::beginTransaction();
             $idUsuario = $this->getUserbyId();
             $idUsuario = json_decode(json_encode($idUsuario));
 
@@ -871,8 +871,10 @@ class documentos extends Controller
                 if($trasladoU > 0){
 
 
+                    
                     $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
                     $idTranfer = $trasladoUs[0]->id;
+
                     $usuario = $this->getUserbyId();
                     $usuario = json_decode(json_encode($usuario));
 
@@ -942,25 +944,31 @@ class documentos extends Controller
             }else{
 
                 $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
-
                 $tacing = tracing::where(['id' => $request->tracing])->update(['idUsuarioActual' => $request->idUsuario]);
 
                 if($trasladoU > 0){
+                    // datos no utilizables
                     $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
                     $idTranfer = $trasladoUs[0]->id;
                     $usuario = $this->getUserbyId();
                     $usuario = json_decode(json_encode($usuario));
 
+                    
+
                     $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado
                         FROM traslados
                         WHERE id = :id and estado = 3
                     ',['id' => $request->Documento]);
+
                     $idTransfer = $idTraslado[0]->code;
                     $UsuarioTraslado = $idTraslado[0]->name;
                     $idDocumentoTraslado = $idTraslado[0]->documento;
                     $estadoTraslado = $idTraslado[0]->estado;
+
                     $estados = DB::select('SELECT estadoAnterior as anterior, estadoActual as actual FROM estado WHERE idTraslado = :id and estatus = 4 and estadoActual = 3',['id' => $idTransfer]);
                     $idAnterior = $estados[0]->actual;
+
+                    
 
                     $update = traslados::where('id',$idTransfer)->update(['estado' => 2 ,'idUsuarioTramito' => $request->idUsuario]);
                     $updateEstado = estado::where(['idTraslado' => $idTransfer,'estatus' => 4])->update(['estatus' => 5]);
@@ -987,6 +995,8 @@ class documentos extends Controller
 
                     }
 
+                    
+
                     $email_copy_info = [];
                     foreach($id_copia as $row){
                         $email_copy = withCopy::select('users.email as correo','users.name as user')
@@ -1002,9 +1012,15 @@ class documentos extends Controller
                     }
 
                     
+
+                    
                     $usuarioTo = User::where('id',$request->idUsuario)->select('name','email')->get();
 
                     $documentoTo = documento::where('id',$idDocumentoTraslado)->select('interesado','correlativo_documento','descripcion','correlativo_externo')->get();
+
+
+                   
+
 
                     $empresa_to_document = $documentoTo[0]->interesado;
                     $correlativo_to_document = $documentoTo[0]->correlativo_documento;
@@ -1031,8 +1047,10 @@ class documentos extends Controller
                         });
                     }
 
-                    $instrucciones = tracing::select('instruccion','fechaFinal')->where(['idDocumento' => $request->Documento, 'estado' => 4])->get();
+                    $instrucciones = tracing::select('instruccion','fechaFinal')->where(['idDocumento' => $request->Documento])->get();
                     
+                    
+
                     foreach($email_copy_info as $correo){
                         
                         if($flag == "true"){
@@ -1042,15 +1060,15 @@ class documentos extends Controller
                         }
                     }
 
-                    // DB::commit();
-                    return response()->json($update,200);
+                    DB::commit();
+                    return response()->json($instrucciones,200);
                 }
 
             }
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     return response()->json($th,200);
-        // }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
 
 
     }
