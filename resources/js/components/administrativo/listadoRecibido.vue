@@ -941,6 +941,8 @@ export default {
       },
       ruleForm: {
         comentario: "",
+        id_traslado: "",
+        code: ""
       },
       formInstrucciones: {
         instruccion: "",
@@ -1376,6 +1378,7 @@ export default {
       this.$refs[form].resetFields();
     },
     getComentario(traslado, documento) {
+      
       axios
         .post(this.url_list.comentario, {
           code: traslado,
@@ -1569,8 +1572,9 @@ export default {
       // console.log(code);
 
       this.handlerDialog.preview.title = "Expediente No. " + correlativo;
-
-      this.getComentario(traslado, code);
+      this.ruleForm.id_traslado = traslado;
+      this.ruleForm.code = code;
+      
       this.handlerDialog.preview.visible = true;
       this.datacoment.idDocumento = code;
       this.datacoment.idTraslado = traslado;
@@ -1610,6 +1614,9 @@ export default {
       this.handlerFile.showPdf = false
       this.handlerFile.showLoading = true
       this.handlerFile.showError = false
+      this.ruleForm.id_traslado = ""
+      this.ruleForm.code = ""
+      this.list_response.listComentarios = []
     },
     formCloseDialog() {
       this.formClose.comentarioCierre = ""
@@ -1622,6 +1629,7 @@ export default {
       this.form.cc = []
     },
     openEvent() {
+      this.getComentario(this.ruleForm.id_traslado, this.ruleForm.code);
       axios
         .post(this.url_list.exists, {
           id: this.datacoment.idDocumento,
