@@ -1048,17 +1048,33 @@ class documentos extends Controller
                     }
 
                     $instrucciones = tracing::select('instruccion','fechaFinal')->where(['idDocumento' => $request->Documento])->get();
-                    
-                    
 
-                    foreach($email_copy_info as $correo){
-                        
-                        if($flag == "true"){
-                            Mail::to($correo['correo'])->send(new copiesUser($correo['user'],$to_empresa,$to_numero,$to_asunto,$subject,$externo,$email_copy_info,$instrucciones[0]->instruccion,$instrucciones[0]->fechaFinal), function ($message){
-                                $message->from($correo['correo'],'envio');
-                            });
+                    
+                    if(!$instrucciones->isEmpty()){
+                        foreach($email_copy_info as $correo){
+                            
+                            if($flag == "true"){
+                                Mail::to($correo['correo'])->send(new copiesUser($correo['user'],$to_empresa,$to_numero,$to_asunto,$subject,$externo,$email_copy_info,$instrucciones[0]->instruccion,$instrucciones[0]->fechaFinal), function ($message){
+                                    $message->from($correo['correo'],'envio');
+                                });
+                            }
+                        }
+                    }else{
+
+
+                        $instruccion = '';
+                        $fechaFinal = '';
+                        foreach($email_copy_info as $correo){
+                            
+                            if($flag == "true"){
+                                Mail::to($correo['correo'])->send(new copiesUser($correo['user'],$to_empresa,$to_numero,$to_asunto,$subject,$externo,$email_copy_info,$instruccion,$fechaFinal), function ($message){
+                                    $message->from($correo['correo'],'envio');
+                                });
+                            }
                         }
                     }
+                    
+
 
                     DB::commit();
                     return response()->json($instrucciones,200);
@@ -1067,7 +1083,7 @@ class documentos extends Controller
             }
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json(false,200);
+            return response()->json($th,200);
         }
 
 
