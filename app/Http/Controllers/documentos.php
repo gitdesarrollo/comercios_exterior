@@ -1250,16 +1250,16 @@ class documentos extends Controller
             rol.idRoles as rol,
             d.correlativo_externo as formato,
             d.tracing,
-            (SELECT id FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS idTracing,
-            (SELECT TIMESTAMPDIFF(DAY, NOW(), fechaFinal) FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS dias,
-            (SELECT 
-			(CASE 
-				WHEN idUsuarioTraslada = :local THEN 'true'
-				ELSE 'false'
-				END) AS flag 
-                FROM tracings WHERE idDocumento = d.id AND estado in (4,5)) AS flag,
+            tra.id AS idTracing,
+            TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
+            (CASE 
+            WHEN tra.idUsuarioTraslada = :local THEN 'true'
+            ELSE 'false'
+            END) AS flag,
             concat('./../files/',files.`file`) AS url
             FROM documentos d
+            left JOIN tracings tra
+		        ON tra.idDocumento = d.id
             INNER JOIN traslados tras
                 ON d.id = tras.id
             INNER JOIN estado_documentos ed
@@ -1329,7 +1329,7 @@ class documentos extends Controller
 
             $seguimiento = tracing::where(['idDocumento' => $request->code, 'estado' => 4])
             ->select('tracings.instruccion','tracings.instruccion_ministro','tracings.fechaInicial','tracings.fechaFinal','viceministerios.descripcion as viceministerio')
-            ->join('viceministerios','tracings.id_vice','=','viceministerios.id')->get();
+            ->leftjoin('viceministerios','tracings.id_vice','=','viceministerios.id')->get();
 
             DB::commit();
 
