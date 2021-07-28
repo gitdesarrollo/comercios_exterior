@@ -350,7 +350,7 @@ export default {
               copy: this.form.cc
             }).then(response => {
               const status = JSON.parse(response.status);
-              if (status == "200" && response.data != false) {
+              if (status == "200") {
 
                 this.form.upload.id_documento = response.data.id
                 this.form.upload.correlativo = response.data.correlativo_externo
@@ -363,7 +363,8 @@ export default {
 
                 //   this.centerDialogVisible = true;
                 // **************************
-                //   this.handler_loader.loaderOnSubmit.loader = false;
+                  this.handler_loader.loaderOnSubmit.loader = false;
+                  console.log(this.handler_loader.loaderOnSubmit.loader)
                 this.resetForm(form);
               }
             })
