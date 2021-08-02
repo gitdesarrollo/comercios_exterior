@@ -230,7 +230,7 @@
             <tr>
               <td class="titulo">Cc:</td>
               <td colspan="3">
-
+                {{ handlerDialog.boleta.cc }}
               </td>
             </tr>
             <tr>
@@ -400,7 +400,7 @@
       </el-dialog>
     </el-dialog>
   </div>
-  <el-dialog :title="message.title" :visible.sync="message.visible" :width="message.width" center destroy-on-close :close-on-click-modal="message.closeModal" :close-on-press-escape="message.closeModal" @close="closeDate">
+  <el-dialog :title="message.title" :top="message.top" :visible.sync="message.visible" :width="message.width" center destroy-on-close :close-on-click-modal="message.closeModal" :close-on-press-escape="message.closeModal" @close="closeDate">
     <div class="block">
       <b><span class="textBlock">Fecha Limite para Seguimiento:</span></b>
       <el-date-picker class="select_width" v-model="message.dialog.fecha.vModelSeguimiento" type="datetime" :placeholder="message.dialog.fecha.PlaceHolder" default-time="12:00:00" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" @change="confirm()">
@@ -411,6 +411,11 @@
         </el-form-item>
         <el-form-item label="Instrucciones Ministro:">
           <el-input v-model="formInstrucciones.ministro"></el-input>
+        </el-form-item>
+        <el-form-item label="Cc:">
+          <el-select v-model="formInstrucciones.cc" class="select_width" clearable filterable placeholder="Seleccione usuario" popper-class="item_data" multiple>
+            <el-option v-for="items in list_response.list_user" :key="items.id" :label="items.name" :value="items.name"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="Viceministerio:">
           <el-select v-model="formInstrucciones.viceministerio" placeholder="Seleccione" clearable filterable class="select_width">
@@ -509,6 +514,7 @@ export default {
         title: "",
         visible: false,
         width: "",
+        top: "2vh",
         bodyText: "",
         closeModal: false,
         button: true,
@@ -557,7 +563,8 @@ export default {
       formInstrucciones: {
         instruccion: "",
         ministro: "",
-        viceministerio: ""
+        viceministerio: "",
+        cc: []
       },
       documentWord: {
         url: "",
@@ -691,7 +698,8 @@ export default {
           instrucciones_ministro: "",
           fechaInicio: "",
           fechafin: "",
-          viceministerio: ""
+          viceministerio: "",
+          cc:""
         },
       },
       src: "",
@@ -728,7 +736,8 @@ export default {
           empresa: this.handlerDialog.boleta.empresa,
           ministro: this.handlerDialog.boleta.instrucciones_ministro,
           general: this.handlerDialog.boleta.instrucciones_generales,
-          viceministerio: this.handlerDialog.boleta.viceministerio
+          viceministerio: this.handlerDialog.boleta.viceministerio,
+          cc: this.handlerDialog.boleta.cc
         }, {
           responseType: 'blob'
         })
@@ -845,7 +854,8 @@ export default {
           fechaF: this.message.dialog.fecha.vModelSeguimiento,
           instruccion: this.formInstrucciones.instruccion,
           ministro: this.formInstrucciones.ministro,
-          viceministerio: this.formInstrucciones.viceministerio
+          viceministerio: this.formInstrucciones.viceministerio,
+          cc:this.formInstrucciones.cc
         })
         .then((response) => {
           console.log("respuesta", response)
@@ -1076,6 +1086,7 @@ export default {
           this.handlerDialog.boleta.fechaInicio = response.data[0]['fechaInicial'];
           this.handlerDialog.boleta.fechafin = response.data[0]['fechaFinal'];
           this.handlerDialog.boleta.viceministerio = response.data[0]['viceministerio'];
+          this.handlerDialog.boleta.cc = response.data[0]['cc'];
         })
 
     },
