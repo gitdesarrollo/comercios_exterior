@@ -1328,7 +1328,7 @@ class documentos extends Controller
             DB::beginTransaction();
 
             $seguimiento = tracing::where(['idDocumento' => $request->code, 'estado' => 4])
-            ->select('tracings.instruccion','tracings.instruccion_ministro','tracings.fechaInicial','tracings.fechaFinal','viceministerios.descripcion as viceministerio')
+            ->select('tracings.instruccion','tracings.instruccion_ministro','tracings.fechaInicial','tracings.fechaFinal','viceministerios.descripcion as viceministerio','tracings.cc_name as cc')
             ->leftjoin('viceministerios','tracings.id_vice','=','viceministerios.id')->get();
 
             DB::commit();
@@ -1423,7 +1423,7 @@ class documentos extends Controller
             <tr>
               <td class="titulo">Cc:</td>
               <td colspan="3">
-
+                '.$request->cc.'
               </td>
             </tr>
             <tr>

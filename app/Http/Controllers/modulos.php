@@ -243,8 +243,8 @@ class modulos extends Controller
 
     public function tracingsFiles(Request $request){
 
-   
 
+        $cc = implode(",",$request->cc);
         // try {
         //     DB::beginTransaction();
 
@@ -257,7 +257,7 @@ class modulos extends Controller
             $documento = documento::where(['id' => $request->documento])->update(['tracing' => '1']);
             if($request->tracing > 0){
                 $tracingUpdate = tracing::where(['id' => $request->tracing])->update(['estado' => 4,'fechafinal' => $request->fechaF, 'instruccion' => $request->instruccion, 'instruccion_ministro' => $request->ministro,
-                'id_vice' => $request->viceministerio]);
+                'id_vice' => $request->viceministerio, 'cc_name' => $cc]);
                 return response()->json($tracingUpdate,200);
             }else{
     
@@ -272,6 +272,7 @@ class modulos extends Controller
                 $tracing->instruccion =  $request->instruccion;
                 $tracing->instruccion_ministro =  $request->ministro;
                 $tracing->id_vice =  $request->viceministerio;
+                $tracing->cc_name =  $cc;
                 // $tracing->instruccion = "1223";
                 $tracing->save();
                 DB::commit();
