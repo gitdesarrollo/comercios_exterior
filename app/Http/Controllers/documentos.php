@@ -1357,7 +1357,6 @@ class documentos extends Controller
             d.correlativo_externo as formato,
             d.tracing,
             tra.id AS idTracing,
-      
             TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
             (CASE
             WHEN tra.idUsuarioTraslada = :local THEN 'true'
@@ -1368,7 +1367,7 @@ class documentos extends Controller
             left JOIN tracings tra
 		        ON tra.idDocumento = d.id
             INNER JOIN traslados tras
-                ON d.id = tras.id
+                ON d.id = tras.idDocumento
             INNER JOIN estado_documentos ed
             ON tras.estado = ed.id
             INNER JOIN users us
@@ -1377,7 +1376,7 @@ class documentos extends Controller
                 ON us.id = rol.idUser
             INNER JOIN upload_files files
    		        ON files.evento_id = d.id
-            WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
+            WHERE us.id = :id AND d.id_status != 7 AND files.formato = 'pdf'
             ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
 
             
