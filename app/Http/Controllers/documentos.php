@@ -1272,44 +1272,44 @@ class documentos extends Controller
    	//	        ON files.evento_id = d.id
           //  WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
           //  ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
-           $documento = DB::select("select
-           d.id code,
-           d.interesado empresa,
-           d.correlativo_documento correlativo,
-           d.descripcion descripcion,
-           ed.id estado,
-           u.name usuario,
-           DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
-           tras.id idTraslado,
-           rol.idRoles as rol,
-           d.correlativo_externo formato,
-           d.tracing,
-           tra.id AS idTracing,
-           TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
-           (case when tra.idUsuarioTraslada = :local then 'true' else 'false' end) flag,
-           concat('./../files/',uf.`file`) AS url,
-           tra.fechaFinal,
-           ed.descripcion estado,
-           roles.description roles,
-           uf.file,
-           d.id_status
-        from documentos d
-            inner join estado_documentos ed
-                on d.id_status = ed.id
-            inner join traslados tras
-                on tras.idDocumento = d.id
-            inner join users u
-                on tras.idUsuarioTramito = u.id
-            inner join user_has_roles rol
-                on rol.idUser = u.id
-            inner join roles_users roles
-                on roles.id = rol.idRoles
-            left join tracings tra
-                on tra.idDocumento = d.id
-            inner join upload_files uf
-                on d.id = uf.evento_id
-            where u.id = :id and d.id_status != 7 and uf.formato = 'pdf';
-            // $documento = DB::select("SELECT
+        //    $documento = DB::select("select
+        //    d.id code,
+        //    d.interesado empresa,
+        //    d.correlativo_documento correlativo,
+        //    d.descripcion descripcion,
+        //    ed.id estado,
+        //    u.name usuario,
+        //    DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
+        //    tras.id idTraslado,
+        //    rol.idRoles as rol,
+        //    d.correlativo_externo formato,
+        //    d.tracing,
+        //    tra.id AS idTracing,
+        //    TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
+        //    (case when tra.idUsuarioTraslada = :local then 'true' else 'false' end) flag,
+        //    concat('./../files/',uf.`file`) AS url,
+        //    tra.fechaFinal,
+        //    ed.descripcion estado,
+        //    roles.description roles,
+        //    uf.file,
+        //    d.id_status
+        // from documentos d
+        //     inner join estado_documentos ed
+        //         on d.id_status = ed.id
+        //     inner join traslados tras
+        //         on tras.idDocumento = d.id
+        //     inner join users u
+        //         on tras.idUsuarioTramito = u.id
+        //     inner join user_has_roles rol
+        //         on rol.idUser = u.id
+        //     inner join roles_users roles
+        //         on roles.id = rol.idRoles
+        //     left join tracings tra
+        //         on tra.idDocumento = d.id
+        //     inner join upload_files uf
+        //         on d.id = uf.evento_id
+        //     where u.id = :id and d.id_status != 7 and uf.formato = 'pdf';
+        //     // $documento = DB::select("SELECT
             // d.id as code,
             // d.interesado AS empresa,
             // d.correlativo_documento AS correlativo,
