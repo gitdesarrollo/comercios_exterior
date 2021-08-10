@@ -860,8 +860,8 @@ class documentos extends Controller
     public function setTransferInt(Request $request){
 
 
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
             $idUsuario = $this->getUserbyId();
             $idUsuario = json_decode(json_encode($idUsuario));
 
@@ -1076,15 +1076,15 @@ class documentos extends Controller
                     
 
 
-                    DB::commit();
+                    // DB::commit();
                     return response()->json($instrucciones,200);
                 }
 
             }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json($th,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json($th,200);
+        // }
 
 
     }
@@ -1238,6 +1238,7 @@ class documentos extends Controller
             
             $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
+<<<<<<< HEAD
            // $documento = DB::select("SELECT
            // d.id as code,
            // d.interesado AS empresa,
@@ -1309,6 +1310,76 @@ class documentos extends Controller
             inner join upload_files uf
                 on d.id = uf.evento_id
             where u.id = :id and d.id_status != 7 and uf.formato = 'pdf';
+=======
+            // $documento = DB::select("SELECT
+            // d.id as code,
+            // d.interesado AS empresa,
+            // d.correlativo_documento AS correlativo,
+            // d.descripcion as descripcion,
+            // ed.id AS estado,
+            // us.NAME AS usuario,
+            // DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
+            // tras.id as idTraslado,
+            // rol.idRoles as rol,
+            // d.correlativo_externo as formato,
+            // d.tracing,
+            // tra.id AS idTracing,
+            // TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
+            // (CASE 
+            // WHEN tra.idUsuarioTraslada = :local THEN 'true'
+            // ELSE 'false'
+            // END) AS flag,
+            // concat('./../files/',files.`file`) AS url
+            // FROM documentos d
+            // left JOIN tracings tra
+		    //     ON tra.idDocumento = d.id
+            // INNER JOIN traslados tras
+            //     ON d.id = tras.id
+            // INNER JOIN estado_documentos ed
+            // ON tras.estado = ed.id
+            // INNER JOIN users us
+            //     ON tras.idUsuarioTramito = us.id
+            // INNER JOIN user_has_roles rol
+            //     ON us.id = rol.idUser
+            // INNER JOIN upload_files files
+   		    //     ON files.evento_id = d.id
+            // WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
+            // ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
+            $documento = DB::select("SELECT
+            d.id as code,
+            d.interesado AS empresa,
+            d.correlativo_documento AS correlativo,
+            d.descripcion as descripcion,
+            ed.id AS estado,
+            us.NAME AS usuario,
+            DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
+            tras.id as idTraslado,
+            rol.idRoles as rol,
+            d.correlativo_externo as formato,
+            d.tracing,
+            tra.id AS idTracing,
+      
+            TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
+            (CASE
+            WHEN tra.idUsuarioTraslada = :local THEN 'true'
+            ELSE 'false'
+            END) AS flag,
+            concat('./../files/',files.`file`) AS url
+            FROM documentos d
+            left JOIN tracings tra
+		        ON tra.idDocumento = d.id
+            INNER JOIN traslados tras
+                ON d.id = tras.id
+            INNER JOIN estado_documentos ed
+            ON tras.estado = ed.id
+            INNER JOIN users us
+                ON tras.idUsuarioTramito = us.id
+            INNER JOIN user_has_roles rol
+                ON us.id = rol.idUser
+            INNER JOIN upload_files files
+   		        ON files.evento_id = d.id
+            WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
+>>>>>>> 931840a7e8bf7fa97bbf9cffed26dc16fcc91240
             ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
 
             
