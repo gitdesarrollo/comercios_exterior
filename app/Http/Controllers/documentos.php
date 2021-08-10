@@ -1238,7 +1238,6 @@ class documentos extends Controller
             
             $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
-<<<<<<< HEAD
            // $documento = DB::select("SELECT
            // d.id as code,
            // d.interesado AS empresa,
@@ -1310,7 +1309,6 @@ class documentos extends Controller
             inner join upload_files uf
                 on d.id = uf.evento_id
             where u.id = :id and d.id_status != 7 and uf.formato = 'pdf';
-=======
             // $documento = DB::select("SELECT
             // d.id as code,
             // d.interesado AS empresa,
@@ -1379,7 +1377,6 @@ class documentos extends Controller
             INNER JOIN upload_files files
    		        ON files.evento_id = d.id
             WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
->>>>>>> 931840a7e8bf7fa97bbf9cffed26dc16fcc91240
             ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
 
             
