@@ -917,6 +917,7 @@ class documentos extends Controller
                     $descripcion_to_document = $documentoTo[0]->descripcion;
                     $externo_to_document = $documentoTo[0]->correlativo_externo;
 
+                    
                     $to_name = $usuarioTo[0]->name;
                     $to_email = $usuarioTo[0]->email;
                     // $to_email = 'jjolong@miumg.edu.gt';
