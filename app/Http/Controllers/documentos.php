@@ -860,8 +860,8 @@ class documentos extends Controller
     public function setTransferInt(Request $request){
 
 
-        try {
-            DB::beginTransaction();
+        // try {
+        //     DB::beginTransaction();
             $idUsuario = $this->getUserbyId();
             $idUsuario = json_decode(json_encode($idUsuario));
 
@@ -1076,15 +1076,15 @@ class documentos extends Controller
                     
 
 
-                    DB::commit();
+                    // DB::commit();
                     return response()->json($instrucciones,200);
                 }
 
             }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json($th,200);
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json($th,200);
+        // }
 
 
     }
