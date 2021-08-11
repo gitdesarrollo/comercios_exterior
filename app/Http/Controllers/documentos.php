@@ -958,7 +958,7 @@ class documentos extends Controller
 
                     $idTraslado = DB::select('SELECT id as code, idUsuarioTramito as name, idDocumento as documento, estado
                         FROM traslados
-                        WHERE id = :id and estado = 3
+                        WHERE idDocumento = :id and estado = 3
                     ',['id' => $request->Documento]);
 
                     $idTransfer = $idTraslado[0]->code;
