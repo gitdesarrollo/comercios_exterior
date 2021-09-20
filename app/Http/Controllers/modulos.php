@@ -12,6 +12,7 @@ use App\Model\view_users;
 use App\Model\user_has_view;
 use App\Model\userHasRoles;
 use App\Model\remitente;
+use App\Model\padres;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +82,81 @@ class modulos extends Controller
             return header( "refresh:0.1;url=/" );
         }
         
+    }
+
+    public function getPadres(){
+        $permiso = $this->getPermissionById(8);
+        if($permiso->original[0]['admin']){
+            return view('modules.padres');
+        }elseif($permiso->original[0]['permit']){
+            return view('modules.padres');
+        }else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+
+    public function getPadresDet(){
+        // try {
+        //     DB::beginTransaction();
+
+          
+            // $dPadres = padres::selectRaw('id,UPPER(descripcion) as descripcion')->orderBy('id','desc')->get();
+
+            //$data = padres::where(['estatus' >= 1])->select('id','descripcion')->get();
+                /*
+            $data= DB::table('padres')
+            ->select(DB::raw('id, UPPER(descripcion) as descripcion'))
+            ->where('status', '=', 1)
+            ->get();
+            */
+            $data = padres::select('id','descripcion','estatus')
+            ->where('estatus', '=', 1)
+            ->get();
+
+            // DB::commit();
+
+            return response()->json($data,200);
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+
+        //     return response()->json(false,200);
+        // }
+    }
+    public function deletePadre(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $datar = padres::where(['id' => $request->id])->update(['estatus' => 2]);
+
+            DB::commit();
+
+            return response()->json($datar,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(false,200);
+        }
+    }
+    
+
+    public function setPadre(Request $request){
+        try {
+            DB::beginTransaction();
+
+            $padre = new padres;
+
+            $padre->descripcion = $request->padres;
+            $padre->save();
+
+            DB::commit();
+            return response()->json($padre,200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json($th,100);
+        }
     }
 
 

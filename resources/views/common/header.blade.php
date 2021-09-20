@@ -28,7 +28,7 @@
                     concat('./../files/',files.`file`) AS url
                     FROM documentos d
                     INNER JOIN traslados tras
-                        ON d.id = tras.id
+                        ON d.id = tras.idDocumento
                     INNER JOIN estado_documentos ed
                     ON tras.estado = ed.id
                     INNER JOIN users us
@@ -44,7 +44,7 @@
                     count(d.id) as code
                     FROM documentos d
                     INNER JOIN traslados tras
-                        ON d.id = tras.id
+                        ON d.id = tras.idDocumento
                     INNER JOIN estado_documentos ed
                     ON tras.estado = ed.id
                     INNER JOIN users us

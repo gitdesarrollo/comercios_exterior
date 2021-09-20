@@ -70,6 +70,13 @@
                     )
                   "></el-button>
             </el-popover>
+
+            <!-- boton de asignacion de padre 
+            <el-popover placement="bottom-start" title="Agrupar" width="250" trigger="hover" content="Asignación a agrupador">
+              <el-button slot="reference" size="mini" type="primary" icon="el-icon-s-check" plain @click="getPadreAgrupador(scope.row.code)"></el-button>
+            </el-popover>
+            fin boton de asignacion de padre-->
+
             <!-- <el-button
                 size="mini"
                 type="warning"
@@ -309,6 +316,25 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <!-- asignacion de padre / agrpador -->
+    <el-dialog title="Asignación de Agrupador" :visible.sync="agrupador" width="35%" top="3vh" center :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" destroy-on-close @close="closeAgrupador">
+      <el-form :inline="false" :model="formPadre" ref="formPadre" label-width="150px">
+        <el-form-item label="Agrupador:" prop="agrupador">
+          <el-select v-model="formPadre.descripcion" class="select_width" clearable filterable placeholder="Seleccione Agrupador">
+            <el-option v-for="items in list_response.list_padres" :key="items.id" :label="items.descripcion" :value="items.id"></el-option>
+          </el-select>
+        </el-form-item>
+       
+        <el-form-item>
+          <el-button type="primary" @click="asignaPadre('formPadre')" v-loading.fullscreen.lock="trasladoUsuario">Agrupar
+          </el-button>
+          <el-button @click="agrupador = false">Cancel</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- fin de asignacion de padre /agrupador -->
+
+
     <el-dialog :title="handlerDialog.preview.title" :visible.sync="handlerDialog.preview.visible" :width="handlerDialog.preview.width" :top="handlerDialog.preview.top" @close="closeEvent()" @open="openEvent()" @opened="opened" destroy-on-close>
       
       <el-row :gutter="10">
@@ -593,12 +619,15 @@ export default {
         getPdfFiles: "getPdfFiles",
         getSeguimientoDocumento: "getSeguimientoDocumento",
         makeBoleta: "makeBoleta",
-        listaVice: "listaVice"
+        listaVice: "listaVice",
+        padres: "getPadresDet",
+        asignapadres: "asignaPadre"
       },
       list_response: {
         documentos: [],
         list_dependencia: [],
         list_user: [],
+        list_padres: [],
         listcomentarios: [],
         listUrl: [],
         getFileWord: [],
@@ -612,7 +641,9 @@ export default {
       EditscreenLoading: false,
       dialogo: false,
       interno: false,
+      agrupador:false,
       externo: false,
+      agrupadorfrm:false,
       trasladoUsuario: false,
       idDocumento: 0,
       depActual: 0,
@@ -625,6 +656,11 @@ export default {
       formExterno: {
         lugar: "",
         correlativo: "",
+      },
+       formPadre: {
+         iddocumento:"",
+        descripcion: "",
+        id: "",
       },
       formUser: {
         usuario: "",
@@ -1027,6 +1063,22 @@ export default {
           }
         });
     },
+    getAgrupador() {
+
+      axios
+        .get(this.url_list.padres)
+        .then((response) => {
+          const status = JSON.parse(response.status);
+          const result = response.data;
+          if (status == "200") {
+            // console.log("comentarios", response.data)
+            this.list_response.list_padres = response.data;
+            console.log("Padres: ", response.data);
+            console.log(this.list_response.list_padres);
+            this.total = response.data.length;
+          }
+        });
+    },
     getLista() {
       axios.get(this.url_list.message).then((response) => {
         this.list_response.documentos = response.data;
@@ -1052,6 +1104,13 @@ export default {
       this.idTracing = tracing;
       this.getComentario(traslado, id);
     },
+
+    getPadreAgrupador(documentox) {
+      this.agrupador = true;
+      this.formPadre.iddocumento = documentox
+      this.getAgrupador();
+    },
+
     getTrasladoExterno(id, traslado) {
       this.externo = true;
       this.idDocumento = id;
@@ -1129,6 +1188,29 @@ export default {
               externo: false,
               tracing: this.idTracing,
               copy: this.form.cc
+            })
+            .then((response) => {
+              this.trasladoUsuario = false;
+              this.interno = false;
+              this.getLista();
+              console.log("transfer true", response.data)
+            })
+            .catch(error => {
+              console.log("errror true", error);
+            })
+        }
+      });
+    },
+    asignaPadre(form) {
+      this.$refs[form].validate((valid) => {
+        if (valid) {
+          this.agrupador = true;
+          axios
+            .put(this.url_list.asignaPadre, {
+              id_documento: this.formPadre.iddocumento,
+              id: this.formPadre.id,
+              
+            
             })
             .then((response) => {
               this.trasladoUsuario = false;
@@ -1270,6 +1352,11 @@ export default {
     closeTrasladoInterno() {
       this.form.usuario = ""
       this.form.cc = []
+    },
+    closeAgrupador() {
+      this.agrupadorfrm.descripcion = ""
+      this.agrupadorfrm.id=""
+      this.agrupador=false
     },
     opened() {
       

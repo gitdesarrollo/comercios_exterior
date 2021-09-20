@@ -16,8 +16,7 @@ class AddColumnTracings extends Migration
         Schema::table('tracings', function (Blueprint $table) {
             $table->String('instruccion')->after('estado');
             $table->String('instruccion_ministro')->after('instruccion');
-            $table->String('id_vice')->after('instruccion_ministro');
-
+            $table->bigInteger('id_vice')->after('instruccion_ministro')->unsigned();;
             $table->foreign('id_vice')->references('id')->on('viceministerios');
 
         });

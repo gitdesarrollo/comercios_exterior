@@ -1141,7 +1141,7 @@ class documentos extends Controller
             concat('./../files/',files.`file`) AS url
             FROM documentos d
             INNER JOIN traslados tras
-                ON d.id = tras.id
+                ON d.id = tras.idDocumento
             INNER JOIN estado_documentos ed
             ON tras.estado = ed.id
             INNER JOIN users us
@@ -1717,7 +1717,8 @@ class documentos extends Controller
                             ON es.UsuarioActual = us.id
                         INNER JOIN dependencias dep
                             ON us.id_unidad = dep.id_dependencia
-                    WHERE doc.correlativo_documento = :id",["id" => $request->id]);
+                    WHERE doc.correlativo_documento = :id   
+                    ORDER BY es.created_at asc",["id" => $request->id]);
 
 
                 return response()->json($documento,200);
@@ -2073,6 +2074,60 @@ class documentos extends Controller
 
         // }
     }
+
+    /// asignacion de padre /agrupador
+        public function asignaPadre(Request $request){
+        // try {
+        //     DB::beginTransaction();
+
+            $usuarioId = $this->getUserbyId();
+            $usuarioId = json_decode(json_encode($usuarioId));
+
+            $data = new comentarios;
+
+            $data->idUsuario = $usuarioId->original;
+            $data->iddocumento = $request->code;
+            $data->idTraslado = $request->traslado;
+            $data->comentario = $request->comentario;
+            $data->save();
+
+            $cierre = documento::where('id',$request->code)->update(['id_status' => 7]);
+            $trasladoCierre = traslados::where('id', $request->traslado)->update(['estado' => 7]);
+            // $estadoData = estado::where('idTraslado',$request->traslado)->select('estadoActual','UsuarioActual')->get();
+            $estadoData = estado::where('idTraslado',$request->traslado)->select('estadoActual','UsuarioActual')->orderBy('id','desc')->first();
+
+
+
+            $traslados = new estado;
+            $traslados->idTraslado = $request->traslado;
+            $traslados->estadoAnterior = $estadoData->estadoActual;
+            $traslados->estadoActual = 7;
+            $traslados->estatus = 7;
+            $traslados->UsuarioActual = $usuarioId->original;
+            $traslados->save();
+
+            $document = documento::where('documentos.id',$request->code)
+                ->join('type_documents','type_documents.id','=','documentos.idTipoDocumento')
+                ->select('documentos.correlativo_documento as interno','documentos.correlativo_externo as externo','type_documents.descripcion as tipo')
+                ->get();
+
+            $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
+          
+
+            // DB::commit();
+
+            return response()->json($data,200);
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return response()->json(false,200);
+
+        // }
+    }
+
+
+    /// fin asignacion de padre / agrupador
+
+
 
     public function getTypeDocument(){
         try {

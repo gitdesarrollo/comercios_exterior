@@ -64,9 +64,13 @@
                                 <li class="nav-item ml-3">
                                     <a class="nav-link" href="{{ route('inbox') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Notificaciones</a>
-                                </li>       
-
-    
+                                </li> 
+                                <!--      
+                                <li class="nav-item ml-3">
+                                    <a class="nav-link" href="{{ route('Padres') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Padre</a>
+                                </li>   
+                                -->
 
                                 <!-- <li class="nav-item ml-3">
                                     <a class="nav-link" href="{{ route('inbox-chat') }}">

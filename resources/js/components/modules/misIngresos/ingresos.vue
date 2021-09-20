@@ -5,6 +5,8 @@
         Mis Expedientes 
       </div>
       <div class="card-body">
+        <!-- AGREGAR CUADRO DE BUSQUEDA DE PADRES-->
+        <!-- FIN DE AGREGADO -->
         <el-table 
           :data="endPoint.response.listfiles.filter(data => !search || data.interesado.toLowerCase().includes(search.toLowerCase()) 
             || data.correlativo.toLowerCase().includes(search.toLowerCase())

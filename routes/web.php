@@ -140,7 +140,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('getComentario','documentos@getComentario')->name('getComentario');
   Route::post('setComentario','documentos@setComentario')->name('setComentario');
   Route::put('closeDocumento','documentos@closeDocumento');
-
+  Route::put('asignaPadre','documentos@asignaPadre');
+  
 
   /********************************************* */
 
@@ -195,6 +196,14 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('setSender','modulos@setSender');
   Route::get('getSender','modulos@getSender')->name('getSender');
   Route::put('deleteSender','modulos@deleteSender');
+
+  /***********padres ********** */
+  Route::get('padres','modulos@getpadres')->name('Padres');
+  Route::get('getPadresDet','modulos@getPadresDet');
+  Route::post('setPadre','modulos@setPadre');
+  Route::put('deletePadre','modulos@deletePadre');
+  Route::put('asignaPadre','modulos@asignaPadre');
+  
   
   /***********VISUALIZADOR PDF***********/
   
