@@ -657,7 +657,7 @@ class documentos extends Controller
                                         d.created_at as fecha
                                         FROM documentos d
                                         INNER JOIN traslados tras
-                                            ON d.id = tras.id
+                                            ON d.id = tras.idDocumento
                                         INNER JOIN estado_documentos ed
                                         ON tras.estado = ed.id
                                         INNER JOIN users us
