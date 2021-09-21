@@ -202,7 +202,7 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getPadresDet','modulos@getPadresDet');
   Route::post('setPadre','modulos@setPadre');
   Route::put('deletePadre','modulos@deletePadre');
-  Route::put('asignaPadre','modulos@asignaPadre');
+  //Route::put('asignaPadre','modulos@asignaPadre');
   
   
   /***********VISUALIZADOR PDF***********/

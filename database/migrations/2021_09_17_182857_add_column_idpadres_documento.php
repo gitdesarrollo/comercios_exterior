@@ -14,6 +14,13 @@ class AddColumnIdpadresDocumento extends Migration
     public function up()
     {
         //
+        Schema::table('documentos', function (Blueprint $table) {
+            $table->bigInteger('idpadre')->after('correlativo_externo')->unsigned()->default(1);
+            
+            $table->foreign('idpadre')->references('id')->on('padres');
+
+        });
+
     }
 
     /**

@@ -318,7 +318,7 @@ export default {
               id: this.form.correlativo,
             })
             .then((response) => {
-            
+              this.list_response.listado_bitacora=[];
               // this.list_response.listado_bitacora = response.data;
 
               for (let index = 0; index < response.data.length; index++) {
