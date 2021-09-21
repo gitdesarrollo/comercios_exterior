@@ -80,8 +80,8 @@
                                 </li>  
                          @elseif($permisos->vista == 10)
                                 <li class="nav-item ml-3">
-                                    <a class="nav-link" href="{{ route('inbox-chat') }}">
-                                        <i class="nav-icon fas fa-angle-double-right"></i> Mensajes</a>
+                                    <a class="nav-link" href="{{ route('Padres') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Agrupadores</a>
                                 </li>       
                         @endif
                     @endforeach
