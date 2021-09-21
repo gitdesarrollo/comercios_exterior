@@ -15,7 +15,7 @@ class AddEstadopadrePadresTable extends Migration
     {
         //
         Schema::table('padres', function (Blueprint $table) {
-            //$table->bigInteger('estatus')->after('descripcion')->default(1);
+            $table->bigInteger('estatus')->after('descripcion')->default(1);
             $table->foreign('estatus')->references('id')->on('estadopadre');
         });
         
