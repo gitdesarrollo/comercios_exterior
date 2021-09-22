@@ -22,6 +22,7 @@
       <el-table-column label="Asunto" width="500" prop="descripcion"></el-table-column>
       <el-table-column label="Fecha" width="90" prop="fecha"></el-table-column>
       <el-table-column prop="estado" label="Etiqueta  /  Restante" width="92" align="center">
+      
         <template slot-scope="scope">
           <div v-if="scope.row.estado === 9">
             <el-tag :type="scope.row.estado === '9' ? 'primary' : 'warning'" disable-transitions>Externo
@@ -32,6 +33,7 @@
           {{ scope.row.dias }} dias
         </template>
       </el-table-column>
+      <el-table-column prop="agrupador" label="Agrupador" width="90" align="center"></el-table-column>
       <el-table-column label="Operaciones" width="280">
         <template slot="header" slot-scope="scope">
           <el-input v-model="search" size="mini" placeholder="Buscar" />
@@ -1225,6 +1227,7 @@ export default {
                 this.$alert('<strong>Operación exitosa </strong>', 'Agrupación. ', {
                   dangerouslyUseHTMLString: true
                 });
+                this.getLista();
 /*
                 this.$notify.success({
                   title: 'Agrupado',

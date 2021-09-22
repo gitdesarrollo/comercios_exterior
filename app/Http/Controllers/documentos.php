@@ -1710,7 +1710,8 @@ class documentos extends Controller
 
         try {
             DB::beginTransaction();
-                $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, date_format(es.created_at,'%d/%m/%Y') as fecha FROM estado es
+                $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, 
+                date_format(es.created_at,'%d/%m/%Y') as fecha, pdr.descripcion AS agrupador FROM estado es
                         INNER JOIN traslados tr
                             ON es.idTraslado = tr.id
                         INNER JOIN documentos doc
@@ -1721,6 +1722,7 @@ class documentos extends Controller
                             ON es.UsuarioActual = us.id
                         INNER JOIN dependencias dep
                             ON us.id_unidad = dep.id_dependencia
+                            INNER JOIN padres pdr ON pdr.id = doc.idpadre
                     WHERE doc.correlativo_documento = :id   
                     ORDER BY es.created_at asc",["id" => $request->id]);
 
