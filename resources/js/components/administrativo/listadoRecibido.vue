@@ -33,7 +33,13 @@
           {{ scope.row.dias }} dias
         </template>
       </el-table-column>
-      <el-table-column prop="agrupador" label="Agrupador" width="90" align="center"></el-table-column>
+      <el-table-column prop="agrupador" label="Agrupador" width="90" align="center">
+        
+        
+            
+          
+
+      </el-table-column>
       <el-table-column label="Operaciones" width="280">
         <template slot="header" slot-scope="scope">
           <el-input v-model="search" size="mini" placeholder="Buscar" />
@@ -1222,11 +1228,18 @@ export default {
             .then((response) => {
               const status = response.status
                if (status == "200") {
-                 this.agrupador = false;
+                 
                 //  console.log("200");
-                this.$alert('<strong>Operación exitosa </strong>', 'Agrupación. ', {
+                /*this.$alert('<strong>Operación exitosa </strong>', 'Agrupación. ', {
                   dangerouslyUseHTMLString: true
+                });*/
+                 this.$swal({
+                  icon: "success",
+                  title: "Asignación exitosa!",
+                  showConfirmButton: false,
+                  timer: 2500,
                 });
+                this.agrupador = false;
                 this.getLista();
 /*
                 this.$notify.success({

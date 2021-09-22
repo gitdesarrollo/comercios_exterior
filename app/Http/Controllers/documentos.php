@@ -1364,7 +1364,7 @@ class documentos extends Controller
             END) AS flag,
             concat('./../files/',files.`file`) AS url,
             if(pdr.id=1, 0, 1) as agrupado,
-            pdr.descripcion as agrupador
+            if(pdr.id=1, '', pdr.descripcion) as agrupador
 
             FROM documentos d
             left JOIN tracings tra
