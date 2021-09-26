@@ -1362,7 +1362,10 @@ class documentos extends Controller
             WHEN tra.idUsuarioTraslada = :local THEN 'true'
             ELSE 'false'
             END) AS flag,
-            concat('./../files/',files.`file`) AS url
+            concat('./../files/',files.`file`) AS url,
+            if(pdr.id=1, 0, 1) as agrupado,
+            if(pdr.id=1, '', pdr.descripcion) as agrupador
+
             FROM documentos d
             left JOIN tracings tra
 		        ON tra.idDocumento = d.id
@@ -1376,6 +1379,7 @@ class documentos extends Controller
                 ON us.id = rol.idUser
             INNER JOIN upload_files files
    		        ON files.evento_id = d.id
+            LEFT JOIN padres pdr on pdr.id= d.idpadre
             WHERE us.id = :id AND d.id_status != 7 AND files.formato = 'pdf'
             ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
 
@@ -1706,7 +1710,8 @@ class documentos extends Controller
 
         try {
             DB::beginTransaction();
-                $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, date_format(es.created_at,'%d/%m/%Y') as fecha FROM estado es
+                $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, 
+                date_format(es.created_at,'%d/%m/%Y') as fecha, pdr.descripcion AS agrupador FROM estado es
                         INNER JOIN traslados tr
                             ON es.idTraslado = tr.id
                         INNER JOIN documentos doc
@@ -1717,6 +1722,7 @@ class documentos extends Controller
                             ON es.UsuarioActual = us.id
                         INNER JOIN dependencias dep
                             ON us.id_unidad = dep.id_dependencia
+                            INNER JOIN padres pdr ON pdr.id = doc.idpadre
                     WHERE doc.correlativo_documento = :id   
                     ORDER BY es.created_at asc",["id" => $request->id]);
 
@@ -2074,54 +2080,19 @@ class documentos extends Controller
 
         // }
     }
+//as
 
-    /// asignacion de padre /agrupador
-        public function asignaPadre(Request $request){
-        // try {
-        //     DB::beginTransaction();
-
-            $usuarioId = $this->getUserbyId();
-            $usuarioId = json_decode(json_encode($usuarioId));
-
-            $data = new comentarios;
-
-            $data->idUsuario = $usuarioId->original;
-            $data->iddocumento = $request->code;
-            $data->idTraslado = $request->traslado;
-            $data->comentario = $request->comentario;
-            $data->save();
-
-            $cierre = documento::where('id',$request->code)->update(['id_status' => 7]);
-            $trasladoCierre = traslados::where('id', $request->traslado)->update(['estado' => 7]);
-            // $estadoData = estado::where('idTraslado',$request->traslado)->select('estadoActual','UsuarioActual')->get();
-            $estadoData = estado::where('idTraslado',$request->traslado)->select('estadoActual','UsuarioActual')->orderBy('id','desc')->first();
-
-
-
-            $traslados = new estado;
-            $traslados->idTraslado = $request->traslado;
-            $traslados->estadoAnterior = $estadoData->estadoActual;
-            $traslados->estadoActual = 7;
-            $traslados->estatus = 7;
-            $traslados->UsuarioActual = $usuarioId->original;
-            $traslados->save();
-
-            $document = documento::where('documentos.id',$request->code)
-                ->join('type_documents','type_documents.id','=','documentos.idTipoDocumento')
-                ->select('documentos.correlativo_documento as interno','documentos.correlativo_externo as externo','type_documents.descripcion as tipo')
-                ->get();
-
-            $idTraslado = traslados::where('id',$request->code)->select('estado','idUsuarioTramito as Usuario')->get();
-          
-
-            // DB::commit();
-
-            return response()->json($data,200);
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     return response()->json(false,200);
-
-        // }
+    public function asignaPadre(Request $request){
+        try {
+            DB::beginTransaction();
+            $trasladoCierre = documento::where('id', $request->id_documento)->update(['idpadre' => $request->id]);
+            DB::commit();
+            return response()->json(true,200);
+            
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
     }
 
 

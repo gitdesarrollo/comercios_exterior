@@ -85,7 +85,7 @@ class modulos extends Controller
     }
 
     public function getPadres(){
-        $permiso = $this->getPermissionById(8);
+        $permiso = $this->getPermissionById(10);
         if($permiso->original[0]['admin']){
             return view('modules.padres');
         }elseif($permiso->original[0]['permit']){

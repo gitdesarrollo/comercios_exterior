@@ -35,7 +35,21 @@
       </div>
     </div>
     <div class="container">
+
       <el-card shadow="always" :body-style="{ padding: '20px' }" v-if="traso">
+          <div v-if="presente > 0">
+            
+            <el-tag
+             size="medium"
+              type= "danger"
+              effect="dark">
+             Agrupador: {{ padreagrupador }}
+            </el-tag>
+
+
+            <el-divider></el-divider>
+         </div>
+        
         <div class="block">
           <el-timeline :reverse="reverse">
             <el-timeline-item  
@@ -294,6 +308,7 @@ export default {
         correlativo: "",
       },
       traso: false,
+      padreagrupador:"",
       load: false,
       numeroActivo: 0,
       presente: 1,
@@ -318,10 +333,13 @@ export default {
               id: this.form.correlativo,
             })
             .then((response) => {
-            
+              // limpieza de consulta
+              this.list_response.listado_bitacora=[];
+
               // this.list_response.listado_bitacora = response.data;
 
               for (let index = 0; index < response.data.length; index++) {
+
                   this.list_response.listado_bitacora.push({
                     code: response.data[index].CODE,
                     dependencia: response.data[index].dependencia,
@@ -342,6 +360,13 @@ export default {
                 this.numeroActivo = this.numeroActivo - 1;
               }
               this.presente = response.data.length;
+              if (this.presente==0){
+                  this.padreagrupador=""
+              }
+                
+
+              this.padreagrupador= response.data[0].agrupador;
+              console.log(this.padreagrupador);
               console.log(this.presente);
             });
         }

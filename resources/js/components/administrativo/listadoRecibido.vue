@@ -22,6 +22,7 @@
       <el-table-column label="Asunto" width="500" prop="descripcion"></el-table-column>
       <el-table-column label="Fecha" width="90" prop="fecha"></el-table-column>
       <el-table-column prop="estado" label="Etiqueta  /  Restante" width="92" align="center">
+      
         <template slot-scope="scope">
           <div v-if="scope.row.estado === 9">
             <el-tag :type="scope.row.estado === '9' ? 'primary' : 'warning'" disable-transitions>Externo
@@ -31,6 +32,13 @@
         <template slot-scope="scope" v-if="scope.row.tracing === '1'">
           {{ scope.row.dias }} dias
         </template>
+      </el-table-column>
+      <el-table-column prop="agrupador" label="Agrupador" width="90" align="center">
+        
+        
+            
+          
+
       </el-table-column>
       <el-table-column label="Operaciones" width="280">
         <template slot="header" slot-scope="scope">
@@ -71,11 +79,12 @@
                   "></el-button>
             </el-popover>
 
-            <!-- boton de asignacion de padre 
+            <!-- boton de asignacion de padre -->
+
             <el-popover placement="bottom-start" title="Agrupar" width="250" trigger="hover" content="Asignación a agrupador">
-              <el-button slot="reference" size="mini" type="primary" icon="el-icon-s-check" plain @click="getPadreAgrupador(scope.row.code)"></el-button>
+              <el-button slot="reference"   v-if="(scope.row.agrupado == 0)" size="mini" type="primary" icon="el-icon-document-copy" plain @click="getPadreAgrupador(scope.row.code)"></el-button>
             </el-popover>
-            fin boton de asignacion de padre-->
+            <!-- fin boton de asignacion de padre-->
 
             <!-- <el-button
                 size="mini"
@@ -320,7 +329,7 @@
     <el-dialog title="Asignación de Agrupador" :visible.sync="agrupador" width="35%" top="3vh" center :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" destroy-on-close @close="closeAgrupador">
       <el-form :inline="false" :model="formPadre" ref="formPadre" label-width="150px">
         <el-form-item label="Agrupador:" prop="agrupador">
-          <el-select v-model="formPadre.descripcion" class="select_width" clearable filterable placeholder="Seleccione Agrupador">
+          <el-select v-model="formPadre.id" class="select_width" clearable filterable placeholder="Seleccione Agrupador">
             <el-option v-for="items in list_response.list_padres" :key="items.id" :label="items.descripcion" :value="items.id"></el-option>
           </el-select>
         </el-form-item>
@@ -660,7 +669,7 @@ export default {
        formPadre: {
          iddocumento:"",
         descripcion: "",
-        id: "",
+        id: ""
       },
       formUser: {
         usuario: "",
@@ -1202,21 +1211,53 @@ export default {
       });
     },
     asignaPadre(form) {
+      const h = this.$createElement;
       this.$refs[form].validate((valid) => {
+        console.log(this.formPadre.iddocumento);
+        console.log(this.formPadre.id);
+
         if (valid) {
           this.agrupador = true;
           axios
-            .put(this.url_list.asignaPadre, {
+            .put(this.url_list.asignapadres, {
               id_documento: this.formPadre.iddocumento,
               id: this.formPadre.id,
               
             
             })
             .then((response) => {
-              this.trasladoUsuario = false;
-              this.interno = false;
-              this.getLista();
-              console.log("transfer true", response.data)
+              const status = response.status
+               if (status == "200") {
+                 
+                //  console.log("200");
+                /*this.$alert('<strong>Operación exitosa </strong>', 'Agrupación. ', {
+                  dangerouslyUseHTMLString: true
+                });*/
+                 this.$swal({
+                  icon: "success",
+                  title: "Asignación exitosa!",
+                  showConfirmButton: false,
+                  timer: 2500,
+                });
+                this.agrupador = false;
+                this.getLista();
+/*
+                this.$notify.success({
+                  title: 'Agrupado',
+                  message: 'Operación exitosa',
+                  offset: 100
+                });*/
+/*
+                 this.$message({
+                    message: h("p", null, [
+                      h("i", {
+                        style: "color: teal"
+                      }, "Operación exitosa"),
+                    ]),
+                    type: "success",
+                  });*/
+                  // this.getLista();
+               }
             })
             .catch(error => {
               console.log("errror true", error);
@@ -1354,8 +1395,8 @@ export default {
       this.form.cc = []
     },
     closeAgrupador() {
-      this.agrupadorfrm.descripcion = ""
-      this.agrupadorfrm.id=""
+      this.formPadre.descripcion = ""
+      this.formPadre.id=""
       this.agrupador=false
     },
     opened() {
