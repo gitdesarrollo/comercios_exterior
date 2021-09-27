@@ -82,7 +82,9 @@
             <!-- boton de asignacion de padre -->
 
             <el-popover placement="bottom-start" title="Agrupar" width="250" trigger="hover" content="Asignación a agrupador">
+
               <el-button slot="reference"   v-if="(scope.row.agrupado == 0 && scope.row.rol == 7) " size="mini" type="primary" icon="el-icon-document-copy" plain @click="getPadreAgrupador(scope.row.code)"></el-button>
+
             </el-popover>
             <!-- fin boton de asignacion de padre-->
 
