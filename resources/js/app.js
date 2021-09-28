@@ -126,6 +126,7 @@ Vue.component('permits-component', require('./components/admin/permits.vue').def
 Vue.component('expedientes', require('./components/modules/expedientes/expedientes.vue').default);
 Vue.component('remitente', require('./components/modules/remitente/remitente.vue').default);
 Vue.component('padres', require('./components/modules/padres/padres.vue').default);
+Vue.component('asignapadre', require('./components/modules/padres/asignapadre.vue').default)
 Vue.component('visualizador-pdf', require('./components/modules/visualizadorPdf/visualizador.vue').default);
 Vue.component('inbox-message', require('./components/modules/inbox/inbox.vue').default);
 Vue.component('respaldo-archivos', require('./components/modules/respaldo/respaldo.vue').default);

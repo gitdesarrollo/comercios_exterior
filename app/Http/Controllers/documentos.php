@@ -102,6 +102,19 @@ class documentos extends Controller
         }
         
     }
+    public function showAgrupador(){
+        $permiso = $this->getPermissionById(10);
+        if($permiso->original[0]['admin'] ){
+            return view('administrativo.showAgrupadores');
+        }elseif($permiso->original[0]['permit']){
+            return view('administrativo.showAgrupadores');
+        }
+        else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
 
     public function showCreate(){
         $usuario = $this->getdepartamentobyId();
@@ -1711,7 +1724,7 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
                 $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, 
-                date_format(es.created_at,'%d/%m/%Y') as fecha, pdr.descripcion AS agrupador FROM estado es
+                date_format(es.created_at,'%d/%m/%Y') as fecha, pdr.descripcion AS agrupador, pdr.id as id_agrupado FROM estado es
                         INNER JOIN traslados tr
                             ON es.idTraslado = tr.id
                         INNER JOIN documentos doc

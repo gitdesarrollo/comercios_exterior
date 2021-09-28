@@ -83,6 +83,11 @@
                                     <a class="nav-link" href="{{ route('Padres') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Agrupadores</a>
                                 </li>       
+                                <li class="nav-item ml-3">
+                                    <a class="nav-link" href="{{ route('PadresAgrupador') }}">
+                                        <i class="nav-icon fas fa-angle-double-right"></i> Agrupardor de documentos</a>
+                                </li>   
+
                         @endif
                     @endforeach
                 </ul>

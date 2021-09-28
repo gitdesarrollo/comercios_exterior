@@ -111,7 +111,7 @@ class modulos extends Controller
             ->where('status', '=', 1)
             ->get();
             */
-            $data = padres::select('id','descripcion','estatus')
+            $data = padres::select('id','descripcion','estatus','descripcion as value', 'id as link')
             ->where('estatus', '=', 1)
             ->get();
 
