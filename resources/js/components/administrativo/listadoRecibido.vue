@@ -81,7 +81,7 @@
             </div>
             <div v-else-if="scope.row.estado == 9">
               <el-button
-                v-if="scope.row.rol == 4"
+                v-if="scope.row.rol === 4"
                 size="mini"
                 type="el-icon-error"
                 icon="el-icon-error"
@@ -182,7 +182,11 @@
               >
                 <el-button
                   slot="reference"
-                  v-if="scope.row.rol == 4 || scope.row.rol == 1"
+                  v-if="
+                    scope.row.rol == 4 ||
+                    scope.row.rol == 1 ||
+                    scope.row.rol == 7
+                  "
                   size="mini"
                   type="el-icon-error"
                   icon="el-icon-error"
@@ -1556,6 +1560,7 @@ export default {
     getLista() {
       axios.get(this.url_list.message).then((response) => {
         this.list_response.documentos = response.data;
+        console.log(this.list_response.documentos);
         this.total = response.data.length;
       });
       // axios.get(this.url_list.lista).then((response) => {
