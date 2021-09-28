@@ -1,260 +1,164 @@
 
 <template>
-
-
-
-
-<div class="card">
-  <div class="card-header text-white bg-primary">
-    Listado de documentos por agrupar
-  </div>
-  <div class="card-body">
-    <el-row :gutter="10">
-
-     <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-       <div class="grid-content ">
-         Seleccione el Agrupador y presione el boton Agrupar
-         <el-autocomplete
-            class="inline-input"
-            v-model="state1"
-            :fetch-suggestions="querySearch"
-            placeholder="Please Input"
-            @select="handleSelect">
-            <el-button class="azul" slot="append" icon="el-icon-guide"></el-button>
-          </el-autocomplete>   
-       </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-        <div class="grid-content">
-          Seleccione el agrupador y presione el boton de ordenar
-           <el-autocomplete
-            class="inline-input"
-            v-model="state2"
-            :fetch-suggestions="querySearch"
-            placeholder="Please Input"
-            @select="handleSelect2">
-            <el-button class="azul" slot="append" icon="search"></el-button>
-          </el-autocomplete>   
-        </div>
-      </el-col>    
-    </el-row>  
-          
-  
-          
-        
-     
-            
-           
-            
-        <el-divider></el-divider>  
-       
-    
-      <!--
-      <div style="margin-top: 15px;">
-            <el-input placeholder="Please input" v-model="input3" class="input">
-                
-                <el-button slot="append" icon="el-icon-search"></el-button>
-            </el-input>
-        </div>
-      
-        <el-divider><i class="el-icon-search"></i></el-divider>  
-  -->
-    <el-table :data="
-          list_response.documentos
-            .filter(
-              (data) =>
-                !search ||
-                data.empresa.toLowerCase().includes(search.toLowerCase()) ||
-                data.correlativo.toLowerCase().includes(search.toLowerCase()) ||
-                data.formato.toLowerCase().includes(search.toLowerCase())
-            )
-
-        " :header-cell-style="tableHeaderColor" :cell-class-name="celdas" border style="width: 100%"
-        @selection-change="handleSelectionChange">
-       
-       
-
-      <el-table-column label="Agrupar" width="75">
-       <el-table-column type="selection" width="150"></el-table-column> 
-        <template slot-scope="scope" class="pl-3" align="center">
-          <div>  
-            <el-switch  align="center" v-if="scope.row.flag === 'true' && scope.row.tracing === '1'" v-model="scope.row.tracing" active-value="1" inactive-value="0" active-color="#13ce66" inactive-color="#ff4949" @change="
-                  switchControl(
-                    scope.row.tracing,
-                    scope.row.code,
-                    scope.row.idTracing
-                  )
-                ">
-            </el-switch>
-            <el-switch v-else-if="scope.row.flag === 'false' && scope.row.tracing === '1'" v-model="scope.row.tracing" active-value="1" inactive-value="0" active-color="#13ce66" inactive-color="#ff4949" disabled @change="
-                  switchControl(
-                    scope.row.tracing,
-                    scope.row.code,
-                    scope.row.idTracing
-                  )
-                ">
-            </el-switch>
-            <el-switch v-else v-model="scope.row.tracing"                                                               active-value="1" inactive-value="0" active-color="#13ce66" inactive-color="#ff4949" @change="
-                  switchControl(
-                    scope.row.tracing,
-                    scope.row.code,
-                    scope.row.idTracing
-                  )
-                ">
-            </el-switch>
-
-          </div>
-        </template>
-      </el-table-column>  
-      <el-table-column label="No." type="index"></el-table-column>
-      <el-table-column label="Remitente" prop="empresa"></el-table-column>
-      <el-table-column label="Correlativo" prop="correlativo"></el-table-column>
-      <el-table-column label="Correlativo Interno" prop="formato"></el-table-column>
-      <el-table-column label="Asunto" width="500" prop="descripcion"></el-table-column>
-      <el-table-column label="Fecha" width="90" prop="fecha"></el-table-column>
-     <!-- <el-table-column prop="estado" label="Etiqueta  /  Restante" width="92" align="center">
-      
-        <template slot-scope="scope">
-          <div v-if="scope.row.estado === 9">
-            <el-tag :type="scope.row.estado === '9' ? 'primary' : 'warning'" disable-transitions>Externo
-            </el-tag>
-          </div>
-        </template>
-        <template slot-scope="scope" v-if="scope.row.tracing === '1'">
-          {{ scope.row.dias }} dias
-        </template>
-      </el-table-column> -->
-      <el-table-column prop="agrupador" label="Agrupador" width="90" align="center">
-        
-        
-            
-          
-
-      </el-table-column>
-      <el-table-column label="Operaciones" width="75">
-        <template slot="header" slot-scope="scope">
-          <el-input v-model="search" size="mini" placeholder="Buscar" />
-        </template>
-        <template slot-scope="scope" class="pl-3">
-         
-         
-          <div>
-            <el-popover placement="top-start" title="Comentario" width="200" trigger="hover" content="Visualiza el documento y agrega comentarios">
-              <el-button slot="reference" type="danger" size="mini" icon="el-icon-s-comment" plain @click="
-                    preview(
-                      scope.row.code,
-                      scope.row.idTraslado,
-                      scope.row.formato,
-                      scope.row.url
-                    )
-                  "></el-button>
-            </el-popover>
-
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!-- <div style="text-align: left; margin-top: 30px">
-        <el-pagination
-          background
-          layout="total,prev, pager, next"
-          :total="total"
-          @current-change="current_change"
-        ></el-pagination>
-      </div> -->
-
-
-
-    <!-- asignacion de padre / agrpador -->
-    <el-dialog title="Asignación de Agrupador" :visible.sync="agrupador" width="35%" top="3vh" center :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" destroy-on-close @close="closeAgrupador">
-      <el-form :inline="false" :model="formPadre" ref="formPadre" label-width="150px">
-        <el-form-item label="Agrupador:" prop="agrupador">
-          <el-select v-model="formPadre.id" class="select_width" clearable filterable placeholder="Seleccione Agrupador">
-            <el-option v-for="items in list_response.list_padres" :key="items.id" :label="items.descripcion" :value="items.id"></el-option>
-          </el-select>
-        </el-form-item>
-       
-        <el-form-item>
-          <el-button type="primary" @click="asignaPadre('formPadre')" v-loading.fullscreen.lock="trasladoUsuario">Agrupar
-          </el-button>
-          <el-button @click="agrupador = false">Cancel</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-    <!-- fin de asignacion de padre /agrupador -->
-
-
-    <el-dialog :title="handlerDialog.preview.title" :visible.sync="handlerDialog.preview.visible" :width="handlerDialog.preview.width" :top="handlerDialog.preview.top" @close="closeEvent()" @open="openEvent()" @opened="opened" destroy-on-close>
-      
+  <div class="card">
+    <div class="card-header text-white bg-primary">
+      Listado de documentos por agrupar
+    </div>
+    <div class="card-body">
       <el-row :gutter="10">
         <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-            <div v-show="handlerFile.dialogComent">
-              <RotateSquare2></RotateSquare2>
-            </div>
-            <!-- <b-alert v-show="handlerFile.showError" show variant="danger">Sin documento Adjunto</b-alert> -->
-
-            <el-table v-if="handlerFile.tableComent" :data="list_response.listcomentarios" :header-cell-style="tableComment" :row-class-name="tableRowClassName" height="450" border>
-              <el-table-column label="No." type="index"></el-table-column>
-              <el-table-column label="Usuario" prop="usuario" width="180"></el-table-column>
-              <el-table-column label="Comentario" prop="comentario"></el-table-column>
-            </el-table>
-
-          
-
-          <el-button v-if="controlButton.buttonWord" type="primary" @click="filesWord()">Archivos</el-button>
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="18">
+              <div class="block">
+                <span class="demonstration">
+                  Seleccione el Agrupador y presione el boton Agrupar
+                </span>
+                <el-select
+                  v-model="padre_asignado"
+                  class="select_width"
+                  placeholder="Seleccione ..."
+                  clearable
+                  filterable
+                >
+                  <el-option
+                    v-for="item in links"
+                    :key="item.id"
+                    :label="item.value"
+                    :value="item.id"
+                  >
+                  </el-option>
+                </el-select>
+              </div>
+            </el-col>
+            <el-col :xl="6">
+              <div class="block mt-4">
+                <el-button
+                  type="primary"
+                  icon="el-icon-search"
+                  @click="asignaPadre"
+                ></el-button>
+              </div>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-          <div v-show="handlerFile.showLoading">
-            <RotateSquare2></RotateSquare2>
-          </div>
-          <b-alert v-show="handlerFile.showError" show variant="danger">Sin documento Adjunto</b-alert>
-          <div class="reload-div pb-3" v-show="handlerFile.showPdf">
-            <el-link type="primary" :underline="false" @click="reload">
-              <i class="fas fa-sync reload"></i>
-            </el-link>
-          </div>
-          <embed :src="url" type="application/pdf" width="100%" height="600" ref="viewPDf" v-show="handlerFile.showPdf" />
-
+          <el-row :gutter="10">
+            <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="18">
+              <div class="block">
+                <span class="demonstration">
+                  Seleccione el agrupador y presione el boton de ordenar
+                </span>
+                <el-select
+                  v-model="filter_padre"
+                  class="select_width"
+                  placeholder="Seleccione ..."
+                  clearable
+                  filterable
+                >
+                  <el-option
+                    v-for="item in links"
+                    :key="item.id"
+                    :label="item.value"
+                    :value="item.id"
+                  >
+                  </el-option>
+                </el-select>
+              </div>
+            </el-col>
+            <el-col :xl="6">
+              <div class="block mt-4">
+                <el-button
+                  type="primary"
+                  icon="el-icon-search"
+                  @click="getLista_filter"
+                ></el-button>
+                <el-button
+                  type="success"
+                  icon="el-icon-refresh"
+                  @click="reset_data"
+                ></el-button>
+              </div>
+            </el-col>
+          </el-row>
         </el-col>
       </el-row>
-      <el-dialog :width="handlerDialog.inner.width" :title="handlerDialog.inner.title" :visible.sync="handlerDialog.inner.innerVisible" append-to-body>
-        <el-row :gutter="10">
-          <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-            <el-table :data="list_response.getFileWord" :header-cell-style="tableComment" height="450" border>
-              <el-table-column label="No." type="index"></el-table-column>
-              <el-table-column label="Archivo" prop="file"></el-table-column>
-              <el-table-column label="Fecha" prop="fecha" width="150"></el-table-column>
-              <el-table-column label="Operaciones" width="100" align="center">
-                <template slot-scope="scope">
-                  <el-link :href="scope.row.url" :underline="false"><i class="donwloadFile fas fa-download"></i></el-link>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-col>
-        </el-row>
-      </el-dialog>
-    </el-dialog>
+
+      <el-divider></el-divider>
+
+      <div v-if="skeleton_active">
+        <el-skeleton :rows="6" animated />
+      </div>
+      <div v-else>
+        <el-table
+          :data="displayData"
+          :header-cell-style="tableHeaderColor"
+          border
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="60"></el-table-column>
+          <!-- <el-table-column label="No." type="index"></el-table-column> -->
+          <el-table-column label="Remitente" prop="empresa"></el-table-column>
+          <el-table-column
+            label="Correlativo"
+            prop="correlativo"
+          ></el-table-column>
+          <el-table-column
+            label="Correlativo Interno"
+            prop="formato"
+          ></el-table-column>
+          <el-table-column
+            label="Asunto"
+            width="500"
+            prop="descripcion"
+          ></el-table-column>
+          <el-table-column
+            label="Fecha"
+            width="90"
+            prop="fecha"
+          ></el-table-column>
+          <el-table-column
+            prop="agrupador"
+            label="Agrupador"
+            width="190"
+            align="center"
+          >
+            <template slot="header" slot-scope="scope">
+              <el-input v-model="search" size="mini"> </el-input>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div style="text-align: left; margin-top: 30px">
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            @current-change="handleCurrentChange"
+            :page-size="pagesize"
+            :total="total"
+          ></el-pagination>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 </template>
 
 <style>
-.el-table--border th, .el-table__fixed-right-patch {
-    border-bottom: 1px solid #009879!important;
+.el-table--border th,
+.el-table__fixed-right-patch {
+  border-bottom: 1px solid #009879 !important;
 }
 .el-table thead.is-group th {
-    background: #009879!important;
+  background: #009879 !important;
 }
-.azul{
-    background-color: #409EFF;
+.azul {
+  background-color: #409eff;
 }
 .doc {
   width: 100%;
   height: 500px;
 }
 .el-autocomplete {
-   
-    display: contents!important;
+  display: contents !important;
 }
 .el-table .warning-row {
   background: oldlace;
@@ -290,40 +194,32 @@
   margin-left: 5px;
 }
 </style>
-<!--this.src = './../files/' + response.data[0].name + '.pdf';
-
-../modules/dialogos/expedientes.vue
--->
-
 <script>
-import dialogExpediente from '../dialogos/expedientes.vue'
-import {
-  RotateSquare2,
-  RotateSquare5
-} from "vue-loading-spinner";
-import JQuery from 'jquery'
+import dialogExpediente from "../dialogos/expedientes.vue";
+import { RotateSquare2, RotateSquare5 } from "vue-loading-spinner";
+import JQuery from "jquery";
 import moment from "moment";
 export default {
   components: {
     RotateSquare2,
     RotateSquare5,
-    dialogExpediente
-
+    dialogExpediente,
   },
   props: {
     csrf: {
-      type: String
-    }
+      type: String,
+    },
   },
   data() {
     return {
-       input1: '',
-        input2: '',
-        input3: '',
-        select: '',
-        links: [],
-        state1: '',
-        state2: '', 
+      input1: "",
+      input2: "",
+      input3: "",
+      select: "",
+      skeleton_active: false,
+      links: [],
+      padre_asignado: "",
+      filter_padre: "",
       publicPath: __dirname,
       event_at: "",
       handlerFile: {
@@ -332,8 +228,7 @@ export default {
         showError: false,
         code: "",
         dialogComent: false,
-        tableComent: false
-        
+        tableComent: false,
       },
       search: "",
       message: {
@@ -355,7 +250,7 @@ export default {
           },
           ministro: "",
           viceministerio: "",
-          instruccion: ""
+          instruccion: "",
         },
       },
       switchFalse: false,
@@ -384,13 +279,13 @@ export default {
       ruleForm: {
         comentario: "",
         id_traslado: "",
-        code: ""
+        code: "",
       },
       formInstrucciones: {
         instruccion: "",
         ministro: "",
         viceministerio: "",
-        cc: []
+        cc: [],
       },
       documentWord: {
         url: "",
@@ -399,7 +294,8 @@ export default {
         lista: "lista",
         dependencias: "dependencias",
         trasladar: "retornar",
-        message: "getMessage",
+        message: "getViceById",
+        message_filter: "getViceByUserIdFilter",
         toAccept: "Aceptar",
         getUser: "usuarios",
         TrasladoInterno: "TrasladoInterno",
@@ -421,7 +317,7 @@ export default {
         makeBoleta: "makeBoleta",
         listaVice: "listaVice",
         padres: "getPadresDet",
-        asignapadres: "asignaPadre"
+        asignapadres: "asignaPadreAll",
       },
       list_response: {
         documentos: [],
@@ -433,7 +329,7 @@ export default {
         getFileWord: [],
         getDireccionesByUser: [],
         listaVice: [],
-        prueba: []
+        prueba: [],
       },
       total: 0,
       currentPage: 1,
@@ -441,9 +337,9 @@ export default {
       EditscreenLoading: false,
       dialogo: false,
       interno: false,
-      agrupador:false,
+      agrupador: false,
       externo: false,
-      agrupadorfrm:false,
+      agrupadorfrm: false,
       trasladoUsuario: false,
       idDocumento: 0,
       depActual: 0,
@@ -451,16 +347,16 @@ export default {
       form: {
         departamentoId: "",
         usuario: "",
-        cc: []
+        cc: [],
       },
       formExterno: {
         lugar: "",
         correlativo: "",
       },
-       formPadre: {
-         iddocumento:"",
+      formPadre: {
+        iddocumento: "",
         descripcion: "",
-        id: ""
+        id: "",
       },
       formUser: {
         usuario: "",
@@ -469,30 +365,38 @@ export default {
         comentarioCierre: "",
       },
       formRule: {
-        comentario: [{
-          require: true,
-          message: "Ingrese comentario",
-          trigger: "blur",
-        }, ],
+        comentario: [
+          {
+            require: true,
+            message: "Ingrese comentario",
+            trigger: "blur",
+          },
+        ],
       },
       rules: {
-        departamentoId: [{
-          require: true,
-          message: "Seleccione dirección de traslado",
-          trigger: "blur",
-        }, ],
-        usuario: [{
-          require: true,
-          message: "Seleccione dirección de traslado",
-          trigger: "blur",
-        }, ],
+        departamentoId: [
+          {
+            require: true,
+            message: "Seleccione dirección de traslado",
+            trigger: "blur",
+          },
+        ],
+        usuario: [
+          {
+            require: true,
+            message: "Seleccione dirección de traslado",
+            trigger: "blur",
+          },
+        ],
       },
       rulesClose: {
-        comentarioCierre: [{
-          require: true,
-          message: "Ingrese el comentario",
-          trigger: "blur",
-        }, ],
+        comentarioCierre: [
+          {
+            require: true,
+            message: "Ingrese el comentario",
+            trigger: "blur",
+          },
+        ],
       },
       handlerDialog: {
         preview: {
@@ -522,8 +426,8 @@ export default {
           width: "75%",
           top: "3vh",
           ver: false,
-          img: './imagenes/gobierno.jpg',
-          img2: '/imagenes/gobierno.jpg',
+          img: "./imagenes/gobierno.jpg",
+          img2: "/imagenes/gobierno.jpg",
           formato: "",
           correlativo: "",
           fecha: "",
@@ -535,7 +439,7 @@ export default {
           fechaInicio: "",
           fechafin: "",
           viceministerio: "",
-          cc:""
+          cc: "",
         },
       },
       multipleSelection: [],
@@ -551,108 +455,121 @@ export default {
     this.getLista();
     this.selectDireccion();
     this.getUserTransfer();
-    this.event_at = moment(new Date()).format('D/MM/YYYY');
+    this.event_at = moment(new Date()).format("D/MM/YYYY");
     this.getListaVice();
-    // this.links = this.getAgrupador();
-    // this.links = this.loadAll();
 
     this.getAgrupador();
+  },
+  computed: {
+    searching() {
+      if (!this.search) {
+        this.total = this.list_response.documentos.length;
+        return this.list_response.documentos;
+      }
+      this.page = 1;
+      return this.list_response.documentos.filter(
+        (data) =>
+          data.empresa.toLowerCase().includes(this.search.toLowerCase()) ||
+          data.correlativo.toLowerCase().includes(this.search.toLowerCase()) ||
+          data.formato.toLowerCase().includes(this.search.toLowerCase())
+      );
+    },
+    displayData() {
+      this.total = this.searching.length;
 
+      return this.searching.slice(
+        this.pagesize * this.currentPage - this.pagesize,
+        this.pagesize * this.currentPage
+      );
+    },
   },
   methods: {
+    asignacion_masiva() {
+      console.log(this.multipleSelection);
+    },
+    async reset_data() {
+      this.skeleton_active = !this.skeleton_active;
+      this.getLista();
+      this.filter_padre = "";
+      this.getAgrupador();
+      await this.sleep(1000);
+      this.skeleton_active = !this.skeleton_active;
+    },
+    sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    },
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+    },
     querySearch(queryString, cb) {
       var links = this.links;
-        var results = queryString ? links.filter(this.createFilter(queryString)) : links;
-        // console.log("link data",results)
-        // call callback function to return suggestions
-        cb(results);
-      },  
-      createFilter(queryString) {
-        // console.log("query",queryString)
-        return (link) => {
-          return (link.descripcion.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-        };
-      },
-      
-      handleSelect(item) {
-        console.log(item);
-      },
-       handleSelect2(item) {
-        console.log(item);
-      },
+      var results = queryString
+        ? links.filter(this.createFilter(queryString))
+        : links;
+      // call callback function to return suggestions
+      cb(results);
+    },
+    createFilter(queryString) {
+      return (link) => {
+        return (
+          link.descripcion.toLowerCase().indexOf(queryString.toLowerCase()) ===
+          0
+        );
+      };
+    },
+
     handleSelectionChange(val) {
-          console.log(val)
-        this.multipleSelection = val;
-      },
-    handleSelectionChange2(val) {
-        console.log(val)
       this.multipleSelection = val;
     },
+
     getListaVice() {
-      axios.get(this.url_list.listaVice)
-        .then(response => {
-          this.list_response.listaVice = response.data
-        })
+      axios.get(this.url_list.listaVice).then((response) => {
+        this.list_response.listaVice = response.data;
+      });
     },
     imprimir() {
-      axios.post(this.url_list.makeBoleta, {
-          img: this.handlerDialog.boleta.img2,
-          correlativo: this.handlerDialog.boleta.correlativo,
-          mineco: this.handlerDialog.boleta.formato,
-          fecha: this.handlerDialog.boleta.fecha,
-          fechaFin: this.handlerDialog.boleta.fechafin,
-          descripcion: this.handlerDialog.boleta.descripcion,
-          empresa: this.handlerDialog.boleta.empresa,
-          ministro: this.handlerDialog.boleta.instrucciones_ministro,
-          general: this.handlerDialog.boleta.instrucciones_generales,
-          viceministerio: this.handlerDialog.boleta.viceministerio,
-          cc: this.handlerDialog.boleta.cc
-        }, {
-          responseType: 'blob'
-        })
-        .then(response => {
+      axios
+        .post(
+          this.url_list.makeBoleta,
+          {
+            img: this.handlerDialog.boleta.img2,
+            correlativo: this.handlerDialog.boleta.correlativo,
+            mineco: this.handlerDialog.boleta.formato,
+            fecha: this.handlerDialog.boleta.fecha,
+            fechaFin: this.handlerDialog.boleta.fechafin,
+            descripcion: this.handlerDialog.boleta.descripcion,
+            empresa: this.handlerDialog.boleta.empresa,
+            ministro: this.handlerDialog.boleta.instrucciones_ministro,
+            general: this.handlerDialog.boleta.instrucciones_generales,
+            viceministerio: this.handlerDialog.boleta.viceministerio,
+            cc: this.handlerDialog.boleta.cc,
+          },
+          {
+            responseType: "blob",
+          }
+        )
+        .then((response) => {
           var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-          console.log(fileURL);
-          var fileLink = document.createElement('a');
+
+          var fileLink = document.createElement("a");
           fileLink.href = fileURL;
-          fileLink.setAttribute('download', 'file.pdf');
+          fileLink.setAttribute("download", "file.pdf");
           document.body.appendChild(fileLink);
           fileLink.click();
-        })
-
-    },
-    celdas({
-      row,
-      column,
-      rowIndex,
-      columnIndex
-    }) {
-      if (columnIndex === 6) {
-        console.log(row.tracing)
-        if (row.tracing === "1") {
-          if (row.dias > 0) {
-            return "bg-success text-white";
-          } else {
-            return "bg-danger text-white";
-          }
-        }
-      }
+        });
     },
     reload() {
-      this.handlerFile.showLoading = true
-      this.handlerFile.showPdf = false
+      this.handlerFile.showLoading = true;
+      this.handlerFile.showPdf = false;
       this.getFileCopies(this.handlerFile.code);
     },
 
     getDireccionesByUser() {
-      axios.get(this.url_list.getDireccionesByUser)
-        .then(response => {
-          this.list_response.getDireccionesByUser = response.data;
-        })
+      axios.get(this.url_list.getDireccionesByUser).then((response) => {
+        this.list_response.getDireccionesByUser = response.data;
+      });
     },
     viewFile(valor) {
-      console.log(valor);
-
       this.handlerDialog.preview.html =
         '<body style="margin:0px;"><object data="' +
         this.url +
@@ -662,14 +579,12 @@ export default {
     },
 
     deleteWord(name, id) {
-      console.log(name, id);
       axios
         .put(this.url_list.deleteWord, {
           files: name,
           id: id,
         })
         .then((response) => {
-          console.log(response);
           this.getWord();
         });
     },
@@ -683,26 +598,15 @@ export default {
           documento: this.handlerDialog.inner.codeSearch,
         })
         .then((response) => {
-          console.log(response);
           this.list_response.getFileWord = response.data;
         });
     },
-    tableComment({
-      row,
-      column,
-      rowIndex,
-      columnIndex
-    }) {
+    tableComment({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
         return "background-color: #2c3c5c;color: #fff;font-weight: 500;text-align: center;";
       }
     },
-    tableHeaderColor({
-      row,
-      column,
-      rowIndex,
-      columnIndex
-    }) {
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
         return "background-color: #009879;color: #fff;font-weight: 500;text-align: center;";
       }
@@ -724,10 +628,9 @@ export default {
           instruccion: this.formInstrucciones.instruccion,
           ministro: this.formInstrucciones.ministro,
           viceministerio: this.formInstrucciones.viceministerio,
-          cc:this.formInstrucciones.cc
+          cc: this.formInstrucciones.cc,
         })
         .then((response) => {
-          console.log("respuesta", response)
           this.closeDate();
           // this.getLista();
         });
@@ -746,13 +649,14 @@ export default {
         this.message.dialog.fecha.tracing = tracing;
       } else {
         this.$confirm(
-            "¿Desea inactivar el seguimiento de expediente?",
-            "Seguimiento", {
-              confirmButtonText: "Inactivar",
-              cancelButtonText: "Cancelar",
-              type: "Warning",
-            }
-          )
+          "¿Desea inactivar el seguimiento de expediente?",
+          "Seguimiento",
+          {
+            confirmButtonText: "Inactivar",
+            cancelButtonText: "Cancelar",
+            type: "Warning",
+          }
+        )
           .then(() => {
             axios
               .post(this.url_list.inactiveTracingFile, {
@@ -779,7 +683,7 @@ export default {
       // .then(response => {
       //     const status = JSON.parse(response.status);
       //     const length = JSON.parse(response.data.length);
-      //     console.log(response);
+      //
       //     if(status == '200' && length > 0){
       //         this.src = './../files/' + response.data[0].file;
       this.drawer = flag;
@@ -791,7 +695,7 @@ export default {
     },
     submitComent(ruleForm) {
       const h = this.$createElement;
-      // console.log(this.$refs[ruleForm].$el[0].onfocus());
+
       if (this.ruleForm.comentario != "") {
         this.handlerLoading.addComent = true;
         this.ComentLoading = true;
@@ -807,9 +711,13 @@ export default {
               this.handlerLoading.addComent = false;
               this.$message({
                 message: h("p", null, [
-                  h("i", {
-                    style: "color: teal"
-                  }, "Agregado!"),
+                  h(
+                    "i",
+                    {
+                      style: "color: teal",
+                    },
+                    "Agregado!"
+                  ),
                 ]),
                 type: "success",
               });
@@ -835,7 +743,6 @@ export default {
     archivarDocument(form) {
       const h = this.$createElement;
       if (this.formClose.comentarioCierre != "") {
-        // console.log("adentro");
         this.trasladoUsuario = true;
         axios
           .put(this.url_list.closeDocumento, {
@@ -848,9 +755,13 @@ export default {
             if (status == "200" && response.data != false) {
               this.$message({
                 message: h("p", null, [
-                  h("i", {
-                    style: "color: teal"
-                  }, "Documento Archivado!"),
+                  h(
+                    "i",
+                    {
+                      style: "color: teal",
+                    },
+                    "Documento Archivado!"
+                  ),
                 ]),
                 type: "success",
               });
@@ -879,7 +790,6 @@ export default {
       this.$refs[form].resetFields();
     },
     getComentario(traslado, documento) {
-
       axios
         .post(this.url_list.comentario, {
           code: traslado,
@@ -889,51 +799,44 @@ export default {
           const status = JSON.parse(response.status);
           const result = response.data;
           if (status == "200") {
-            // console.log("comentarios", response.data)
             this.list_response.listComentarios = response.data;
-            console.log("Comentarios: ", response.data);
+
             this.total = response.data.length;
           }
         });
     },
     getAgrupador() {
+      axios.get(this.url_list.padres).then((response) => {
+        const status = JSON.parse(response.status);
+        const result = response.data;
 
-      axios
-        .get(this.url_list.padres)
-        .then((response) => {
-          const status = JSON.parse(response.status);
-          const result = response.data;
-          console.log("get agrupador json");
-          //console.log(status);
-          if (status == "200") {
-            // console.log("comentarios", response.data)
-            this.links= response.data;
-            // console.log(this.links);
-            // console.log("Padres: ", response.data);
-            // console.log(this.list_response.list_padres);
-            // this.total = response.data.length;
-          }
+        if (status == "200") {
+          this.links = response.data;
+        }
 
-          // return this.links;
-        });
+        // return this.links;
+      });
     },
     getLista() {
       axios.get(this.url_list.message).then((response) => {
         this.list_response.documentos = response.data;
         this.total = response.data.length;
-        console.log("lista", response.data);
       });
-      // axios.get(this.url_list.lista).then((response) => {
-      //   this.total = response.data.length;
-      //   console.log(response.data);
-      // });
     },
+    async getLista_filter() {
+      this.skeleton_active = !this.skeleton_active;
+      axios
+        .post(this.url_list.message_filter, { id_padre: this.filter_padre })
+        .then((response) => {
+          this.list_response.documentos = response.data;
+          this.skeleton_active = !this.skeleton_active;
+          // this.total = response.data.length;
+        });
+    },
+
     getTraslado(id) {
       this.dialogo = true;
       this.idDocumento = id;
-
-      console.log(id);
-      // console.log(id);
     },
     getTrasladoInterno(id, traslado, tracing) {
       this.interno = true;
@@ -945,7 +848,7 @@ export default {
 
     getPadreAgrupador(documentox) {
       this.agrupador = true;
-      this.formPadre.iddocumento = documentox
+      this.formPadre.iddocumento = documentox;
       this.getAgrupador();
     },
 
@@ -973,19 +876,22 @@ export default {
       this.handlerDialog.boleta.descripcion = descripcion;
       this.handlerDialog.boleta.code = code;
 
-      axios.post(this.url_list.getSeguimientoDocumento, {
-          code: code
+      axios
+        .post(this.url_list.getSeguimientoDocumento, {
+          code: code,
         })
-        .then(response => {
-          console.log(response.data)
-          this.handlerDialog.boleta.instrucciones_generales = response.data[0]['instruccion'];
-          this.handlerDialog.boleta.instrucciones_ministro = response.data[0]['instruccion_ministro'];
-          this.handlerDialog.boleta.fechaInicio = response.data[0]['fechaInicial'];
-          this.handlerDialog.boleta.fechafin = response.data[0]['fechaFinal'];
-          this.handlerDialog.boleta.viceministerio = response.data[0]['viceministerio'];
-          this.handlerDialog.boleta.cc = response.data[0]['cc'];
-        })
-
+        .then((response) => {
+          this.handlerDialog.boleta.instrucciones_generales =
+            response.data[0]["instruccion"];
+          this.handlerDialog.boleta.instrucciones_ministro =
+            response.data[0]["instruccion_ministro"];
+          this.handlerDialog.boleta.fechaInicio =
+            response.data[0]["fechaInicial"];
+          this.handlerDialog.boleta.fechafin = response.data[0]["fechaFinal"];
+          this.handlerDialog.boleta.viceministerio =
+            response.data[0]["viceministerio"];
+          this.handlerDialog.boleta.cc = response.data[0]["cc"];
+        });
     },
     current_change: function (currentPage) {
       this.currentPage = currentPage;
@@ -996,7 +902,6 @@ export default {
       });
     },
     documentTransfer(form) {
-      console.log(this.form.departamentoId, this.idDocumento);
       this.$refs[form].validate((valid) => {
         if (valid) {
           this.EditscreenLoading = true;
@@ -1009,7 +914,6 @@ export default {
               this.EditscreenLoading = false;
               this.dialogo = false;
               this.getLista();
-              // console.log(response.data);
             });
         }
       });
@@ -1025,74 +929,45 @@ export default {
               idUsuario: this.form.usuario,
               externo: false,
               tracing: this.idTracing,
-              copy: this.form.cc
+              copy: this.form.cc,
             })
             .then((response) => {
               this.trasladoUsuario = false;
               this.interno = false;
               this.getLista();
-              console.log("transfer true", response.data)
             })
-            .catch(error => {
-              console.log("errror true", error);
-            })
+            .catch((error) => {});
         }
       });
     },
-    asignaPadre(form) {
+    asignaPadre() {
       const h = this.$createElement;
-      this.$refs[form].validate((valid) => {
-        console.log(this.formPadre.iddocumento);
-        console.log(this.formPadre.id);
+      if (this.padre_asignado != "") {
+        axios
+          .post(this.url_list.asignapadres, {
+            id: this.padre_asignado,
+            hijos: this.multipleSelection,
+          })
+          .then((response) => {
+            if (response.data) {
+              this.$swal({
+                icon: "success",
+                title: "Asignación completada con exito",
+                showConfirmButton: false,
+                timer: 2500,
+              });
 
-        if (valid) {
-          this.agrupador = true;
-          axios
-            .put(this.url_list.asignapadres, {
-              id_documento: this.formPadre.iddocumento,
-              id: this.formPadre.id,
-              
-            
-            })
-            .then((response) => {
-              const status = response.status
-               if (status == "200") {
-                 
-                //  console.log("200");
-                /*this.$alert('<strong>Operación exitosa </strong>', 'Agrupación. ', {
-                  dangerouslyUseHTMLString: true
-                });*/
-                 this.$swal({
-                  icon: "success",
-                  title: "Asignación exitosa!",
-                  showConfirmButton: false,
-                  timer: 2500,
-                });
-                this.agrupador = false;
-                this.getLista();
-/*
-                this.$notify.success({
-                  title: 'Agrupado',
-                  message: 'Operación exitosa',
-                  offset: 100
-                });*/
-/*
-                 this.$message({
-                    message: h("p", null, [
-                      h("i", {
-                        style: "color: teal"
-                      }, "Operación exitosa"),
-                    ]),
-                    type: "success",
-                  });*/
-                  // this.getLista();
-               }
-            })
-            .catch(error => {
-              console.log("errror true", error);
-            })
-        }
-      });
+              this.getLista();
+            }
+          });
+      } else {
+        this.$swal({
+          icon: "error",
+          title: "faltan datos para la asignación",
+          showConfirmButton: false,
+          timer: 2500,
+        });
+      }
     },
     transferExterno() {
       this.trasladoUsuario = true;
@@ -1119,14 +994,17 @@ export default {
           code: id,
         })
         .then((response) => {
-          console.log(response.data);
           const status = JSON.parse(response.status);
           if (status == "200") {
             this.$message({
               message: h("p", null, [
-                h("i", {
-                  style: "color: teal"
-                }, "Operación exitosa"),
+                h(
+                  "i",
+                  {
+                    style: "color: teal",
+                  },
+                  "Operación exitosa"
+                ),
               ]),
               type: "success",
             });
@@ -1140,10 +1018,7 @@ export default {
         this.list_response.list_user = response.data;
       });
     },
-    tableRowClassName({
-      row,
-      rowIndex
-    }) {
+    tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 2 == 0) {
         return "warning-row";
       } else {
@@ -1152,16 +1027,6 @@ export default {
       return "";
     },
     preview(code, traslado, correlativo, url) {
-      console.log(
-        "code: ",
-        code,
-        " traslado: ",
-        traslado,
-        " correlativo: ",
-        correlativo
-      );
-      // console.log(code);
-
       this.handlerDialog.preview.title = "Expediente No. " + correlativo;
       this.ruleForm.id_traslado = traslado;
       this.ruleForm.code = code;
@@ -1172,30 +1037,29 @@ export default {
       this.datacoment.correlativo = correlativo;
       this.url = url;
       this.handlerDialog.inner.codeSearch = code;
-      this.handlerFile.showLoading = false
-      this.handlerFile.showPdf = true
-      this.handlerFile.code = code
+      this.handlerFile.showLoading = false;
+      this.handlerFile.showPdf = true;
+      this.handlerFile.code = code;
       // this.viewFile("primero");
       // this.getNameFiles(code);
     },
 
     getFileCopies(code) {
-
-      axios.post(this.url_list.getPdfFiles, {
-          document: code
+      axios
+        .post(this.url_list.getPdfFiles, {
+          document: code,
         })
-        .then(response => {
-          console.log("file", response.data)
+        .then((response) => {
           if (response.data.length > 0) {
-            this.url = './../files/' + response.data[0].file
-            this.handlerFile.showPdf = true
-            this.handlerFile.showLoading = false
+            this.url = "./../files/" + response.data[0].file;
+            this.handlerFile.showPdf = true;
+            this.handlerFile.showLoading = false;
           } else {
-            this.handlerFile.showPdf = false
-            this.handlerFile.showLoading = false
-            this.handlerFile.showError = true
+            this.handlerFile.showPdf = false;
+            this.handlerFile.showLoading = false;
+            this.handlerFile.showError = true;
           }
-        })
+        });
     },
     closeEvent() {
       this.controlButton.buttonWord = false;
@@ -1204,34 +1068,33 @@ export default {
       this.documentWord.url = "";
       this.ruleForm.comentario = "";
       this.url = "";
-      this.handlerFile.showPdf = false
-      this.handlerFile.showLoading = true
-      this.handlerFile.showError = false
-      this.ruleForm.id_traslado = ""
-      this.ruleForm.code = ""
-      this.list_response.listcomentarios = []
-      this.handlerFile.dialogComent = false
-      this.handlerFile.tableComent = false
+      this.handlerFile.showPdf = false;
+      this.handlerFile.showLoading = true;
+      this.handlerFile.showError = false;
+      this.ruleForm.id_traslado = "";
+      this.ruleForm.code = "";
+      this.list_response.listcomentarios = [];
+      this.handlerFile.dialogComent = false;
+      this.handlerFile.tableComent = false;
     },
     formCloseDialog() {
-      this.formClose.comentarioCierre = ""
-      this.controlButton.buttonPdfClose = true
-      this.datacoment.idDocumento = ""
-      this.datacoment.correlativo = ""
+      this.formClose.comentarioCierre = "";
+      this.controlButton.buttonPdfClose = true;
+      this.datacoment.idDocumento = "";
+      this.datacoment.correlativo = "";
     },
     closeTrasladoInterno() {
-      this.form.usuario = ""
-      this.form.cc = []
+      this.form.usuario = "";
+      this.form.cc = [];
     },
     closeAgrupador() {
-      this.formPadre.descripcion = ""
-      this.formPadre.id=""
-      this.agrupador=false
+      this.formPadre.descripcion = "";
+      this.formPadre.id = "";
+      this.agrupador = false;
     },
     opened() {
-      
-      this.handlerFile.dialogComent = true
-      
+      this.handlerFile.dialogComent = true;
+
       axios
         .post(this.url_list.comentario, {
           code: this.ruleForm.id_traslado,
@@ -1240,18 +1103,17 @@ export default {
         .then((response) => {
           const status = JSON.parse(response.status);
           if (status == "200") {
-            this.handlerFile.dialogComent = false
-            this.handlerFile.tableComent = true
-            // console.log("comentarios", response.data)
+            this.handlerFile.dialogComent = false;
+            this.handlerFile.tableComent = true;
+
             this.list_response.listcomentarios = response.data;
-            console.log("Comentarios: ", response.data);
+
             this.total = response.data.length;
           }
         });
     },
     openEvent() {
       // this.getComentario(this.ruleForm.id_traslado, this.ruleForm.code);
-
 
       axios
         .post(this.url_list.exists, {
@@ -1295,15 +1157,10 @@ export default {
           let index = _.findIndex(vm.fileList, ["uid", file.uid]);
           vm.$delete(vm.fileList, index);
         })
-        .catch(function (error) {
-          console.log(error);
-        });
+        .catch(function (error) {});
     },
-    handlePreview(file) {
-      console.log("files", file);
-    },
+    handlePreview(file) {},
     handleExceed(files, fileList) {
-      console.log("error", files, fileList);
       this.$message.warning(
         `El límite es 1, haz seleccionado ${
           files.length
@@ -1311,7 +1168,6 @@ export default {
       );
     },
     cargaSuccess(res, file, fileList) {
-      console.log("resultados ", res, " files ", file, " lista ", fileList);
       const _this = this;
 
       if (res == false) {
@@ -1325,10 +1181,6 @@ export default {
           message: "Documento cargado!",
           showClose: false,
         });
-        // console.log(res[0][0].file);
-        // console.log(this.$refs.viewPDf)
-        // this.viewFile("segundo");
-
         if (res[0][0].formato == "pdf") {
           this.url = "./../files/" + res[0][0].file;
           this.$refs.viewPDf.src = "";
@@ -1341,7 +1193,6 @@ export default {
       }
     },
     cargaSuccessClose(res, file, filters) {
-      console.log("res ", res, " file ", file, " filters ", filters);
       const _this = this;
       if (res == false) {
         _this.$message({
@@ -1354,7 +1205,7 @@ export default {
           message: "Documento cargado!",
           showClose: false,
         });
-        console.log(res[0][0].file);
+
         this.controlButton.buttonClose = true;
         this.controlButton.buttonPdfClose = false;
       }

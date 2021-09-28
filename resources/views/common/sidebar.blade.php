@@ -6,6 +6,7 @@
         $permiso = App\Model\user_has_view::join('roles_users','user_has_views.rol','=','roles_users.id')->select('user_has_views.permits as vista')
                     ->where('user_has_views.rol',$rol[0]->idRoles)->distinct()->get();
 
+
   @endphp
 
 

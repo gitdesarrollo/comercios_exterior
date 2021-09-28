@@ -250,6 +250,9 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('getSeguimientoDocumento','documentos@getSeguimientoDocumento');
   Route::post('makeBoleta','documentos@makeBoleta');
   
+  Route::get('getViceById','documentos@getViceByUserId');
+  Route::post('getViceByUserIdFilter','documentos@getViceByUserIdFilter');
+  Route::post('asignaPadreAll', 'documentos@asignaPadreAll');
   
   
   
