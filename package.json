@@ -23,7 +23,7 @@
         "core-js": "^2.6.12",
         "dom-to-image": "^2.6.0",
         "el-table-export": "^1.0.8",
-        "element-ui": "^2.15.1",
+        "element-ui": "^2.15.6",
         "file-saver": "2.0.1",
         "flag-icon-css": "^3.5.0",
         "font-awesome": "4.7.0",

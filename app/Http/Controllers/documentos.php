@@ -26,7 +26,7 @@ use App\Model\setting;
 use App\Model\tracing;
 use App\Model\vice_has_dep;
 use App\Model\withCopy;
-
+use App\viceministerio;
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
 use PDF;
@@ -95,6 +95,19 @@ class documentos extends Controller
             return view('administrativo.showRecibido');
         }elseif($permiso->original[0]['permit']){
             return view('administrativo.showRecibido');
+        }
+        else{
+            // return view('admin.home');
+            return header( "refresh:0.1;url=/" );
+        }
+        
+    }
+    public function showAgrupador(){
+        $permiso = $this->getPermissionById(10);
+        if($permiso->original[0]['admin'] ){
+            return view('administrativo.showAgrupadores');
+        }elseif($permiso->original[0]['permit']){
+            return view('administrativo.showAgrupadores');
         }
         else{
             // return view('admin.home');
@@ -1221,6 +1234,75 @@ class documentos extends Controller
             return response()->json($query,200);
         }
 
+    public function getViceByUserId(){
+        $user_id = $this->getUserbyId();
+        $user_id = json_decode(json_encode($user_id));
+
+        $vice_id = user::select('viceministerios.id')->join('dependencias','dependencias.id_dependencia','=','users.id_unidad')
+            ->join('viceministerios','viceministerios.id','=','dependencias.idVice')
+            ->where(['users.id' => $user_id->original])->get();
+
+        $data_result = DB::select("SELECT 
+            doc.id code,
+            doc.interesado empresa,
+            doc.correlativo_documento correlativo,
+            doc.descripcion descripcion,
+            ed.id estado,
+            u.name usuario,
+            DATE_FORMAT(doc.created_at, '%d/%m/%Y') as fecha,
+            t.id idTraslado,
+            doc.correlativo_externo formato,
+            doc.tracing,
+            if(p.id=1, 0, 1) as agrupado,
+            if(p.id=1, '', p.descripcion) as agrupador
+        FROM documentos doc
+            inner join traslados t ON t.idDocumento = doc.id
+            INNER JOIN users u ON u.id = t.idUsuarioTramito
+            INNER JOIN dependencias d ON d.id_dependencia = u.id_unidad
+            INNER JOIN estado_documentos ed ON t.estado = ed.id
+            INNER JOIN padres p on p.id = doc.idpadre
+            WHERE u.id_unidad  IN (SELECT id_dependencia FROM dependencias WHERE idVice = :id)
+        ORDER BY doc.id asc
+        ", ['id' => $vice_id[0]->id]);
+        
+        return response()->json($data_result,200);
+    }
+
+    public function getViceByUserIdFilter(Request $request){
+        $user_id = $this->getUserbyId();
+        $user_id = json_decode(json_encode($user_id));
+
+        $vice_id = user::select('viceministerios.id')->join('dependencias','dependencias.id_dependencia','=','users.id_unidad')
+            ->join('viceministerios','viceministerios.id','=','dependencias.idVice')
+            ->where(['users.id' => $user_id->original])->get();
+
+        $data_result = DB::select("SELECT 
+            doc.id code,
+            doc.interesado empresa,
+            doc.correlativo_documento correlativo,
+            doc.descripcion descripcion,
+            ed.id estado,
+            u.name usuario,
+            DATE_FORMAT(doc.created_at, '%d/%m/%Y') as fecha,
+            t.id idTraslado,
+            doc.correlativo_externo formato,
+            doc.tracing,
+            if(p.id=1, 0, 1) as agrupado,
+            if(p.id=1, '', p.descripcion) as agrupador
+        FROM documentos doc
+            inner join traslados t ON t.idDocumento = doc.id
+            INNER JOIN users u ON u.id = t.idUsuarioTramito
+            INNER JOIN dependencias d ON d.id_dependencia = u.id_unidad
+            INNER JOIN estado_documentos ed ON t.estado = ed.id
+            INNER JOIN padres p on p.id = doc.idpadre
+            WHERE u.id_unidad  IN (SELECT id_dependencia FROM dependencias WHERE idVice = :id)  and
+            p.id = :id_padre
+        ORDER BY doc.id asc
+        ", ['id' => $vice_id[0]->id, 'id_padre' => $request->id_padre]);
+        
+        return response()->json($data_result,200);
+    }
+
     public function getRecepcion(){
 
 
@@ -1234,116 +1316,10 @@ class documentos extends Controller
 
         $trasladoU = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->count();
 
-
         if($trasladoU > 0){
             
             $trasladoUs = traslados::where('idUsuarioTramito',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
-           // $documento = DB::select("SELECT
-           // d.id as code,
-           // d.interesado AS empresa,
-           // d.correlativo_documento AS correlativo,
-           // d.descripcion as descripcion,
-           // ed.id AS estado,
-           // us.NAME AS usuario,
-           // DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
-           // tras.id as idTraslado,
-           // rol.idRoles as rol,
-           // d.correlativo_externo as formato,
-           // d.tracing,
-           // tra.id AS idTracing,
-           // TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
-           // (CASE 
-           // WHEN tra.idUsuarioTraslada = :local THEN 'true'
-           // ELSE 'false'
-           // END) AS flag,
-           // concat('./../files/',files.`file`) AS url
-           // FROM documentos d
-           // left JOIN tracings tra
-	//	        ON tra.idDocumento = d.id
-          //  INNER JOIN traslados tras
-            //    ON d.id = tras.id
-          //  INNER JOIN estado_documentos ed
-          //  ON tras.estado = ed.id
-          //  INNER JOIN users us
-          //      ON tras.idUsuarioTramito = us.id
-          //  INNER JOIN user_has_roles rol
-          //      ON us.id = rol.idUser
-          //  INNER JOIN upload_files files
-   	//	        ON files.evento_id = d.id
-          //  WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
-          //  ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
-        //    $documento = DB::select("select
-        //    d.id code,
-        //    d.interesado empresa,
-        //    d.correlativo_documento correlativo,
-        //    d.descripcion descripcion,
-        //    ed.id estado,
-        //    u.name usuario,
-        //    DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
-        //    tras.id idTraslado,
-        //    rol.idRoles as rol,
-        //    d.correlativo_externo formato,
-        //    d.tracing,
-        //    tra.id AS idTracing,
-        //    TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
-        //    (case when tra.idUsuarioTraslada = :local then 'true' else 'false' end) flag,
-        //    concat('./../files/',uf.`file`) AS url,
-        //    tra.fechaFinal,
-        //    ed.descripcion estado,
-        //    roles.description roles,
-        //    uf.file,
-        //    d.id_status
-        // from documentos d
-        //     inner join estado_documentos ed
-        //         on d.id_status = ed.id
-        //     inner join traslados tras
-        //         on tras.idDocumento = d.id
-        //     inner join users u
-        //         on tras.idUsuarioTramito = u.id
-        //     inner join user_has_roles rol
-        //         on rol.idUser = u.id
-        //     inner join roles_users roles
-        //         on roles.id = rol.idRoles
-        //     left join tracings tra
-        //         on tra.idDocumento = d.id
-        //     inner join upload_files uf
-        //         on d.id = uf.evento_id
-        //     where u.id = :id and d.id_status != 7 and uf.formato = 'pdf';
-        //     // $documento = DB::select("SELECT
-            // d.id as code,
-            // d.interesado AS empresa,
-            // d.correlativo_documento AS correlativo,
-            // d.descripcion as descripcion,
-            // ed.id AS estado,
-            // us.NAME AS usuario,
-            // DATE_FORMAT(d.created_at, '%d/%m/%Y') as fecha,
-            // tras.id as idTraslado,
-            // rol.idRoles as rol,
-            // d.correlativo_externo as formato,
-            // d.tracing,
-            // tra.id AS idTracing,
-            // TIMESTAMPDIFF(DAY, NOW(), tra.fechaFinal) AS dias,
-            // (CASE 
-            // WHEN tra.idUsuarioTraslada = :local THEN 'true'
-            // ELSE 'false'
-            // END) AS flag,
-            // concat('./../files/',files.`file`) AS url
-            // FROM documentos d
-            // left JOIN tracings tra
-		    //     ON tra.idDocumento = d.id
-            // INNER JOIN traslados tras
-            //     ON d.id = tras.id
-            // INNER JOIN estado_documentos ed
-            // ON tras.estado = ed.id
-            // INNER JOIN users us
-            //     ON tras.idUsuarioTramito = us.id
-            // INNER JOIN user_has_roles rol
-            //     ON us.id = rol.idUser
-            // INNER JOIN upload_files files
-   		    //     ON files.evento_id = d.id
-            // WHERE us.id = :id  AND d.id_status != 7 AND files.formato = 'pdf'
-            // ",['id' => $idUsuario->original, 'local' =>$idUsuario->original]);
             $documento = DB::select("SELECT
             d.id as code,
             d.interesado AS empresa,
@@ -1387,50 +1363,6 @@ class documentos extends Controller
 
             return response()->json($documento,200);
         }
-                         // $mensaje = estado::select(
-                         //     'estado.id as code',
-                         //     'documentos.dirigido',
-                         //     'documentos.direccion',
-                         //     'documentos.correlativo_documento',
-                         //     'documentos.created_at',
-                         //     'estado.estado',
-                         //     'traslados.id as traslado',
-                         //     'documentos.id as documento')
-                         // ->join('traslados','estado.idTraslado','=','traslados.id')
-                         // ->join('documentos','traslados.idDocumento','=','documentos.id')
-                         // ->where('traslados.id',$idTranfer)
-                         // ->where('traslados.estado',6)
-                         // ->where('estado.estado','I')
-        // }else{
-        //     $documento = DB::select('SELECT
-        //                                 d.id as code,
-        //                                 d.interesado AS empresa,
-        //                                 d.correlativo_documento AS correlativo,
-        //                                 d.descripcion as descripcion,
-        //                                 ed.id AS estado,
-        //                                 us.NAME AS usuario,
-        //                                 d.created_at as fecha,
-        //                                 tras.id as idTraslado
-        //                                 FROM documentos d
-        //                                 INNER JOIN traslados tras
-        //                                     ON d.id = tras.id
-        //                                 INNER JOIN estado_documentos ed
-        //                                 ON tras.estado = ed.id
-        //                                 INNER JOIN users us
-        //                                     ON tras.idUsuarioTramito = us.id
-        //                                 WHERE us.id = :id
-        //     ',['id' => $idUsuario->original]);
-        //     // $mensaje = estado::select('estado.id as code','documentos.dirigido','documentos.direccion','documentos.correlativo_documento','documentos.created_at','estado.estado','traslados.id as traslado','documentos.id as documento')
-        //     // ->join('traslados','estado.idTraslado','=','traslados.id')
-        //     // ->join('documentos','traslados.idDocumento','=','documentos.id')
-        //     // ->where('idDepartamento',$usuario->original)
-        //     // ->where('traslados.estado',2)
-        //     // // ->where('estado.estado','I')
-        //     // ->get();
-        //     return response()->json($documento,200);
-        // }
-
-        // $data = estado::where('idDepartamento',$usuario->original)->where('estado','I')->select('id')->count();
     }
 
     public function getSeguimientoDocumento(Request $request){
@@ -1603,6 +1535,8 @@ class documentos extends Controller
 
         $trasladoU = traslados::where('idUsuarioInterno',$idUsuario->original)->select('id')->count();
 
+        
+
         if($trasladoU > 0){
             $trasladoUs = traslados::where('idUsuarioInterno',$idUsuario->original)->select('id')->get();
             $idTranfer = $trasladoUs[0]->id;
@@ -1711,7 +1645,7 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
                 $documento = DB::select("SELECT tr.id AS CODE, estados.descripcion AS estado, us.NAME AS usuario ,dep.descripcion as dependencia, 
-                date_format(es.created_at,'%d/%m/%Y') as fecha, pdr.descripcion AS agrupador FROM estado es
+                date_format(es.created_at,'%d/%m/%Y') as fecha, pdr.descripcion AS agrupador, pdr.id as id_agrupado FROM estado es
                         INNER JOIN traslados tr
                             ON es.idTraslado = tr.id
                         INNER JOIN documentos doc
@@ -2086,6 +2020,22 @@ class documentos extends Controller
         try {
             DB::beginTransaction();
             $trasladoCierre = documento::where('id', $request->id_documento)->update(['idpadre' => $request->id]);
+            DB::commit();
+            return response()->json(true,200);
+            
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(false,200);
+        }
+    }
+
+    public function asignaPadreAll(Request $request){
+
+        try {
+            DB::beginTransaction();
+            foreach ($request->hijos as $key) {
+                $trasladoCierre = documento::where('id', $key["code"])->update(['idpadre' => $request->id]);
+            }
             DB::commit();
             return response()->json(true,200);
             

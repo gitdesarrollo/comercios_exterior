@@ -202,6 +202,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getPadresDet','modulos@getPadresDet');
   Route::post('setPadre','modulos@setPadre');
   Route::put('deletePadre','modulos@deletePadre');
+  Route::get('padresAgrupador','documentos@showAgrupador')->name('PadresAgrupador');
+  
   //Route::put('asignaPadre','modulos@asignaPadre');
   
   
@@ -248,6 +250,9 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('getSeguimientoDocumento','documentos@getSeguimientoDocumento');
   Route::post('makeBoleta','documentos@makeBoleta');
   
+  Route::get('getViceById','documentos@getViceByUserId');
+  Route::post('getViceByUserIdFilter','documentos@getViceByUserIdFilter');
+  Route::post('asignaPadreAll', 'documentos@asignaPadreAll');
   
   
   

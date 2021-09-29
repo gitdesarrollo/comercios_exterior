@@ -41,7 +41,7 @@
             
             <el-tag
              size="medium"
-              type= "danger"
+             :type= "type_tag"
               effect="dark">
              Agrupador: {{ padreagrupador }}
             </el-tag>
@@ -296,6 +296,7 @@ export default {
   
   data() {
     return {
+      type_tag: 'danger',
      reverse: true,
       drawer: false,
       url: {
@@ -363,8 +364,13 @@ export default {
               if (this.presente==0){
                   this.padreagrupador=""
               }
-                
+              
+              if(response.data[0].id_agrupado > 1){
+                this.type_tag = 'success'
+              }else{
+                this.type_tag = 'danger'
 
+              }
               this.padreagrupador= response.data[0].agrupador;
               console.log(this.padreagrupador);
               console.log(this.presente);
