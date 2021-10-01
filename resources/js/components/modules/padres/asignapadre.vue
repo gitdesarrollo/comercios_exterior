@@ -950,6 +950,8 @@ export default {
           })
           .then((response) => {
             if (response.data) {
+              this.padre_asignado = "";
+              this.multipleSelection = [];
               this.$swal({
                 icon: "success",
                 title: "Asignación completada con exito",
