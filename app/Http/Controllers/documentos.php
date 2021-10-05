@@ -513,6 +513,14 @@ class documentos extends Controller
             $html .= ' and dep.id_dependencia = ' . $request->direccion;
             $bandera = true;
         }
+        if(!is_null($request->agrupador)){
+            $html .= ' and doc.idpadre = ' . $request->agrupador;
+            
+        }
+        /*else {
+
+            
+        }*/
 
         
         try {

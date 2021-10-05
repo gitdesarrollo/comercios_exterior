@@ -39,7 +39,7 @@
                         @elseif($permisos->vista == 4)
                             <li class="nav-item ml-3">
                                 <a class="nav-link" href="{{ route('bitacora') }}">
-                                    <i class="nav-icon fas fa-angle-double-right"></i> consulta</a>
+                                    <i class="nav-icon fas fa-angle-double-right"></i> Bitácora</a>
                             </li>   
                         @elseif($permisos->vista == 5)
                             <li class="nav-item ml-3">
