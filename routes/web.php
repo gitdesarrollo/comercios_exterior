@@ -253,6 +253,8 @@ Route::post('setRoles','catalogo@setRoles');
   Route::get('getViceById','documentos@getViceByUserId');
   Route::post('getViceByUserIdFilter','documentos@getViceByUserIdFilter');
   Route::post('asignaPadreAll', 'documentos@asignaPadreAll');
+
+  
   
   
   
