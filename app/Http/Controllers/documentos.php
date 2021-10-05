@@ -1665,8 +1665,8 @@ class documentos extends Controller
                         INNER JOIN dependencias dep
                             ON us.id_unidad = dep.id_dependencia
                             INNER JOIN padres pdr ON pdr.id = doc.idpadre
-                    WHERE doc.correlativo_documento = :id   
-                    ORDER BY es.created_at asc",["id" => $request->id]);
+                    WHERE doc.correlativo_documento = :id or doc.correlativo_externo = :externo
+                    ORDER BY es.created_at asc",["id" => $request->id, 'externo' => $request->id]);
 
 
                 return response()->json($documento,200);

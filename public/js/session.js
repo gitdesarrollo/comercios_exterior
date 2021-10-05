@@ -19678,7 +19678,7 @@ if (token) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\Users\cagomezp\comercios_exterior\resources\js\session.js */"./resources/js/session.js");
+module.exports = __webpack_require__(/*! C:\laragon\www\comercios_exterior\resources\js\session.js */"./resources/js/session.js");
 
 
 /***/ })

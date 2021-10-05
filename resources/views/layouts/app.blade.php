@@ -26,15 +26,12 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:700,900|Open+Sans|Open+Sans+Condensed:700" rel="stylesheet" crossorigin="anonymous">
 </head>
 <body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show" >
-    <main id="app">
-    <!-- ,['rol' => $rol] -->
-        
-            
-        
+    <main id="app">      
         @include('common.header')
             <div class="app-body"  >
                 <div class="sidebar">
-                    @include('common.sidebar')
+                    <sidebar-component />
+                    <!-- @include('common.sidebar') -->
                     <button class="sidebar-minimizer brand-minimizer" type="button"></button>
                 </div>
                 <div class=" pl-4 main" >

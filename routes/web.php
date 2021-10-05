@@ -254,6 +254,9 @@ Route::post('setRoles','catalogo@setRoles');
   Route::post('getViceByUserIdFilter','documentos@getViceByUserIdFilter');
   Route::post('asignaPadreAll', 'documentos@asignaPadreAll');
 
+  Route::get('getSidebarItemParents','SidebarController@getSidebarItemParents');
+  Route::post('getSidebarItemChildren' ,'SidebarController@getSidebarItemChildren');
+
   
   
   

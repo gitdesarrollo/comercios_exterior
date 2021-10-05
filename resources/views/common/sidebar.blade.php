@@ -66,14 +66,7 @@
                                     <a class="nav-link" href="{{ route('inbox') }}">
                                         <i class="nav-icon fas fa-angle-double-right"></i> Notificaciones</a>
                                 </li> 
-                                <!--      
-                                <li class="nav-item ml-3">
-                                    <a class="nav-link" href="{{ route('Padres') }}">
-                                        <i class="nav-icon fas fa-angle-double-right"></i> Padre</a>
-                                </li>   
-                                -->
-
-
+ 
                         @elseif($permisos->vista == 9)
                                 <li class="nav-item ml-3">
                                     <a class="nav-link" href="{{ route('Archivados') }}">
@@ -100,10 +93,6 @@
             <a class="nav-link nav-dropdown-toggle" href="#">
                  Herramientas</a>
             <ul class="nav-dropdown-items">
-                <!-- <li class="nav-item ml-3">
-                    <a class="nav-link" href="./showEntidad">
-                        <i class="nav-icon fas fa-edit"></i> Entidades</a>
-                </li> -->
                 <li class="nav-item ml-3">
                     <a class="nav-link" href="./showunidades">
                         <i class="nav-icon fas fa-address-book"></i> Direcciones</a>

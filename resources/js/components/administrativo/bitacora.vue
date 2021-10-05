@@ -35,34 +35,32 @@
       </div>
     </div>
     <div class="container">
-
       <el-card shadow="always" :body-style="{ padding: '20px' }" v-if="traso">
-          <div v-if="presente > 0">
-            
-            <el-tag
-             size="medium"
-             :type= "type_tag"
-              effect="dark">
-             Agrupador: {{ padreagrupador }}
-            </el-tag>
+        <div v-if="presente > 0">
+          <el-tag size="medium" :type="type_tag" effect="dark">
+            Agrupador: {{ padreagrupador }}
+          </el-tag>
 
+          <el-divider></el-divider>
+        </div>
 
-            <el-divider></el-divider>
-         </div>
-        
         <div class="block">
           <el-timeline :reverse="reverse">
-            <el-timeline-item  
+            <el-timeline-item
               v-for="item in list_response.listado_bitacora"
               :key="item.id"
               :title="item.estado"
               :color="item.color"
               icon="el-icon-more"
               :size="item.size"
-              :timestamp="item.fecha" placement="top">
-              <el-card >
-                <h4>{{ item.usuario  }}</h4>
-                <p>{{ item.dependencia  }} - <b>{{ item.estado }}</b></p>
+              :timestamp="item.fecha"
+              placement="top"
+            >
+              <el-card>
+                <h4>{{ item.usuario }}</h4>
+                <p>
+                  {{ item.dependencia }} - <b>{{ item.estado }}</b>
+                </p>
               </el-card>
             </el-timeline-item>
           </el-timeline>
@@ -75,17 +73,14 @@
           effect="dark"
         ></el-alert>
       </div>
-
     </div>
   </div>
 </template>
 
 <style>
-
-  .box-card {
-    width: 480px;
-  }
-
+.box-card {
+  width: 480px;
+}
 
 .scroll {
   height: 800px;
@@ -293,11 +288,10 @@
 import { Control, Item, Status } from "simple-vue-timeline";
 
 export default {
-  
   data() {
     return {
-      type_tag: 'danger',
-     reverse: true,
+      type_tag: "danger",
+      reverse: true,
       drawer: false,
       url: {
         listado: "bitacoraDocumento",
@@ -309,7 +303,7 @@ export default {
         correlativo: "",
       },
       traso: false,
-      padreagrupador:"",
+      padreagrupador: "",
       load: false,
       numeroActivo: 0,
       presente: 1,
@@ -335,24 +329,23 @@ export default {
             })
             .then((response) => {
               // limpieza de consulta
-              this.list_response.listado_bitacora=[];
+              this.list_response.listado_bitacora = [];
 
               // this.list_response.listado_bitacora = response.data;
 
               for (let index = 0; index < response.data.length; index++) {
-
-                  this.list_response.listado_bitacora.push({
-                    code: response.data[index].CODE,
-                    dependencia: response.data[index].dependencia,
-                    estado: response.data[index].estado,
-                    fecha: response.data[index].fecha,
-                    usuario: response.data[index].usuario,
-                    color: '#'+(Math.random()*0xFFFFFF<<0).toString(16),
-                    size: "large"
-                  })   
+                this.list_response.listado_bitacora.push({
+                  code: response.data[index].CODE,
+                  dependencia: response.data[index].dependencia,
+                  estado: response.data[index].estado,
+                  fecha: response.data[index].fecha,
+                  usuario: response.data[index].usuario,
+                  color: "#" + ((Math.random() * 0xffffff) << 0).toString(16),
+                  size: "large",
+                });
               }
-              console.log("lista:" ,this.list_response.listado_bitacora);
-              console.log("respuesta: ",response.data)
+              console.log("lista:", this.list_response.listado_bitacora);
+              console.log("respuesta: ", response.data);
               this.load = false;
               this.traso = true;
               this.drawer = true;
@@ -361,17 +354,16 @@ export default {
                 this.numeroActivo = this.numeroActivo - 1;
               }
               this.presente = response.data.length;
-              if (this.presente==0){
-                  this.padreagrupador=""
+              if (this.presente == 0) {
+                this.padreagrupador = "";
               }
-              
-              if(response.data[0].id_agrupado > 1){
-                this.type_tag = 'success'
-              }else{
-                this.type_tag = 'danger'
 
+              if (response.data[0].id_agrupado > 1) {
+                this.type_tag = "success";
+              } else {
+                this.type_tag = "danger";
               }
-              this.padreagrupador= response.data[0].agrupador;
+              this.padreagrupador = response.data[0].agrupador;
               console.log(this.padreagrupador);
               console.log(this.presente);
             });

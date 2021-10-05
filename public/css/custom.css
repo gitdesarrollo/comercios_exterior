@@ -1,37 +1,37 @@
-.color_institucional{
+.color_institucional {
     background-color: #1a86c4 !important;
 }
 
-.sidebar{
+.sidebar {
     background: #162947 !important;
 }
 
-.title_custom{
+.title_custom {
     line-height: 40px;
     position: relative;
     font-size: 16px;
-    width:70%;
+    width: 70%;
     text-align: center;
 }
 
-.YearFiscal{
+.YearFiscal {
     line-height: 40px;
     position: relative;
     font-size: 16px;
-    width:10%;
+    width: 10%;
     text-align: center;
 }
 
-.font_custom_input input{
+.font_custom_input input {
     font-size: 1.5em;
-    text-align:center !important;
+    text-align: center !important;
 }
 
-.select_width{
-    width:100% !important;
+.select_width {
+    width: 100% !important;
 }
 
-.BarCode{
+.BarCode {
     width: 50%;
 }
 
@@ -40,17 +40,21 @@
     text-align: center;
 }
 
-.handler_fecha , .handler_bien, .handler_sistema, .handler_fisico, .handler_diferencia{
+.handler_fecha,
+.handler_bien,
+.handler_sistema,
+.handler_fisico,
+.handler_diferencia {
     width: 5%;
     text-align: center;
 }
 
-.handler_Barcode{
+.handler_Barcode {
     width: 30%;
     text-align: center;
 }
 
-.handler_for_product{
+.handler_for_product {
     font-size: 13px;
     text-align: justify;
 }
@@ -60,34 +64,34 @@
 }
 
 .sidebar-mineco {
-    background-color: #002A49;
-  }
+    background-color: #002a49;
+}
 
-.header-top{
-    margin-top:-12px;
+.header-top {
+    margin-top: -12px;
     width: 100%;
 }
 
-.sidebar .nav-dropdown.open{
+.sidebar .nav-dropdown.open {
     background: none !important;
 }
 
-@media (min-width: 768px){
-    .sidebar .nav-item .nav-link{
+@media (min-width: 768px) {
+    .sidebar .nav-item .nav-link {
         width: 13rem !important;
     }
 }
 
-body{
+body {
     background-color: #e8e8e8 !important;
 }
 
-.el-input-group__prepend{
+.el-input-group__prepend {
     background-color: #ebebeb !important;
     color: #000 !important;
 }
 
-.divEmail{
+.divEmail {
     background-color: #fea;
 
     margin-left: 100px;
@@ -98,69 +102,83 @@ body{
 .animacion {
     /*position: absolute;*/
 
-animation-name: parpadeo;
-animation-duration: 1s;
-animation-timing-function: linear;
-animation-iteration-count: infinite;
+    animation-name: parpadeo;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
 
--webkit-animation-name:parpadeo;
--webkit-animation-duration: 1s;
--webkit-animation-timing-function: linear;
--webkit-animation-iteration-count: infinite;
+    -webkit-animation-name: parpadeo;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
 }
 
-@-moz-keyframes parpadeo{  
-    0% { opacity: 1.0; }
-    50% { opacity: 0.0; }
-    100% { opacity: 1.0; }
-  }
-  
-  @-webkit-keyframes parpadeo {  
-    0% { opacity: 1.0; }
-    50% { opacity: 0.0; }
-    100% { opacity: 1.0; }
-  }
-  
-  @keyframes parpadeo {  
-    0% { opacity: 1.0; }
-    50% { opacity: 0.0; }
-    100% { opacity: 1.0; }
-  }
+@-moz-keyframes parpadeo {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes parpadeo {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes parpadeo {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
 /************************/
 
-.notificationHeader{
-    color:red !important;
+.notificationHeader {
+    color: red !important;
 }
 
-
-.constancia{
+.constancia {
     width: 100%;
     height: 600px;
 }
-
 
 .constancia-img {
     width: 80% !important;
 }
 
-.constancia > table{
-    
+.constancia > table {
     height: 600px !important;
 }
 
-.constancia > table td{
+.constancia > table td {
     /* border: 1px solid #000; */
     width: 20% !important;
 }
 
-.titulo{
+.titulo {
     font-weight: bolder !important;
     font-size: 1.2rem;
     text-align: right;
     padding-right: 10px;
 }
 
-.titulo_1{
+.titulo_1 {
     font-size: 2rem;
 }
-
