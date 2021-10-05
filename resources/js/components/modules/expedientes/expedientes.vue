@@ -54,6 +54,12 @@
               ></el-date-picker>
             </el-col>
           </el-form-item>
+           <el-form-item label="Agrupador Padre:">
+            <el-select v-model="form.agrupador" placeholder="Seleecione Agrupador" filterable>
+              <el-option v-for="(index,x) in Result.list_padres" :key="x" :label="index.descripcion" :value="index.id"></el-option>
+            </el-select>
+          </el-form-item>
+
           <el-form-item>
             <el-button type="primary" plain @click="getListByFilter"
               >Buscar</el-button>
@@ -233,14 +239,16 @@ export default {
         listByFilter: "listByFilter",
         remitente:"listDocumentRemitente",
         tipos:"tipos",
-        getDireccionesByUser: "getDireccionesByUser"
+        getDireccionesByUser: "getDireccionesByUser",
+        padres: "getPadresDet"
       },
       Result: {
         List: [],
         comments: [],
         sender:[],
         type:[],
-        getDireccionesByUser: []
+        getDireccionesByUser:[],
+        list_padres:[]
       },
       utility: {
         search: "",
@@ -254,6 +262,9 @@ export default {
           destroy: true,
         },
       },
+      padres:{
+
+      },
       form: {
         sender: "",
         correlative: "",
@@ -262,7 +273,8 @@ export default {
         type: "",
         Idate: "",
         Fdate: "",
-        direccion:""
+        direccion:"",
+        agrupador:""
       },
     };
   },
@@ -273,6 +285,16 @@ export default {
         .then(response => {
           this.Result.getDireccionesByUser = response.data;
         })
+    },
+    getAgrupador() {
+      axios.get(this.methods.padres).then((response) => {
+        const status = JSON.parse(response.status);
+        const result = response.data;
+        if (status == "200") {
+          this.Result.list_padres = response.data;
+          console.log()
+        }
+      });
     },
     getList() {
       this.loading = true
@@ -299,7 +321,8 @@ export default {
           type: this.form.type,
           Idate: this.form.Idate,
           Fdate: this.form.Fdate,
-          direccion: this.form.direccion
+          direccion: this.form.direccion,
+          agrupador: this.form.agrupador
         })
         .then((response) => {
           this.Result.List = response.data;
@@ -360,6 +383,7 @@ export default {
       this.form.Idate = ""
       this.form.Fdate = ""
       this.form.direccion = ""
+      this.form.agrupador=""
       this.getList();
     },
     exportPdf(){
@@ -428,6 +452,7 @@ export default {
     this.getList();
     this.getTypes();
     this.getDireccionesByUser();
+    this.getAgrupador();
   },
 
 };
